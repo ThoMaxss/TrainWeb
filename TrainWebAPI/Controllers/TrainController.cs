@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TrainWeb.Application.DTOS;
+using TrainWeb.Application.Services;
 using TrainWeb.Domain.Entities;
 using TrainWeb.Infrastructure.Repositories;
 
@@ -8,47 +10,63 @@ namespace TrainWeb.API.Controllers
     [Route("api/[controller]")]
     public class TrainController : ControllerBase
     {
-        private readonly FirestoreRepository<Train> _repo;
+        private TrainService TrainService { get; }
 
-        public TrainController(FirestoreRepository<Train> repo)
+        public TrainController(TrainService trainService)
         {
-            _repo = repo;
+            TrainService = trainService;
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get([FromRoute] string id)
         {
-            var train = await _repo.GetByIdAsync("Trains", id);
-            if (train == null) return NotFound();
-            return Ok(train);
+            var train = await TrainService.GetById(id);
+            if (train == null) return NotFound("Train Not Found");
+            return Ok(train.ToDto());
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var trains = await _repo.GetAllAsync("Trains");
-            return Ok(trains);
+            var trains = await TrainService.GetAllAsync();
+            return Ok(trains.Select(train => train.ToDto()));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Train train)
+        public async Task<IActionResult> Create([FromBody] TrainDto trainDto)
         {
-            await _repo.AddAsync("Trains", train.Id, train);
-            return Ok(train);
+            var createdTrain = await TrainService.AddAsync(trainDto.FromDto());
+            return Ok(createdTrain?.ToDto());
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] Train train)
+        public async Task<IActionResult> Update(
+            [FromRoute] string id, 
+            [FromBody] TrainDto trainDto
+        )
         {
-            await _repo.UpdateAsync("Trains", id, train);
-            return Ok(train);
+            var train = await TrainService.GetById(id);
+            if (train == null)
+            {
+                return NotFound("Train Not Found");
+            }
+            trainDto.Id = train.Id;
+            var updatedTrain = await TrainService.UpdateAsync(id, trainDto.FromDto());
+            return Ok(updatedTrain?.ToDto());
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(
+            [FromRoute] string id
+        )
         {
-            await _repo.DeleteAsync("Trains", id);
-            return Ok("Deleted successfully");
+            var train = await TrainService.GetById(id);
+            if (train == null)
+            {
+                return NotFound("Train Not Found");
+            }
+            await TrainService.DeleteAsync(id);
+            return Ok();
         }
     }
 }

@@ -17,7 +17,7 @@ namespace TrainWeb.API.Controllers
         }
 
         [HttpPost("pay")]
-        public async Task<IActionResult> Pay([FromBody] Payment payment)
+        public async Task<IActionResult> Pay([FromBody] PaymentEntity payment)
         {
             await _paymentService.AddAsync(payment);
             return Ok(payment);
