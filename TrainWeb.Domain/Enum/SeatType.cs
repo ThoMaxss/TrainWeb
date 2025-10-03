@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrainWeb.Domain.Entities
+namespace TrainWeb.Domain.Enum
 {
-    internal class Role
+    public enum SeatType
     {
+        Hard,
+        Soft
     }
 }

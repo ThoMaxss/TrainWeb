@@ -1,44 +1,45 @@
 ﻿using Google.Cloud.Firestore;
 using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Entities;
+using TrainWeb.Infrastructure.Repositories;
 
 namespace TrainWeb.Infrastructure.Persistence
 {
-    public class UserRepository(FirestoreDbContext context) : IUserRepository
+    public class UserRepository : FirestoreRepository<UserEntity>, IUserRepository
     {
-        private readonly FirestoreDb _db = context.Db ?? throw new ArgumentNullException(nameof(context.Db));
+        public UserRepository(FirestoreDbContext context) : base(context) { }
         private const string CollectionName = "Users";
 
-        public Task<User?> GetByIdAsync(string id)
+        public async Task<UserEntity?> GetByIdAsync(string id)
         {
-            throw new NotImplementedException();
+            return await GetByIdAsync(CollectionName, id);
         }
 
-        public async Task<User?> GetByEmailAsync(string email)
+        public async Task<UserEntity?> GetByEmailAsync(string email)
         {
-            Query query = _db.Collection(CollectionName).WhereEqualTo("Email", email);
+            Query query = FirestoreDb.Collection(CollectionName).WhereEqualTo("Email", email);
             QuerySnapshot snapshot = await query.GetSnapshotAsync();
-            return snapshot.Documents.FirstOrDefault()?.ConvertTo<User>();
+            return snapshot.Documents.FirstOrDefault()?.ConvertTo<UserEntity>();
         }
 
-        public Task<IEnumerable<User>> GetAllAsync()
+        public async Task<IEnumerable<UserEntity>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await GetAllAsync(CollectionName);
         }
 
-        public Task AddAsync(User user)
+        public async Task AddAsync(UserEntity userEntity)
         {
-            throw new NotImplementedException();
+            await AddAsync(CollectionName, userEntity.Id, userEntity);
         }
 
-        public Task UpdateAsync(string id, User user)
+        public async Task UpdateAsync(string id, UserEntity user)
         {
-            throw new NotImplementedException();
+            await UpdateAsync(CollectionName, id, user);
         }
 
-        public Task DeleteAsync(string id)
+        public async Task DeleteAsync(string id)
         {
-            throw new NotImplementedException();
+            await DeleteAsync(CollectionName, id);
         }
     }
 }

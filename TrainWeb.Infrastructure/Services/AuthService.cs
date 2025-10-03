@@ -17,13 +17,13 @@ namespace TrainWeb.Application.Services
             _userRepository = userRepository;
         }
 
-        public async Task<User?> LoginAsync(string email)
+        public async Task<UserEntity?> LoginAsync(string email)
         {
             var users = await _userRepository.GetAllAsync();
             return users.FirstOrDefault(u => u.Email == email);
         }
 
-        public async Task RegisterAsync(User user)
+        public async Task RegisterAsync(UserEntity user)
         {
             await _userRepository.AddAsync(user);
         }

@@ -9,7 +9,7 @@ using TrainWeb.Domain.Enum;
 namespace TrainWeb.Domain.Entities
 {
     [FirestoreData]
-    public class Payment
+    public class PaymentEntity
     {
         [FirestoreProperty] public string Id { get; set; } = Guid.NewGuid().ToString();
         [FirestoreProperty] public string BookingId { get; set; } = string.Empty;
