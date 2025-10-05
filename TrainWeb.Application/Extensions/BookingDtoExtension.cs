@@ -10,23 +10,29 @@ namespace TrainWeb.Application.Extensions
 {
     public static class BookingDtoExtension
     {
-        public static BookingDto ToDto(this Booking @this) => new BookingDto
+        public static BookingDto? ToDto(this Booking? @this)
         {
-            Id = @this.Id,
-            User = @this.User.ToDto(),
-            Trip = @this.Trip.ToDto(),
-            Seat = @this.Seat.ToDto(),
-            Status = @this.Status,
-            CreatedAt = @this.CreatedAt,
-        };
+            if (@this == null) return null;
+
+            return new BookingDto
+            {
+                Id = @this.Id,
+                User = @this.User?.ToDto(),   
+                Trip = @this.Trip?.ToDto(),   
+                Seat = @this.Seat?.ToDto(),   
+                Status = @this.Status,
+                CreatedAt = @this.CreatedAt,
+            };
+        }
 
         public static Booking FromDto(this BookingDto @this) => new Booking(
             @this.Id,
-            @this.User?.FromDto(),
+            @this.User?.FromDto(), 
             @this.Trip?.FromDto(),
             @this.Seat?.FromDto(),
             @this.Status,
             @this.CreatedAt
         );
     }
+
 }

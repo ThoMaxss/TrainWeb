@@ -21,7 +21,7 @@ namespace TrainWeb.Application.DTOS
 
         public static Seat FromDto(this SeatDto @this) => new Seat(
             @this.Id,
-            @this.Trip.FromDto(),
+            @this.Trip?.FromDto(),
             @this.SeatNumber,
             @this.Type,
             @this.IsAvailable,

@@ -25,7 +25,7 @@ namespace TrainWeb.Application.Services
             TrainRepository = trainRepository;
             TripRepository = tripRepository;
         }
-        public async Task<Seat> GetById(string id)
+        public async Task<Seat?> GetById(string id)
         {
             var seatEntity = await SeatRepository.GetByIdAsync(id);
 
@@ -53,7 +53,10 @@ namespace TrainWeb.Application.Services
 
             var results = await Task.WhenAll(tasks);
 
-            return results.ToImmutableList();
+            // Filter out nulls to match ImmutableList<Seat>
+            return results.Where(seat => seat != null)
+                          .Cast<Seat>()
+                          .ToImmutableList();
         }
 
         public async Task<Seat?> AddAsync(Seat seat)
@@ -61,7 +64,7 @@ namespace TrainWeb.Application.Services
             var seatEntity = SeatEntity.FromDomain(seat);
             await SeatRepository.AddAsync(seatEntity);
             var tripEntity = await TripRepository.GetByIdAsync(seatEntity.TripId);
-            var trainEntity = tripEntity.TrainId != null
+            var trainEntity = tripEntity != null && tripEntity.TrainId != null
                 ? await TrainRepository.GetByIdAsync(tripEntity.TrainId)
                 : null;
             return seatEntity.ToDomain(tripEntity, trainEntity);
@@ -74,7 +77,7 @@ namespace TrainWeb.Application.Services
             var tripEntity = seatEntity.TripId != null 
                 ? await TripRepository.GetByIdAsync(seatEntity.TripId)
                 : null;
-            var trainEntity = tripEntity.TrainId != null
+            var trainEntity = tripEntity != null && tripEntity.TrainId != null
                 ? await TrainRepository.GetByIdAsync(tripEntity.TrainId)
                 : null;
             return seatEntity.ToDomain(tripEntity, trainEntity);

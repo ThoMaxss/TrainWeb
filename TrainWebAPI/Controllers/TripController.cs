@@ -37,6 +37,10 @@ namespace TrainWeb.API.Controllers
         public async Task<IActionResult> Create([FromBody] TripDto tripDto)
         {
             var createdTrip = await TripService.AddAsync(tripDto.FromDto());
+            if (createdTrip == null)
+            {
+                return Problem("Failed to create trip.");
+            }
             return Ok(createdTrip.ToDto());
         }
 

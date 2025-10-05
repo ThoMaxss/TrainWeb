@@ -35,7 +35,9 @@ namespace TrainWeb.Application.Services
                 ? await TrainRepository.GetByIdAsync(tripEntity.TrainId)
                 : null;
 
-            return tripEntity.ToDomain(trainEntity);
+            // Fix CS8602: Only call ToDomain if tripEntity is not null (already checked above)
+            // and ensure trainEntity can be null (as per ToDomain signature)
+            return tripEntity?.ToDomain(trainEntity);
         }
 
         public async Task<ImmutableList<Trip>> GetAllAsync()
@@ -46,7 +48,10 @@ namespace TrainWeb.Application.Services
 
             var results = await Task.WhenAll(tasks);
 
-            return results.ToImmutableList();
+            // Filter out nulls to match ImmutableList<Trip>
+            return results.Where(trip => trip != null)
+                          .Select(trip => trip!)
+                          .ToImmutableList();
         }
 
         public async Task<Trip?> AddAsync(Trip trip)
@@ -54,7 +59,8 @@ namespace TrainWeb.Application.Services
             var tripEntity = TripEntity.FromDomain(trip);
             await TripRepository.AddAsync(tripEntity);
             var trainEntity = await TrainRepository.GetByIdAsync(tripEntity.TrainId);
-            return tripEntity.ToDomain(trainEntity);
+            // Fix CS8602: tripEntity is not null here, but for safety use null-conditional
+            return tripEntity?.ToDomain(trainEntity);
         }
 
         public async Task<Trip?> UpdateAsync(string id, Trip trip)
@@ -64,7 +70,8 @@ namespace TrainWeb.Application.Services
             var trainEntity = tripEntity != null 
                 ? await TrainRepository.GetByIdAsync(tripEntity.TrainId)
                 : null;
-            return tripEntity.ToDomain(trainEntity);
+            // Fix CS8602: tripEntity is not null here, but for safety use null-conditional
+            return tripEntity?.ToDomain(trainEntity);
         }
 
         public async Task DeleteAsync(string id)

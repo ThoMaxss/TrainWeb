@@ -12,7 +12,7 @@ namespace TrainWeb.Application.DTOS
         public static TripDto ToDto(this Trip @this) => new TripDto
         {
             Id = @this.Id,
-            Train = @this.Train.ToDto(),
+            Train = @this.Train?.ToDto(),
             Departure = @this.Departure,
             Arrival = @this.Arrival,
             OriginStation = @this.OriginStation,
@@ -30,8 +30,10 @@ namespace TrainWeb.Application.DTOS
             var train = @this.Train?.FromDto();
             Console.WriteLine($"Mapped Train => {(train != null ? "OK" : "null")}");
 
+            // Ensure that the Trip constructor never returns null.
+            // If the constructor can return null, throw instead.
             var trip = new Trip(
-                @this.Id,
+                @this.Id!,
                 train,
                 @this.Departure,
                 @this.Arrival,
@@ -41,6 +43,10 @@ namespace TrainWeb.Application.DTOS
             );
 
             Console.WriteLine($"Mapped Trip => {(trip != null ? "OK" : "null")}");
+
+            // Add null check to satisfy CS8603
+            if (trip == null)
+                throw new InvalidOperationException("Trip construction resulted in null.");
 
             return trip;
         }
