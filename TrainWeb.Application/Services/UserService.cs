@@ -1,35 +1,41 @@
 ﻿using TrainWeb.Application.Interfaces;
+using TrainWeb.Domain.Domain;
 using TrainWeb.Domain.Entities;
 
 namespace TrainWeb.Application.Services
 {
     public class UserService
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUserRepository UserRepository;
 
         public UserService(IUserRepository userRepository)
         {
-            _userRepository = userRepository;
+            UserRepository = userRepository;
         }
 
         public async Task<User?> GetUserByIdAsync(string id)
         {
-            return await _userRepository.GetByIdAsync(id);
+            var user = await UserRepository.GetByIdAsync(id);
+            return user?.ToDomain();
         }
 
-        public async Task CreateUserAsync(User user)
+        public async Task<User?> CreateUserAsync(User user)
         {
-            await _userRepository.AddAsync(user);
+            var userEntity = UserEntity.FromDomain(user);
+            await UserRepository.AddAsync(userEntity);
+            return userEntity.ToDomain();
         }
 
-        public async Task UpdateUserAsync(string id, User user)
+        public async Task<User?> UpdateUserAsync(string id, User user)
         {
-            await _userRepository.UpdateAsync(id, user);
+            var userEntity = UserEntity.FromDomain(user);
+            await UserRepository.UpdateAsync(id, userEntity);
+            return userEntity.ToDomain();
         }
 
         public async Task DeleteUserAsync(string id)
         {
-            await _userRepository.DeleteAsync(id);
+            await UserRepository.DeleteAsync(id);
         }
     }
 }

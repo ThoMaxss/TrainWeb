@@ -7,12 +7,19 @@ using TrainWeb.Domain.Enum;
 
 namespace TrainWeb.Application.DTOS
 {
-    public sealed class UserDto
+    public class BookingDto
     {
         public string? Id { get; set; }
-        public string? Name { get; set; }
-        public string? Email { get; set; }
-        public UserRole? Role { get; set; }
+
+        public UserDto? User { get; set; }
+
+        public TripDto? Trip { get; set; }
+
+        public SeatDto? Seat { get; set; }
+
+        public BookingStatus? Status { get; set; }
+
         public DateTime? CreatedAt { get; set; }
+
     }
 }

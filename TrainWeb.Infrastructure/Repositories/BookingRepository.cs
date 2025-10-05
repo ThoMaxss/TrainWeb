@@ -1,44 +1,40 @@
 ﻿using Google.Cloud.Firestore;
+using System.Collections;
+using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Entities;
+using TrainWeb.Infrastructure.Repositories;
 
 namespace TrainWeb.Infrastructure.Persistence
 {
-    public class BookingRepository
+    public class BookingRepository : FirestoreRepository<BookingEntity>, IBookingRepository
     {
-        private readonly FirestoreDb _db;
         private const string CollectionName = "Bookings";
 
-        public BookingRepository(FirestoreDbContext context)
+        public BookingRepository(FirestoreDbContext context) : base(context) {}
+
+        public async Task<BookingEntity?> GetByIdAsync( string id)
         {
-            _db = context.Db;
+            return await GetByIdAsync(CollectionName, id);
         }
 
-        public async Task<Booking?> GetByIdAsync(string id)
+        public async Task<IEnumerable<BookingEntity>> GetAllAsync()
         {
-            var doc = _db.Collection(CollectionName).Document(id);
-            var snapshot = await doc.GetSnapshotAsync();
-            return snapshot.Exists ? snapshot.ConvertTo<Booking>() : null;
+            return await GetAllAsync(CollectionName);
         }
 
-        public async Task<IEnumerable<Booking>> GetAllAsync()
+        public async Task AddAsync(BookingEntity bookingEntity)
         {
-            var snapshot = await _db.Collection(CollectionName).GetSnapshotAsync();
-            return snapshot.Documents.Select(d => d.ConvertTo<Booking>()).ToList();
+            await AddAsync(CollectionName, bookingEntity.Id, bookingEntity);
         }
 
-        public async Task AddAsync(Booking booking)
+        public async Task UpdateAsync(string id, BookingEntity bookingEntity)
         {
-            await _db.Collection(CollectionName).Document(booking.Id).SetAsync(booking);
-        }
-
-        public async Task UpdateAsync(Booking booking)
-        {
-            await _db.Collection(CollectionName).Document(booking.Id).SetAsync(booking, SetOptions.Overwrite);
+            await UpdateAsync(CollectionName, id, bookingEntity);
         }
 
         public async Task DeleteAsync(string id)
         {
-            await _db.Collection(CollectionName).Document(id).DeleteAsync();
+            await DeleteAsync(CollectionName, id);
         }
     }
 }

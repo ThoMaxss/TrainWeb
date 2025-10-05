@@ -1,13 +1,14 @@
 ﻿using TrainWeb.Domain.Entities;
+using TrainWeb.Infrastructure.Repositories;
 
 namespace TrainWeb.Application.Interfaces
 {
-    public interface IBookingRepository
+    public interface IBookingRepository : IRepository<BookingEntity>
     {
-        Task<Booking?> GetByIdAsync(string id);
-        Task<IEnumerable<Booking>> GetByUserIdAsync(string userId);
-        Task AddAsync(Booking booking);
-        Task UpdateAsync(Booking booking);
+        Task<BookingEntity?> GetByIdAsync(string id);
+        Task<IEnumerable<BookingEntity>> GetAllAsync();
+        Task AddAsync(BookingEntity bookingEntity);
+        Task UpdateAsync(string id, BookingEntity bookingEntity);
         Task DeleteAsync(string id);
     }
 }
