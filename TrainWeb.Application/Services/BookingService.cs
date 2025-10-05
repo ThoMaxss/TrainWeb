@@ -70,7 +70,8 @@ namespace TrainWeb.Application.Services
 
             var results = await Task.WhenAll(tasks);
 
-            return results.ToImmutableList();
+            // Filter out nulls to match ImmutableList<Booking>
+            return results.Where(b => b != null).Cast<Booking>().ToImmutableList();
         }
 
         public async Task<Booking?> AddAsync(Booking booking)
