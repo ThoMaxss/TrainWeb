@@ -4,9 +4,9 @@ namespace TrainWeb.Application.Interfaces
 {
     public interface IPaymentService
     {
-        Task<Payment?> GetByIdAsync(string id);
-        Task<IEnumerable<Payment>> GetByBookingIdAsync(string bookingId);
-        Task AddAsync(Payment payment);
-        Task UpdateAsync(Payment payment);
+        Task<PaymentEntity?> GetByIdAsync(string id);
+        Task<IEnumerable<PaymentEntity>> GetByBookingIdAsync(string bookingId);
+        Task AddAsync(PaymentEntity payment);
+        Task UpdateAsync(PaymentEntity payment);
     }
 }

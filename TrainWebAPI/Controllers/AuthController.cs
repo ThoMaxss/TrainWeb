@@ -24,7 +24,7 @@ namespace TrainWeb.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] User user)
+        public async Task<IActionResult> Register([FromBody] UserEntity user)
         {
             await _authService.RegisterAsync(user);
             return Ok("User registered successfully");

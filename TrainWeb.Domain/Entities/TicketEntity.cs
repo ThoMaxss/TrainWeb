@@ -3,28 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TrainWeb.Domain.Enum;
 
 using Google.Cloud.Firestore;
 
 namespace TrainWeb.Domain.Entities
 {
     [FirestoreData]
-    public class Notification
+    public class TicketEntity
     {
-        [FirestoreProperty] 
+        [FirestoreProperty]
         public string Id { get; set; } = Guid.NewGuid().ToString();
-
         [FirestoreProperty] 
-        public string UserId { get; set; } = string.Empty;
-
+        public string BookingId { get; set; } = string.Empty;
         [FirestoreProperty] 
-        public string Message { get; set; } = string.Empty;
-
+        public string QrCode { get; set; } = string.Empty;
         [FirestoreProperty] 
-        public string Type { get; set; } = string.Empty;
-
-        [FirestoreProperty] 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public TicketStatus Status { get; set; } = TicketStatus.Active;
     }
 }
-
