@@ -1,5 +1,6 @@
 ﻿using Google.Cloud.Firestore;
 using TrainWeb.Application.Interfaces;
+using TrainWeb.Domain.Domain;
 using TrainWeb.Domain.Entities;
 using TrainWeb.Infrastructure.Repositories;
 
@@ -36,10 +37,10 @@ namespace TrainWeb.Infrastructure.Persistence
         {
             await UpdateAsync(CollectionName, id, user);
         }
-
         public async Task DeleteAsync(string id)
         {
-            await DeleteAsync(CollectionName, id);
+            await base.DeleteAsync(CollectionName, id);
         }
+
     }
 }
