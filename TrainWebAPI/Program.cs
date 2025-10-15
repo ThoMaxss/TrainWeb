@@ -32,6 +32,8 @@ builder.Services.AddScoped<BookingService>()
     .AddScoped<TripService>()
     .AddScoped<SeatService>();
 
+builder.Services.AddHttpClient<MapService>();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
