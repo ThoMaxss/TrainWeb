@@ -335,48 +335,7 @@ export default function CustomersPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-card">
-      {/* Header */}
-      <header className="border-b bg-background shadow-sm">
-        <div className="flex h-16 items-center justify-between px-2 lg:px-2">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push('/staff-dashboard')}
-              className="hover:bg-primary/10"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-purple-700">
-                <MessageSquare className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <h1 className="text-primary">Hỗ trợ khách hàng</h1>
-            </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-md mx-3">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Tìm khách hàng theo tên, email, mã vé"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 border-border"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="hidden sm:flex">
-              {filteredCustomers.length} khách hàng
-            </Badge>
-          </div>
-        </div>
-      </header>
-
+    <div className="flex h-screen flex-col bg-background">
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Customer List Sidebar */}
@@ -463,23 +422,23 @@ export default function CustomersPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12">
-                      <AvatarFallback className="bg-violet-100 text-violet-700">
-                        {selectedCustomer.name.charAt(0)}
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        {selectedCustomer?.name?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <h3 className="font-medium">{selectedCustomer.name}</h3>
+                      <h3 className="font-medium">{selectedCustomer?.name}</h3>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Mail className="h-3.5 w-3.5" />
-                        <span>{selectedCustomer.email}</span>
+                        <span>{selectedCustomer?.email}</span>
                         <span>•</span>
                         <Phone className="h-3.5 w-3.5" />
-                        <span>{selectedCustomer.phone}</span>
+                        <span>{selectedCustomer?.phone}</span>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {getStatusBadge(selectedCustomer.status)}
+                    {selectedCustomer && getStatusBadge(selectedCustomer.status)}
                     <Button variant="ghost" size="icon">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
@@ -501,7 +460,7 @@ export default function CustomersPage() {
                       {message.sender === "customer" && (
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="bg-muted text-foreground text-xs">
-                            {selectedCustomer.name.charAt(0)}
+                            {selectedCustomer?.name?.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                       )}
@@ -633,8 +592,8 @@ export default function CustomersPage() {
             // Empty State
             <div className="flex-1 flex items-center justify-center p-2">
               <div className="text-center">
-                <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-violet-100 mb-3">
-                  <MessageSquare className="h-8 w-8 text-violet-600" />
+                <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-3">
+                  <MessageSquare className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="mb-2 text-foreground">Chọn khách hàng để bắt đầu</h3>
                 <p className="text-muted-foreground">
@@ -660,15 +619,15 @@ export default function CustomersPage() {
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Tổng số vé:</span>
-                      <span className="font-medium">{selectedCustomer.ticketCount}</span>
+                      <span className="font-medium">{selectedCustomer?.ticketCount}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Vé gần nhất:</span>
-                      <span className="font-medium">{selectedCustomer.recentTicket}</span>
+                      <span className="font-medium">{selectedCustomer?.recentTicket}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Trạng thái:</span>
-                      {getStatusBadge(selectedCustomer.status)}
+                      {selectedCustomer && getStatusBadge(selectedCustomer.status)}
                     </div>
                   </div>
                 </Card>

@@ -182,7 +182,7 @@ export default function AuthFormSet() {
                 onClick={() => setActiveTab('login')}
                 className={`flex-1 py-3 px-4 text-sm font-semibold rounded-lg transition-all duration-200 ${
                   activeTab === 'login'
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    ? 'bg-primary text-white shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
                 }`}
               >
@@ -192,7 +192,7 @@ export default function AuthFormSet() {
                 onClick={() => setActiveTab('register')}
                 className={`flex-1 py-3 px-4 text-sm font-semibold rounded-lg transition-all duration-200 ${
                   activeTab === 'register'
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    ? 'bg-primary text-white shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
                 }`}
               >
@@ -280,7 +280,7 @@ export default function AuthFormSet() {
                           : 'bg-background border-input'
                       }`}
                     >
-                      {rememberMe && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
+                      {rememberMe && <Check className="w-3.5 h-3.5 text-white" />}
                     </div>
                     <Small className="text-foreground">Ghi nhớ đăng nhập</Small>
                   </label>
@@ -293,7 +293,7 @@ export default function AuthFormSet() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-primary-foreground font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                 </button>
@@ -440,7 +440,7 @@ export default function AuthFormSet() {
                           : 'bg-background border-input'
                       }`}
                     >
-                      {agreeTerms && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
+                      {agreeTerms && <Check className="w-3.5 h-3.5 text-white" />}
                     </div>
                     <Small className="text-foreground">
                       Tôi đồng ý với{' '}
@@ -457,7 +457,7 @@ export default function AuthFormSet() {
                           : 'bg-background border-input'
                       }`}
                     >
-                      {subscribeNewsletter && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
+                      {subscribeNewsletter && <Check className="w-3.5 h-3.5 text-white" />}
                     </div>
                     <Small className="text-foreground">
                       Đăng ký nhận bản tin ưu đãi
@@ -469,7 +469,7 @@ export default function AuthFormSet() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-primary-foreground font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg mt-4"
+                  className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg mt-4"
                 >
                   {loading ? 'Đang đăng ký...' : 'Đăng ký'}
                 </button>

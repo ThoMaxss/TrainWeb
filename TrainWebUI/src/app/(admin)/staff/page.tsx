@@ -444,14 +444,14 @@ export default function AdminStaffPage() {
               </div>
               Quản lý nhân viên
             </h1>
-            <p className="text-muted-foreground mt-2 flex items-center gap-3">
+            <div className="text-muted-foreground mt-2 flex items-center gap-3">
               <Badge variant="outline" className="bg-gradient-to-r from-blue-50 to-indigo-50 border-primary text-primary">
                 {totalStaff} nhân viên
               </Badge>
               <span className="text-sm">
                 {activeStaff} hoạt động • {onlineStaff} đang online
               </span>
-            </p>
+            </div>
           </div>
         </div>
 

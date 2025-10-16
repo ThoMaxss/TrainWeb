@@ -18,13 +18,9 @@ import {
   Star,
   ChevronRight,
   Calendar,
-  Users,
   CreditCard,
-  Camera,
-  RefreshCw,
   Home,
   Activity,
-  BarChart3,
   PieChart,
   Filter,
   Download,
@@ -33,6 +29,7 @@ import {
   TrendingDown,
   ArrowUpRight,
   ArrowDownRight,
+  Users,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -425,99 +422,35 @@ export default function StaffDashboardPage() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        {/* Enhanced Header */}
-        <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-sm">
-          <div className="container mx-auto px-2 lg:px-2">
-            <div className="flex h-16 items-center justify-between">
-              {/* Logo + Staff Info */}
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 shadow-lg">
-                  <Train className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src={staffInfo.avatar} alt={staffInfo.name} />
-                    <AvatarFallback className="bg-primary/10 text-primary">
-                      {staffInfo.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h1 className="text-lg font-semibold text-primary">
-                      Staff Dashboard
-                    </h1>
-                    <p className="text-xs text-muted-foreground">
-                      {staffInfo.name} – {staffInfo.role}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Stats */}
-              <div className="hidden md:flex items-center gap-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Activity className="h-4 w-4 text-success" />
-                  <span className="font-medium">{staffInfo.todayStats.ticketsProcessed}</span>
-                  <span className="text-muted-foreground">vé xử lý</span>
-                </div>
-                <Separator orientation="vertical" className="h-8" />
-                <div className="flex items-center gap-2 text-sm">
-                  <Star className="h-4 w-4 text-warning fill-current" />
-                  <span className="font-medium">{staffInfo.todayStats.rating}</span>
-                  <span className="text-muted-foreground">đánh giá</span>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setRefreshing(true)}
-                      className={cn("relative", refreshing && "animate-pulse")}
-                    >
-                      <Activity className={cn("h-5 w-5", refreshing && "animate-spin")} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Cập nhật dữ liệu</TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="relative">
-                      <Bell className="h-5 w-5" />
-                      <span className="absolute right-1 top-1 flex h-2 w-2">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75"></span>
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-error"></span>
-                      </span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>5 thông báo mới</TooltipContent>
-                </Tooltip>
-
-                <Button variant="ghost" size="icon">
-                  <Settings className="h-5 w-5" />
-                </Button>
-                <Separator orientation="vertical" className="h-8" />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleNavigation("/")}
-                  className="text-error hover:bg-error/10 hover:text-error"
-                >
-                  <Home className="h-5 w-5" />
-                </Button>
-              </div>
+      <div className="space-y-6">
+        {/* Quick Stats Bar */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Dashboard Overview</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Xin chào, {staffInfo.name} – {staffInfo.role}
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-sm">
+              <Activity className="h-4 w-4 text-success" />
+              <span className="font-medium">{staffInfo.todayStats.ticketsProcessed}</span>
+              <span className="text-muted-foreground">vé xử lý</span>
+            </div>
+            <Separator orientation="vertical" className="h-8" />
+            <div className="flex items-center gap-2 text-sm">
+              <Star className="h-4 w-4 text-warning fill-current" />
+              <span className="font-medium">{staffInfo.todayStats.rating}</span>
+              <span className="text-muted-foreground">đánh giá</span>
             </div>
           </div>
-        </header>
+        </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-2 lg:px-2 py-5">
+        <div className="space-y-5">
           {/* Enhanced KPI Cards */}
-          <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Today's Tickets */}
             <Card 
               className="border-0 bg-gradient-to-br from-blue-500 to-blue-600 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl"
@@ -612,88 +545,7 @@ export default function StaffDashboardPage() {
             </Card>
           </div>
 
-          {/* Quick Actions Enhanced */}
-          <div className="mb-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-            <Card 
-              className="border-0 bg-gradient-to-r from-green-600 to-green-700 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
-              onClick={() => handleNavigation("/qr-check")}
-            >
-              <CardContent className="p-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-background/20">
-                      <Camera className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-primary-foreground">Kiểm tra QR</h3>
-                      <p className="text-xs text-emerald-100">Quét mã vé</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-5 w-5" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="border-0 bg-gradient-to-r from-red-600 via-purple-600 to-blue-600 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
-              onClick={() => handleNavigation("/refunds")}
-            >
-              <CardContent className="p-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-background/20">
-                      <RefreshCw className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-primary-foreground">Hoàn/Đổi vé</h3>
-                      <p className="text-xs text-violet-100">Xử lý yêu cầu</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-5 w-5" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="border-0 bg-gradient-to-r from-indigo-600 to-indigo-700 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
-              onClick={() => handleNavigation("/customers")}
-            >
-              <CardContent className="p-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-background/20">
-                      <Users className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-primary-foreground">Khách hàng</h3>
-                      <p className="text-xs text-indigo-100">Hỗ trợ & quản lý</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-5 w-5" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="border-0 bg-gradient-to-r from-teal-600 to-teal-700 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
-              onClick={() => handleNavigation("/reports/daily")}
-            >
-              <CardContent className="p-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-background/20">
-                      <BarChart3 className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-primary-foreground">Báo cáo</h3>
-                      <p className="text-xs text-teal-100">Thống kê chi tiết</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-5 w-5" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Quick Actions removed per request */}
 
           {/* Enhanced Charts Section */}
           <div className="mb-5 grid gap-3 lg:grid-cols-3">
@@ -1186,7 +1038,7 @@ export default function StaffDashboardPage() {
                   className="flex-1 gap-2"
                   onClick={() => handleNavigation("/reports/feedback")}
                 >
-                  <BarChart3 className="h-4 w-4" />
+                  <BarChart className="h-4 w-4" />
                   Báo cáo đánh giá
                 </Button>
               </div>

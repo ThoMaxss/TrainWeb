@@ -225,7 +225,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading || success}
-                className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-primary-foreground font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
+                className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 {loading ? 'Đang đăng ký...' : success ? 'Đã đăng ký!' : 'Đăng ký'}
               </button>

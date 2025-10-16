@@ -1,120 +1,117 @@
 'use client';
 
 import { StaffGuard } from '@/components/auth/RouteGuard';
-import { Briefcase, Users, Ticket, QrCode, RefreshCw, BarChart3, User, LogOut } from 'lucide-react';
+import { Briefcase, Users, Ticket, QrCode, RefreshCw, BarChart3, User, LogOut, Bell } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePathname } from 'next/navigation';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
-// 🎨 Enhanced staff layout with unified design system and security
+// 🎨 Modern staff layout with top navigation
 export default function StaffProfileLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   const { logout, user } = useAuth();
+  const pathname = usePathname();
 
   const handleLogout = () => {
     logout();
     window.location.href = '/';
   };
 
+  const navItems = [
+    { href: '/staff-dashboard', icon: BarChart3, label: 'Dashboard' },
+    { href: '/customers', icon: Users, label: 'Khách hàng' },
+    { href: '/manage-tickets', icon: Ticket, label: 'Quản lý vé' },
+    { href: '/qr-check', icon: QrCode, label: 'QR Check' },
+    { href: '/refunds', icon: RefreshCw, label: 'Hoàn tiền' },
+    { href: '/reports', icon: BarChart3, label: 'Báo cáo' },
+  ];
+
   return (
     <StaffGuard showFallback={true}>
-      <div className="flex h-screen bg-card" role="main" aria-label="Staff Portal">
-        {/* Staff Sidebar */}
-        <aside 
-          className="w-64 bg-background border-r-2 border-border p-2 shadow-lg"
-          role="navigation"
-          aria-label="Staff Navigation"
-        >
-          <div className="mb-5">
-            <div className="flex items-center gap-3 mb-2">
-              <Briefcase className="h-6 w-6 text-success" aria-hidden="true" />
-              <h1 className="text-xl font-bold text-foreground">Staff Portal</h1>
-            </div>
-            <p className="text-sm text-muted-foreground">Chào mừng, {user?.name}</p>
-          </div>
-          
-          <nav className="space-y-2" role="menubar">
-            <Link 
-              href="/staff-dashboard" 
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-success/10 text-foreground hover:text-success font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-green-500 min-h-[48px]"
-              role="menuitem"
-              aria-label="Trang tổng quan nhân viên"
-            >
-              <BarChart3 className="h-5 w-5" aria-hidden="true" />
-              Dashboard
-            </Link>
-            <Link 
-              href="/customers" 
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-success/10 text-foreground hover:text-success font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-green-500 min-h-[48px]"
-              role="menuitem"
-              aria-label="Quản lý khách hàng"
-            >
-              <Users className="h-5 w-5" aria-hidden="true" />
-              Khách hàng
-            </Link>
-            <Link 
-              href="/manage-tickets" 
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-success/10 text-foreground hover:text-success font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-green-500 min-h-[48px]"
-              role="menuitem"
-              aria-label="Quản lý vé tàu"
-            >
-              <Ticket className="h-5 w-5" aria-hidden="true" />
-              Quản lý vé
-            </Link>
-            <Link 
-              href="/qr-check" 
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-success/10 text-foreground hover:text-success font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-green-500 min-h-[48px]"
-              role="menuitem"
-              aria-label="Kiểm tra mã QR"
-            >
-              <QrCode className="h-5 w-5" aria-hidden="true" />
-              Kiểm tra QR
-            </Link>
-            <Link 
-              href="/refunds" 
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-success/10 text-foreground hover:text-success font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-green-500 min-h-[48px]"
-              role="menuitem"
-              aria-label="Xử lý hoàn tiền"
-            >
-              <RefreshCw className="h-5 w-5" aria-hidden="true" />
-              Hoàn tiền
-            </Link>
-            <Link 
-              href="/reports" 
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-success/10 text-foreground hover:text-success font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-green-500 min-h-[48px]"
-              role="menuitem"
-              aria-label="Báo cáo thống kê"
-            >
-              <BarChart3 className="h-5 w-5" aria-hidden="true" />
-              Báo cáo
-            </Link>
-            <Link 
-              href="/profile/staff" 
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-success/10 text-foreground hover:text-success font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-green-500 min-h-[48px]"
-              role="menuitem"
-              aria-label="Hồ sơ cá nhân"
-            >
-              <User className="h-5 w-5" aria-hidden="true" />
-              Profile
-            </Link>
-          </nav>
+      <div className="min-h-screen bg-background" role="main" aria-label="Staff Portal">
+        
+        {/* Top Navigation Bar */}
+        <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
+          <div className="max-w-[2000px] mx-auto px-6 py-4">
+            <div className="flex items-center justify-between gap-6">
+              
+              {/* Logo & Brand */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-success text-white">
+                  <Briefcase className="h-6 w-6" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold text-foreground">Staff Portal</h1>
+                  <p className="text-xs text-muted-foreground">TrainBooking System</p>
+                </div>
+              </div>
 
-          <div className="mt-5 pt-3 border-t border-border">
-            <button 
-              onClick={handleLogout}
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-error/10 text-foreground hover:text-error font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-red-500 min-h-[48px] w-full"
-              aria-label="Đăng xuất khỏi hệ thống"
-            >
-              <LogOut className="h-5 w-5" aria-hidden="true" />
-              Đăng xuất
-            </button>
+              {/* Navigation Links - Desktop */}
+              <nav className="hidden lg:flex items-center gap-2" role="menubar">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+                        isActive
+                          ? 'bg-success text-white shadow-md'
+                          : 'text-foreground hover:bg-muted hover:text-success'
+                      }`}
+                      role="menuitem"
+                    >
+                      <Icon className="h-5 w-5" />
+                      <span className="text-sm">{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              {/* Right Actions */}
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                
+                <button className="p-2.5 rounded-lg hover:bg-muted transition-colors relative">
+                  <Bell className="h-5 w-5 text-muted-foreground" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span>
+                </button>
+
+                {/* User Menu */}
+                <div className="flex items-center gap-3 pl-3 border-l border-border">
+                  <Link 
+                    href="/profile/staff"
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-success/10 flex items-center justify-center">
+                      <User className="h-5 w-5 text-success" />
+                    </div>
+                    <div className="hidden md:block">
+                      <p className="text-sm font-semibold text-foreground">{user?.name}</p>
+                      <p className="text-xs text-muted-foreground">Staff</p>
+                    </div>
+                  </Link>
+                  
+                  <button 
+                    onClick={handleLogout}
+                    className="p-2.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
+                    aria-label="Đăng xuất"
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </aside>
+        </header>
         
         {/* Main content */}
-        <main className="flex-1 overflow-auto bg-card" role="main">
+        <main className="max-w-[2000px] mx-auto px-6 py-8">
           {children}
         </main>
       </div>

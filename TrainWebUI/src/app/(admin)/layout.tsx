@@ -1,104 +1,117 @@
 'use client';
 
 import { AdminGuard } from '@/components/auth/RouteGuard';
-import { Shield, Users, Train, Ticket, User, LogOut } from 'lucide-react';
+import { Shield, Users, Train, Ticket, User, LogOut, Menu, Bell, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthContext';
 import { ToastProvider } from '@/components/ui/toast';
+import { usePathname } from 'next/navigation';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
-// 🎨 Enhanced admin layout with unified design system and security
+// 🎨 Modern admin layout with top navigation
 export default function AdminProfileLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   const { logout, user } = useAuth();
+  const pathname = usePathname();
 
   const handleLogout = () => {
     logout();
     window.location.href = '/';
   };
 
+  const navItems = [
+    { href: '/admin-dashboard', icon: Shield, label: 'Dashboard' },
+    { href: '/trains', icon: Train, label: 'Quản lý tàu' },
+    { href: '/staff', icon: Users, label: 'Nhân viên' },
+    { href: '/tickets', icon: Ticket, label: 'Quản lý vé' },
+  ];
+
   return (
     <AdminGuard showFallback={true}>
       <ToastProvider>
-      <div className="flex h-screen bg-card" role="main" aria-label="Admin Panel">
-        {/* Admin Sidebar */}
-        <aside 
-          className="w-64 bg-background border-r-2 border-border p-2 shadow-lg"
-          role="navigation"
-          aria-label="Admin Navigation"
-        >
-          <div className="mb-5">
-            <div className="flex items-center gap-3 mb-2">
-              <Shield className="h-6 w-6 text-primary" aria-hidden="true" />
-              <h1 className="text-xl font-bold text-foreground">Admin Panel</h1>
-            </div>
-            <p className="text-sm text-muted-foreground">Chào mừng, {user?.name}</p>
-          </div>
-          
-          <nav className="space-y-2" role="menubar">
-            <Link 
-              href="/admin-dashboard" 
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-primary/10 text-foreground hover:text-primary font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-blue-500 min-h-[48px]"
-              role="menuitem"
-              aria-label="Trang tổng quan Admin"
-            >
-              <Users className="h-5 w-5" aria-hidden="true" />
-              Dashboard
-            </Link>
-            <Link 
-              href="/trains" 
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-primary/10 text-foreground hover:text-primary font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-blue-500 min-h-[48px]"
-              role="menuitem"
-              aria-label="Quản lý tàu hỏa"
-            >
-              <Train className="h-5 w-5" aria-hidden="true" />
-              Quản lý tàu
-            </Link>
-            <Link 
-              href="/staff" 
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-primary/10 text-foreground hover:text-primary font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-blue-500 min-h-[48px]"
-              role="menuitem"
-              aria-label="Quản lý nhân viên"
-            >
-              <Users className="h-5 w-5" aria-hidden="true" />
-              Quản lý nhân viên
-            </Link>
-            <Link 
-              href="/tickets" 
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-primary/10 text-foreground hover:text-primary font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-blue-500 min-h-[48px]"
-              role="menuitem"
-              aria-label="Quản lý vé tàu"
-            >
-              <Ticket className="h-5 w-5" aria-hidden="true" />
-              Quản lý vé
-            </Link>
-            <Link 
-              href="/profile/admin" 
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-primary/10 text-foreground hover:text-primary font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-blue-500 min-h-[48px]"
-              role="menuitem"
-              aria-label="Hồ sơ cá nhân"
-            >
-              <User className="h-5 w-5" aria-hidden="true" />
-              Profile
-            </Link>
-          </nav>
+      <div className="min-h-screen bg-background" role="main" aria-label="Admin Panel">
+        
+        {/* Top Navigation Bar */}
+        <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
+          <div className="max-w-[2000px] mx-auto px-6 py-4">
+            <div className="flex items-center justify-between gap-6">
+              
+              {/* Logo & Brand */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary text-white">
+                  <Shield className="h-6 w-6" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold text-foreground">Admin Panel</h1>
+                  <p className="text-xs text-muted-foreground">TrainBooking System</p>
+                </div>
+              </div>
 
-          <div className="mt-5 pt-3 border-t border-border">
-            <button 
-              onClick={handleLogout}
-              className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-error/10 text-foreground hover:text-error font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-red-500 min-h-[48px] w-full"
-              aria-label="Đăng xuất khỏi hệ thống"
-            >
-              <LogOut className="h-5 w-5" aria-hidden="true" />
-              Đăng xuất
-            </button>
+              {/* Navigation Links - Desktop */}
+              <nav className="hidden lg:flex items-center gap-2" role="menubar">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+                        isActive
+                          ? 'bg-primary text-white shadow-md'
+                          : 'text-foreground hover:bg-muted hover:text-primary'
+                      }`}
+                      role="menuitem"
+                    >
+                      <Icon className="h-5 w-5" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              {/* Right Actions */}
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                
+                <button className="p-2.5 rounded-lg hover:bg-muted transition-colors relative">
+                  <Bell className="h-5 w-5 text-muted-foreground" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span>
+                </button>
+
+                {/* User Menu */}
+                <div className="flex items-center gap-3 pl-3 border-l border-border">
+                  <Link 
+                    href="/profile/admin"
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="hidden md:block">
+                      <p className="text-sm font-semibold text-foreground">{user?.name}</p>
+                      <p className="text-xs text-muted-foreground">Admin</p>
+                    </div>
+                  </Link>
+                  
+                  <button 
+                    onClick={handleLogout}
+                    className="p-2.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
+                    aria-label="Đăng xuất"
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </aside>
+        </header>
         
         {/* Main content */}
-        <main className="flex-1 overflow-auto bg-card" role="main">
+        <main className="max-w-[2000px] mx-auto px-6 py-8">
           {children}
         </main>
       </div>

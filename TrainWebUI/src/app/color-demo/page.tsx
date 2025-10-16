@@ -1,4 +1,4 @@
-import { Display, H1, H2, H3, Body, Lead, Small, Micro } from "@/components/ui/typography";
+﻿import { Display, H1, H2, H3, Body, Lead, Small, Micro } from "@/components/ui/typography";
 
 export default function ColorSystemDemo() {
   return (
@@ -165,7 +165,7 @@ export default function ColorSystemDemo() {
                 <div className="space-y-3">
                   <input 
                     placeholder="Normal input"
-                    className="w-full rounded-lg bg-white dark:bg-background text-foreground border border-border px-3 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-ring"
+                    className="w-full rounded-lg bg-background dark:bg-background text-foreground border border-border px-3 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-ring"
                   />
                   
                   <input 
@@ -176,7 +176,7 @@ export default function ColorSystemDemo() {
                   
                   <input 
                     value="Error state"
-                    className="w-full rounded-lg bg-white dark:bg-background text-foreground border border-error px-3 py-2 outline-none focus:border-error focus:ring-2 focus:ring-red-500/20"
+                    className="w-full rounded-lg bg-background dark:bg-background text-foreground border border-error px-3 py-2 outline-none focus:border-error focus:ring-2 focus:ring-red-500/20"
                   />
                 </div>
               </div>

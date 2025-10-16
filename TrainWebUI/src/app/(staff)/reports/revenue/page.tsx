@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -311,7 +311,7 @@ export default function RevenueReportPage() {
       <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-3"></div>
-          <p className="text-slate-600">Đang tải dữ liệu báo cáo...</p>
+          <p className="text-muted-foreground">Đang tải dữ liệu báo cáo...</p>
         </div>
       </div>
     )
@@ -331,153 +331,6 @@ export default function RevenueReportPage() {
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
-      {/* Header */}
-      <header className="border-b border-primary/50/50 bg-background/80 backdrop-blur-xl shadow-lg shadow-blue-100/20">
-        <div className="flex h-16 items-center justify-between px-2 lg:px-2">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/staff-dashboard")}
-              className="hover:bg-primary/10 hover:text-primary transition-all duration-200"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 via-green-500 to-teal-600 shadow-lg shadow-green-500/30">
-                <TrendingUp className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-green-700 via-emerald-600 to-teal-700 bg-clip-text text-transparent">
-                Báo cáo doanh thu
-              </h1>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="hidden md:flex items-center gap-2">
-            <Select value={timeFilter} onValueChange={(v: any) => setTimeFilter(v)}>
-              <SelectTrigger className="w-[160px] border-primary hover:border-primary transition-colors">
-                <Calendar className="mr-2 h-4 w-4 text-primary" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="today">Hôm nay</SelectItem>
-                <SelectItem value="7days">7 ngày qua</SelectItem>
-                <SelectItem value="30days">30 ngày qua</SelectItem>
-                <SelectItem value="custom">Tùy chỉnh</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={routeFilter} onValueChange={setRouteFilter}>
-              <SelectTrigger className="w-[180px] border-primary hover:border-primary transition-colors">
-                <SelectValue placeholder="Tất cả tuyến" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả tuyến</SelectItem>
-                <SelectItem value="north-south">Hà Nội - TP.HCM</SelectItem>
-                <SelectItem value="north-central">Hà Nội - Đà Nẵng</SelectItem>
-                <SelectItem value="south-central">TP.HCM - Nha Trang</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={trainTypeFilter} onValueChange={setTrainTypeFilter}>
-              <SelectTrigger className="w-[160px] border-primary hover:border-primary transition-colors">
-                <SelectValue placeholder="Loại tàu" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả loại tàu</SelectItem>
-                <SelectItem value="se">Thống Nhất (SE)</SelectItem>
-                <SelectItem value="spt">Sài Gòn (SPT)</SelectItem>
-                <SelectItem value="snpt">Bắc Nam (SNPT)</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Separator orientation="vertical" className="h-8" />
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/30 transition-all duration-200">
-                  <Download className="h-4 w-4" />
-                  Xuất báo cáo
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => handleExport("excel")} className="gap-2 cursor-pointer">
-                  <FileSpreadsheet className="h-4 w-4 text-success" />
-                  Xuất Excel (.xlsx)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport("pdf")} className="gap-2 cursor-pointer">
-                  <FileText className="h-4 w-4 text-error" />
-                  Xuất PDF (.pdf)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          {/* Mobile export button */}
-          <div className="md:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="sm"
-                  className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/30"
-                >
-                  <Download className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleExport("excel")} className="gap-2 cursor-pointer">
-                  <FileSpreadsheet className="h-4 w-4 text-success" />
-                  Xuất Excel
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport("pdf")} className="gap-2 cursor-pointer">
-                  <FileText className="h-4 w-4 text-error" />
-                  Xuất PDF
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        {/* Mobile Filters */}
-        <div className="md:hidden border-t border-primary/50/50 p-2 space-y-2 bg-background/50">
-          <Select value={timeFilter} onValueChange={(v: any) => setTimeFilter(v)}>
-            <SelectTrigger className="w-full">
-              <Calendar className="mr-2 h-4 w-4" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Hôm nay</SelectItem>
-              <SelectItem value="7days">7 ngày qua</SelectItem>
-              <SelectItem value="30days">30 ngày qua</SelectItem>
-              <SelectItem value="custom">Tùy chỉnh</SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="grid grid-cols-2 gap-2">
-            <Select value={routeFilter} onValueChange={setRouteFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Tuyến" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả tuyến</SelectItem>
-                <SelectItem value="north-south">HN - HCM</SelectItem>
-                <SelectItem value="north-central">HN - ĐN</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={trainTypeFilter} onValueChange={setTrainTypeFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Loại tàu" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
-                <SelectItem value="se">SE</SelectItem>
-                <SelectItem value="spt">SPT</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <ScrollArea className="flex-1">
         <div className="p-2 lg:p-2 space-y-3">

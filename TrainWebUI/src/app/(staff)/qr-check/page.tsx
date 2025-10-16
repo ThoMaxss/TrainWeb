@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -33,6 +33,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { PageHeader } from "@/components/shared/PageHeader"
 import { cn } from "@/lib/utils/utils"
 import { getAllBookings } from "@/lib/api/booking"
 import type { BookingDto as ApiBookingDto } from "@/types"
@@ -511,64 +512,54 @@ export default function QRCheckPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/90 shadow-sm">
-        <div className="container mx-auto px-2 lg:px-5">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => router.push("/staff-dashboard")}
-                className="hover:bg-primary/10 hover:text-primary transition-colors rounded-lg"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </Button>
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-md">
-                  <Camera className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <h1 className="text-xl font-semibold text-slate-900">Kiểm tra vé QR</h1>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 rounded-xl bg-slate-100 p-1.5 shadow-inner">
-              <Button
-                variant={mode === "scan" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setMode("scan")}
-                className={cn(
-                  "gap-2 transition-all duration-200 rounded-lg",
-                  mode === "scan"
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-sm"
-                    : "hover:bg-slate-200/70",
-                )}
-              >
-                <Camera className="h-4 w-4" />
-                <span className="hidden sm:inline font-medium">Scan QR</span>
-              </Button>
-              <Button
-                variant={mode === "manual" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setMode("manual")}
-                className={cn(
-                  "gap-2 transition-all duration-200 rounded-lg",
-                  mode === "manual"
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-sm"
-                    : "hover:bg-slate-200/70",
-                )}
-              >
-                <Keyboard className="h-4 w-4" />
-                <span className="hidden sm:inline font-medium">Nhập mã vé</span>
-              </Button>
-            </div>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <PageHeader
+        title="Kiểm tra vé QR"
+        description="Quét mã QR hoặc nhập thủ công để xác thực vé"
+        icon={Scan}
+        stats={[
+          { icon: Activity, label: "Đã quét", value: scanStats.total },
+          { icon: CheckCircle, label: "Check-in", value: scanStats.checkedIn },
+          { icon: Clock, label: "Chờ", value: scanStats.pending },
+          { icon: XCircle, label: "Hủy", value: scanStats.cancelled },
+        ]}
+        actions={
+          <div className="flex items-center gap-1.5 rounded-xl bg-muted p-1.5">
+            <Button
+              variant={mode === "scan" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setMode("scan")}
+              className={cn(
+                "gap-2 transition-all duration-200 rounded-lg",
+                mode === "scan"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-sm"
+                  : "hover:bg-border/70",
+              )}
+            >
+              <Camera className="h-4 w-4" />
+              <span className="hidden sm:inline font-medium">Scan QR</span>
+            </Button>
+            <Button
+              variant={mode === "manual" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setMode("manual")}
+              className={cn(
+                "gap-2 transition-all duration-200 rounded-lg",
+                mode === "manual"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-sm"
+                  : "hover:bg-border/70",
+              )}
+            >
+              <Keyboard className="h-4 w-4" />
+              <span className="hidden sm:inline font-medium">Nhập mã vé</span>
+            </Button>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       {/* Overview */}
-      <div className="container mx-auto px-2 lg:px-5 mt-3">
+      <div className="space-y-3 mt-6">
         <div className="grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <Card className="overflow-hidden border-0 bg-gradient-to-br from-primary via-secondary to-primary text-primary-foreground shadow-2xl rounded-3xl relative">
             <div className="absolute -top-16 -right-10 h-40 w-40 rounded-full bg-accent/40 blur-3xl" />
@@ -648,14 +639,14 @@ export default function QRCheckPage() {
               <div className="p-2">
                 <div className="mb-3 flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Tổng quét</p>
-                    <p className="text-2xl font-semibold text-slate-900">{scanStats.total}</p>
+                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Tổng quét</p>
+                    <p className="text-2xl font-semibold text-foreground">{scanStats.total}</p>
                   </div>
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <History className="h-5 w-5" />
                   </div>
                 </div>
-                <p className="text-sm text-slate-600 leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   Theo dõi số lượt quét trong ca làm việc. Hệ thống tự động lưu tối đa 5 vé gần nhất để bạn kiểm tra lại.
                 </p>
               </div>
@@ -708,7 +699,7 @@ export default function QRCheckPage() {
             )}
 
             {/* QR Scanner / Manual Input */}
-            <Card className="border border-slate-200/60 bg-background shadow-xl overflow-hidden rounded-2xl">
+            <Card className="border border-border/60 bg-background shadow-xl overflow-hidden rounded-2xl">
               {mode === "scan" ? (
                 // ======= Scan Mode with camera + canvas freeze + upload/drag-drop =======
                 <div className="relative">
@@ -745,7 +736,7 @@ export default function QRCheckPage() {
                   </div>
 
                   {/* Controls */}
-                  <div className="flex flex-wrap gap-2 p-2 border-t border-slate-200 bg-slate-50">
+                  <div className="flex flex-wrap gap-2 p-2 border-t border-border bg-muted/50">
                     {!isPaused ? (
                       <Button onClick={pauseScanner} variant="outline" className="gap-2 rounded-lg">
                         <Pause className="h-4 w-4" />
@@ -801,16 +792,16 @@ export default function QRCheckPage() {
                     onDragLeave={() => setIsDragging(false)}
                     onDrop={onDrop}
                     className={cn(
-                      "p-2 border-t border-dashed border-slate-200 bg-gradient-to-br from-slate-50 to-white text-center transition-all duration-200",
+                      "p-2 border-t border-dashed border-border bg-gradient-to-br from-slate-50 to-white text-center transition-all duration-200",
                       isDragging ? "border-primary bg-primary/10/80 shadow-inner" : "",
                     )}
                   >
-                    <div className="flex flex-col items-center justify-center gap-2 text-slate-600">
+                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
                         <ImageIcon className="h-4 w-4" />
                       </div>
                       <p className="text-sm font-medium">Kéo & thả ảnh QR vào đây</p>
-                      <p className="text-xs text-slate-500">Hoặc bấm “Tải ảnh QR” để chọn từ máy</p>
+                      <p className="text-xs text-muted-foreground">Hoặc bấm “Tải ảnh QR” để chọn từ máy</p>
                     </div>
                   </div>
                 </div>
@@ -821,8 +812,8 @@ export default function QRCheckPage() {
                     <div className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 mb-5 shadow-sm">
                       <Keyboard className="h-10 w-10 text-primary" />
                     </div>
-                    <h3 className="mb-2 text-xl font-semibold text-slate-900">Nhập mã vé thủ công</h3>
-                    <p className="text-sm text-slate-600 leading-relaxed">Nhập mã vé để kiểm tra thông tin</p>
+                    <h3 className="mb-2 text-xl font-semibold text-foreground">Nhập mã vé thủ công</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">Nhập mã vé để kiểm tra thông tin</p>
                   </div>
 
                   <div className="space-y-5">
@@ -832,7 +823,7 @@ export default function QRCheckPage() {
                         value={manualInput}
                         onChange={(e) => setManualInput(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleManualCheck()}
-                        className="h-14 text-center text-lg uppercase border-slate-300 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-primary rounded-xl font-medium tracking-wider transition-all duration-200"
+                        className="h-14 text-center text-lg uppercase border-border focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-primary rounded-xl font-medium tracking-wider transition-all duration-200"
                       />
                     </div>
 
@@ -847,7 +838,7 @@ export default function QRCheckPage() {
 
                   {quickCodes.length > 0 && (
                     <div className="mt-3">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground/70">
                         Gợi ý nhanh
                       </p>
                       <div className="flex flex-wrap justify-center gap-2">
@@ -857,7 +848,7 @@ export default function QRCheckPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => setManualInput(code)}
-                            className="rounded-full border-slate-200 bg-background/80 px-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 hover:bg-primary/10 hover:text-primary"
+                            className="rounded-full border-border bg-background/80 px-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:bg-primary/10 hover:text-primary"
                           >
                             {code}
                           </Button>
@@ -866,14 +857,14 @@ export default function QRCheckPage() {
                     </div>
                   )}
 
-                  <Separator className="my-5 bg-slate-200" />
+                  <Separator className="my-5 bg-border" />
 
                   <div className="text-center">
-                    <p className="text-xs text-slate-500 mb-3 font-medium">Hoặc chuyển sang chế độ quét QR</p>
+                    <p className="text-xs text-muted-foreground mb-3 font-medium">Hoặc chuyển sang chế độ quét QR</p>
                     <Button
                       variant="outline"
                       onClick={() => setMode("scan")}
-                      className="gap-2 border-slate-300 hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 rounded-lg"
+                      className="gap-2 border-border hover:bg-muted/50 hover:border-border transition-all duration-200 rounded-lg"
                     >
                       <Camera className="h-4 w-4" />
                       Quét mã QR
@@ -884,19 +875,19 @@ export default function QRCheckPage() {
             </Card>
 
             {/* Recent Scans (Mobile) */}
-            <Card className="border border-slate-200/60 bg-background shadow-lg lg:hidden rounded-2xl">
+            <Card className="border border-border/60 bg-background shadow-lg lg:hidden rounded-2xl">
               <div className="p-2">
                 <div className="mb-5 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-semibold text-slate-900">Lịch sử quét gần đây</h3>
-                    <Badge variant="outline" className="text-xs font-medium border-slate-300 text-slate-700 px-2.5 py-1">
+                    <h3 className="text-lg font-semibold text-foreground">Lịch sử quét gần đây</h3>
+                    <Badge variant="outline" className="text-xs font-medium border-border text-foreground/90 px-2.5 py-1">
                       {recentScans.length} vé
                     </Badge>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-full text-slate-500 hover:text-primary"
+                    className="h-8 w-8 rounded-full text-muted-foreground hover:text-primary"
                     onClick={() => setRecentScans([])}
                     disabled={recentScans.length === 0}
                     aria-label="Xóa lịch sử quét"
@@ -908,7 +899,7 @@ export default function QRCheckPage() {
                   {recentScans.map((scan, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-2 rounded-xl bg-slate-50 hover:bg-slate-100 transition-all duration-200 border border-slate-100 hover:border-slate-200 hover:shadow-sm cursor-pointer"
+                      className="flex items-center justify-between p-2 rounded-xl bg-muted/50 hover:bg-muted transition-all duration-200 border border-border/50 hover:border-border hover:shadow-sm cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
                         <div
@@ -920,13 +911,13 @@ export default function QRCheckPage() {
                           {scan.status === "checked-in" ? <CheckCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
                         </div>
                         <div>
-                          <div className="font-medium text-sm text-slate-900">{scan.passengerName}</div>
-                          <div className="text-xs text-slate-500 mt-0.5">
+                          <div className="font-medium text-sm text-foreground">{scan.passengerName}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
                             {scan.seat} • {scan.ticketId}
                           </div>
                         </div>
                       </div>
-                      <div className="text-xs text-slate-500 font-medium">{scan.scannedAt}</div>
+                      <div className="text-xs text-muted-foreground font-medium">{scan.scannedAt}</div>
                     </div>
                   ))}
                 </div>
@@ -940,24 +931,24 @@ export default function QRCheckPage() {
               <>
                 
                 {/* Ticket Detail */}
-                <Card className="border border-slate-200/60 bg-background shadow-xl overflow-hidden rounded-2xl">
+                <Card className="border border-border/60 bg-background shadow-xl overflow-hidden rounded-2xl">
                   <div className="p-2">
                     <div className="mb-3 flex items-start justify-between">
                       <div>
-                        <h3 className="mb-1.5 text-xl font-semibold text-slate-900">Thông tin vé tàu</h3>
-                        <p className="text-sm text-slate-500 font-medium">{scannedTicket.id}</p>
+                        <h3 className="mb-1.5 text-xl font-semibold text-foreground">Thông tin vé tàu</h3>
+                        <p className="text-sm text-muted-foreground font-medium">{scannedTicket.id}</p>
                       </div>
                       {getStatusBadge(scannedTicket.status)}
                     </div>
 
-                    <Separator className="mb-3 bg-slate-200" />
+                    <Separator className="mb-3 bg-border" />
 
                     <div className="mb-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-primary/50 p-2 shadow-sm">
                       <div className="mb-3 flex items-center gap-2.5">
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow-sm">
                           <Train className="h-5 w-5 text-primary-foreground" />
                         </div>
-                        <h4 className="text-base font-semibold text-slate-900">Thông tin chuyến tàu</h4>
+                        <h4 className="text-base font-semibold text-foreground">Thông tin chuyến tàu</h4>
                       </div>
                       <div className="space-y-3">
                         <Row label="Mã tàu:" value={scannedTicket.trainCode} />
@@ -972,7 +963,7 @@ export default function QRCheckPage() {
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-600 shadow-sm">
                           <User className="h-5 w-5 text-primary-foreground" />
                         </div>
-                        <h4 className="text-base font-semibold text-slate-900">Hành khách</h4>
+                        <h4 className="text-base font-semibold text-foreground">Hành khách</h4>
                       </div>
                       <div className="space-y-3">
                         <Row label="Họ tên:" value={scannedTicket.passengerName} />
@@ -984,7 +975,7 @@ export default function QRCheckPage() {
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 shadow-sm">
                           <MapPin className="h-5 w-5 text-primary-foreground" />
                         </div>
-                        <h4 className="text-base font-semibold text-slate-900">Thông tin vé</h4>
+                        <h4 className="text-base font-semibold text-foreground">Thông tin vé</h4>
                       </div>
                       <div className="space-y-3">
                         <Row label="Loại vé:" value={scannedTicket.ticketClass} />
@@ -994,12 +985,12 @@ export default function QRCheckPage() {
                     </div>
 
                     {scannedTicket.status === "checked-in" && (
-                      <div className="rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 p-2 shadow-sm">
+                      <div className="rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-border p-2 shadow-sm">
                         <div className="mb-3 flex items-center gap-2.5">
                           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-600 shadow-sm">
                             <Clock className="h-5 w-5 text-primary-foreground" />
                           </div>
-                          <h4 className="text-base font-semibold text-slate-900">Thông tin check-in</h4>
+                          <h4 className="text-base font-semibold text-foreground">Thông tin check-in</h4>
                         </div>
                         <div className="space-y-3">
                           <Row label="Thời gian:" value={scannedTicket.checkedInAt || ""} />
@@ -1009,7 +1000,7 @@ export default function QRCheckPage() {
                     )}
                   </div>
 
-                  <div className="border-t border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100/50 p-2 space-y-3">
+                  <div className="border-t border-border bg-gradient-to-br from-slate-50 to-slate-100/50 p-2 space-y-3">
                     {scannedTicket.status === "not-checked-in" && (
                       <Button
                         onClick={handleCheckIn}
@@ -1036,7 +1027,7 @@ export default function QRCheckPage() {
                         <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-error/10 mb-3">
                           <XCircle className="h-9 w-9 text-error" />
                         </div>
-                        <p className="text-sm text-slate-600 font-medium">Vé đã bị hủy, không thể check-in</p>
+                        <p className="text-sm text-muted-foreground font-medium">Vé đã bị hủy, không thể check-in</p>
                       </div>
                     )}
                   </div>
@@ -1072,13 +1063,13 @@ export default function QRCheckPage() {
                 </Card>
               </>
             ) : (
-              <Card className="border border-slate-200/60 bg-background shadow-xl rounded-2xl">
+              <Card className="border border-border/60 bg-background shadow-xl rounded-2xl">
                 <div className="flex flex-col items-center justify-center py-20 px-5 text-center">
                   <div className="mb-3 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 shadow-md">
                     <Camera className="h-12 w-12 text-primary" />
                   </div>
-                  <h3 className="mb-3 text-xl font-semibold text-slate-900">Chưa có vé nào được quét</h3>
-                  <p className="text-slate-600 mb-5 leading-relaxed max-w-sm">
+                  <h3 className="mb-3 text-xl font-semibold text-foreground">Chưa có vé nào được quét</h3>
+                  <p className="text-muted-foreground mb-5 leading-relaxed max-w-sm">
                     {mode === "scan" ? "Quét mã QR trên vé để hiển thị thông tin" : "Nhập mã vé để kiểm tra"}
                   </p>
 
@@ -1108,19 +1099,19 @@ export default function QRCheckPage() {
             )}
 
             {/* Recent Scans (Desktop) */}
-            <Card className="border border-slate-200/60 bg-background shadow-lg hidden lg:block rounded-2xl">
+            <Card className="border border-border/60 bg-background shadow-lg hidden lg:block rounded-2xl">
               <div className="p-2">
                 <div className="mb-5 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-semibold text-slate-900">Lịch sử quét gần đây</h3>
-                    <Badge variant="outline" className="text-xs font-medium border-slate-300 text-slate-700 px-2.5 py-1">
+                    <h3 className="text-lg font-semibold text-foreground">Lịch sử quét gần đây</h3>
+                    <Badge variant="outline" className="text-xs font-medium border-border text-foreground/90 px-2.5 py-1">
                       {recentScans.length} vé
                     </Badge>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-full text-slate-500 hover:text-primary"
+                    className="h-8 w-8 rounded-full text-muted-foreground hover:text-primary"
                     onClick={() => setRecentScans([])}
                     disabled={recentScans.length === 0}
                     aria-label="Xóa lịch sử quét"
@@ -1132,7 +1123,7 @@ export default function QRCheckPage() {
                   {recentScans.map((scan, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-2 rounded-xl bg-slate-50 hover:bg-slate-100 transition-all duration-200 border border-slate-100 hover:border-slate-200 hover:shadow-sm cursor-pointer"
+                      className="flex items-center justify-between p-2 rounded-xl bg-muted/50 hover:bg-muted transition-all duration-200 border border-border/50 hover:border-border hover:shadow-sm cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
                         <div
@@ -1144,13 +1135,13 @@ export default function QRCheckPage() {
                           {scan.status === "checked-in" ? <CheckCircle className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
                         </div>
                         <div>
-                          <div className="font-medium text-sm text-slate-900">{scan.passengerName}</div>
-                          <div className="text-xs text-slate-500 mt-0.5">
+                          <div className="font-medium text-sm text-foreground">{scan.passengerName}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
                             {scan.seat} • {scan.ticketId}
                           </div>
                         </div>
                       </div>
-                      <div className="text-xs text-slate-500 font-medium">{scan.scannedAt}</div>
+                      <div className="text-xs text-muted-foreground font-medium">{scan.scannedAt}</div>
                     </div>
                   ))}
                 </div>
@@ -1167,8 +1158,8 @@ export default function QRCheckPage() {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between items-center">
-      <span className="text-sm text-slate-600 font-medium">{label}</span>
-      <span className="font-semibold text-slate-900">{value}</span>
+      <span className="text-sm text-muted-foreground font-medium">{label}</span>
+      <span className="font-semibold text-foreground">{value}</span>
     </div>
   )
 }
