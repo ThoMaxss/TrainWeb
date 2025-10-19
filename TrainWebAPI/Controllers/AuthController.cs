@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TrainWeb.Application.Interfaces;
+using TrainWeb.Domain.Entities;
+using TrainWeb.Domain.Enum;
 using TrainWeb.Infrastructure.Services;
 
 namespace TrainWebAPI.Controllers
