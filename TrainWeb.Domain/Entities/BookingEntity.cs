@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Google.Cloud.Firestore;
+﻿using Google.Cloud.Firestore;
 using TrainWeb.Domain.Domain;
-using TrainWeb.Domain.Entities.TrainWeb.Domain.Entities;
 using TrainWeb.Domain.Enum;
 
 namespace TrainWeb.Domain.Entities
@@ -17,35 +10,30 @@ namespace TrainWeb.Domain.Entities
         [FirestoreProperty]
         public string Id { get; set; }
         [FirestoreProperty]
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
 
         [FirestoreProperty]
-        public string TripId { get; set; }
+        public string? TicketId { get; set; }
 
         [FirestoreProperty]
-        public string SeatId { get; set; }
-
-        [FirestoreProperty("StatusFieldName")]
+        public double? Price { get; set; }
+        [FirestoreProperty]
         public BookingStatus Status { get; set; }
 
         [FirestoreProperty]
         public DateTime CreatedAt { get; set; }
 
-        public Booking ToDomain(UserEntity? userEntity, TripEntity? tripEntity, SeatEntity? seatEntity, TrainEntity? trainEntity) 
-            => new Booking(
-            Id,
-            userEntity != null ? userEntity.ToDomain() : null,
-            tripEntity != null ? tripEntity.ToDomain(trainEntity) : null,
-            seatEntity != null ? seatEntity.ToDomain(tripEntity, trainEntity) : null,
-            Status,
-            CreatedAt);
+        public Booking ToDomain(User? user, Ticket? ticket)
+        {
+            return new Booking(Id, user, ticket, Price, Status, CreatedAt);
+        }
 
         public static BookingEntity FromDomain(Booking booking) => new BookingEntity
         {
             Id = booking.Id ?? Guid.NewGuid().ToString(),
-            UserId = booking.User.Id,
-            TripId = booking.Trip.Id,
-            SeatId = booking.Seat.Id,
+            UserId = booking.User?.Id,
+            TicketId = booking.Ticket?.Id,
+            Price = booking.Price,
             Status = booking.Status ?? BookingStatus.Reserved,
             CreatedAt = DateTime.UtcNow
         };

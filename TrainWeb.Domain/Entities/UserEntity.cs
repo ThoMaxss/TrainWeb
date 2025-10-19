@@ -14,12 +14,12 @@ namespace TrainWeb.Domain.Entities
     {
         [FirestoreProperty] 
         public string Id { get; set; } 
+        [FirestoreProperty]
+        public string Name { get; set; }
         [FirestoreProperty] 
-        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; }
         [FirestoreProperty] 
-        public string Email { get; set; } = string.Empty;
-        [FirestoreProperty] 
-        public UserRole Role { get; set; } = UserRole.Passenger;
+        public UserRole Role { get; set; }
         [FirestoreProperty] 
         public DateTime CreatedAt { get; set; }
 

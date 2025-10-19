@@ -18,8 +18,8 @@ namespace TrainWeb.Application.Extensions
             {
                 Id = @this.Id,
                 User = @this.User?.ToDto(),   
-                Trip = @this.Trip?.ToDto(),   
-                Seat = @this.Seat?.ToDto(),   
+                Ticket = @this.Ticket?.ToDto(),
+                Price = @this.Price,
                 Status = @this.Status,
                 CreatedAt = @this.CreatedAt,
             };
@@ -28,8 +28,8 @@ namespace TrainWeb.Application.Extensions
         public static Booking FromDto(this BookingDto @this) => new Booking(
             @this.Id,
             @this.User?.FromDto(), 
-            @this.Trip?.FromDto(),
-            @this.Seat?.FromDto(),
+            @this.Ticket?.FromDto(),
+            null,
             @this.Status,
             @this.CreatedAt
         );

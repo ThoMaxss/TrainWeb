@@ -17,21 +17,21 @@ namespace TrainWeb.Domain.Entities
             [FirestoreProperty] 
             public string Id { get; set; }
             [FirestoreProperty] 
-            public string TrainId { get; set; }
+            public string? TrainId { get; set; }
             [FirestoreProperty] 
             public DateTime Departure { get; set; }
             [FirestoreProperty] 
             public DateTime Arrival { get; set; }
             [FirestoreProperty] 
-            public string OriginStation { get; set; }
+            public string? OriginStation { get; set; }
             [FirestoreProperty] 
-            public string DestinationStation { get; set; }
+            public string? DestinationStation { get; set; }
             [FirestoreProperty] 
-            public int SeatsAvailable { get; set; }
+            public int? SeatsAvailable { get; set; }
 
-            public Trip ToDomain(TrainEntity? trainEntity) => new Trip(
+            public Trip ToDomain(Train? train) => new Trip(
                 Id,
-                trainEntity != null ? trainEntity.ToDomain() : null,
+                train,
                 Departure,
                 Arrival,
                 OriginStation,
@@ -42,7 +42,7 @@ namespace TrainWeb.Domain.Entities
             public static TripEntity FromDomain(Trip trip) => new TripEntity
             {
                 Id = trip.Id ?? Guid.NewGuid().ToString(),
-                TrainId = trip.Train.Id,
+                TrainId = trip.Train?.Id,
                 Departure = trip.Departure ?? DateTime.UtcNow,
                 Arrival = trip.Arrival ?? DateTime.UtcNow,
                 OriginStation = trip.OriginStation,
