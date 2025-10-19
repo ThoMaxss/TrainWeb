@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using TrainWeb.Application.Interfaces; 
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using TrainWeb.Domain.Entities;
 using TrainWeb.Domain.Enum;
 
@@ -10,35 +10,40 @@ namespace TrainWeb.Infrastructure.Services
 {
     public class AuthService
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IConfiguration _config;
 
-        public AuthService(IUserRepository userRepository)
+        public AuthService(IConfiguration config)
         {
-            _userRepository = userRepository;
+            _config = config;
         }
 
-        public async Task<UserEntity?> LoginAsync(string email)
+        public string GenerateJwtToken(UserEntity user)
         {
-            var users = await _userRepository.GetAllAsync();
-            return users.FirstOrDefault(u => u.Email == email);
-        }
-
-        public async Task RegisterAsync(UserEntity user)
-        {
-            await _userRepository.AddAsync(user);
-        }
-
-        public async Task<bool> CheckRoleAsync(string userId, string role)
-        {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null) return false;
-
-            if (Enum.TryParse<UserRole>(role, true, out var parsedRole))
+            var claims = new List<Claim>
             {
-                return user.Role == parsedRole;
-            }
-            return false;
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email ?? ""),
+                new Claim("id", user.Id ?? ""),
+                new Claim(ClaimTypes.Name, user.Name ?? ""),
+                new Claim(ClaimTypes.Role, user.Role.ToString() ?? UserRole.Passenger.ToString())
+            };
 
+            var jwtKey = _config["Jwt:Key"];
+            if (string.IsNullOrEmpty(jwtKey))
+                throw new InvalidOperationException("JWT key is missing in configuration.");
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(2),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
