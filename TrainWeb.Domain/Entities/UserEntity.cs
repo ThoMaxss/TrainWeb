@@ -1,9 +1,4 @@
 ﻿using Google.Cloud.Firestore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TrainWeb.Domain.Domain;
 using TrainWeb.Domain.Enum;
 
@@ -22,6 +17,8 @@ namespace TrainWeb.Domain.Entities
         public UserRole Role { get; set; }
         [FirestoreProperty] 
         public DateTime CreatedAt { get; set; }
+        [FirestoreProperty]
+        public string PasswordHash { get; set; } = string.Empty;
 
         public User ToDomain() => new User(
             Id,
@@ -31,13 +28,16 @@ namespace TrainWeb.Domain.Entities
             CreatedAt
         );
 
-        public static UserEntity FromDomain(User user) => new UserEntity
+        public static UserEntity FromDomain(User user)
         {
-            Id = user.Id ?? Guid.NewGuid().ToString(),
-            Name = user.Name,
-            Email = user.Email,
-            Role = user.Role ?? UserRole.Passenger,
-            CreatedAt = DateTime.UtcNow,
-        };
+            return new UserEntity
+            {
+                Id = user.Id ?? Guid.NewGuid().ToString(),
+                Name = user.Name ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                Role = user.Role ?? UserRole.Passenger,
+                CreatedAt = DateTime.UtcNow,
+            };
+        }
     }
 }

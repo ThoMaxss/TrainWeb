@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Google.Cloud.Firestore;
+﻿using Google.Cloud.Firestore;
 using TrainWeb.Domain.Domain;
-using TrainWeb.Domain.Entities.TrainWeb.Domain.Entities;
 using TrainWeb.Domain.Enum;
 
 namespace TrainWeb.Domain.Entities
