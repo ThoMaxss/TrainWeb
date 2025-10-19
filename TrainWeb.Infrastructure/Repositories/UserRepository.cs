@@ -1,9 +1,10 @@
 ﻿using Google.Cloud.Firestore;
 using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Entities;
+using TrainWeb.Infrastructure.Persistence;
 using TrainWeb.Infrastructure.Repositories;
 
-namespace TrainWeb.Infrastructure.Persistence
+namespace TrainWeb.Infrastructure.Repositories
 {
     public class UserRepository : FirestoreRepository<UserEntity>, IUserRepository
     {

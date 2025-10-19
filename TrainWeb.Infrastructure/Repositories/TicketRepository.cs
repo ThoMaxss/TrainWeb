@@ -10,30 +10,30 @@ using TrainWeb.Infrastructure.Repositories;
 
 namespace TrainWeb.Infrastructure.Repositories
 {
-    public class SeatRepository : FirestoreRepository<SeatEntity>, ISeatRepository
+    public class TicketRepository : FirestoreRepository<TicketEntity>, ITicketRepository
     {
-        private const string CollectionName = "Seats";
+        private const string CollectionName = "Tickets";
 
-        public SeatRepository(FirestoreDbContext context) : base(context) { }
+        public TicketRepository(FirestoreDbContext context) : base(context) { }
 
-        public async Task<SeatEntity?> GetByIdAsync(string id)
+        public async Task<TicketEntity?> GetByIdAsync(string id)
         {
             return await GetByIdAsync(CollectionName, id);
         }
 
-        public async Task<IEnumerable<SeatEntity>> GetAllAsync()
+        public async Task<IEnumerable<TicketEntity>> GetAllAsync()
         {
             return await GetAllAsync(CollectionName);
         }
 
-        public async Task AddAsync(SeatEntity seatEntity)
+        public async Task AddAsync(TicketEntity ticketEntity)
         {
-            await AddAsync(CollectionName, seatEntity.Id, seatEntity);
+            await AddAsync(CollectionName, ticketEntity.Id, ticketEntity);
         }
 
-        public async Task UpdateAsync(string id, SeatEntity seatEntity)
+        public async Task UpdateAsync(string id, TicketEntity ticketEntity)
         {
-            await UpdateAsync(CollectionName, id, seatEntity);
+            await UpdateAsync(CollectionName, id, ticketEntity);
         }
 
         public async Task DeleteAsync(string id)

@@ -1,37 +1,29 @@
-﻿using Google.Cloud.Firestore;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Domain;
 using TrainWeb.Domain.Entities;
+using TrainWeb.Domain.Enum;
+using TrainWeb.Domain.Exceptions;
 
 namespace TrainWeb.Application.Services
 {
     public class BookingService
     {
         private IBookingRepository BookingRepository { get; }
-        private IUserRepository UserRepository { get; }
-        private ITripRepository TripRepository { get; }
-        private ITrainRepository TrainRepository { get; }
-        private ISeatRepository SeatRepository { get; }
+        private UserService UserService { get; }
+        private TicketService TicketService { get; }
+        private IPaymentRepository PaymentRepository { get; }
 
         public BookingService(
             IBookingRepository bookingRepository, 
-            IUserRepository userRepository, 
-            ITripRepository tripRepository, 
-            ITrainRepository trainRepository, 
-            ISeatRepository seatRepository)
+            UserService userService, 
+            TicketService ticketService, 
+            IPaymentRepository paymentRepository)
         {
             BookingRepository = bookingRepository;
-            UserRepository = userRepository;
-            TripRepository = tripRepository;
-            TrainRepository = trainRepository;
-            SeatRepository = seatRepository;
+            UserService = userService;
+            TicketService = ticketService;
+            PaymentRepository = paymentRepository;
         }
 
         public async Task<Booking?> GetById(string id)
@@ -40,87 +32,115 @@ namespace TrainWeb.Application.Services
 
             if (bookingEntity == null)
             {
-                return null;
+                throw new NotFoundException("Book Not Found");
             }
 
-            var userEntity = bookingEntity.UserId != null 
-                ? await UserRepository.GetByIdAsync(bookingEntity.UserId)
-                : null;
+            var user = await UserService.GetUserByIdAsync(bookingEntity.UserId);
 
-            var tripEntity = bookingEntity.TripId != null 
-                ? await TripRepository.GetByIdAsync(bookingEntity.TripId)
-                : null;
+            var ticket = await TicketService.GetById(bookingEntity.TicketId);
 
-            var seatEntity = bookingEntity.SeatId != null 
-                ? await SeatRepository.GetByIdAsync(bookingEntity.SeatId) 
-                : null;
-
-            var trainEntity = tripEntity?.TrainId != null 
-                ? await TrainRepository.GetByIdAsync(tripEntity.TrainId)
-                : null;
-
-            return bookingEntity.ToDomain(userEntity, tripEntity, seatEntity, trainEntity);
+            return bookingEntity.ToDomain(user, ticket);
         }
 
         public async Task<ImmutableList<Booking>> GetAllAsync()
         {
             var bookingEntities = await BookingRepository.GetAllAsync();
 
-            var tasks = bookingEntities.Select(bookingEntity => GetById(bookingEntity.Id));
+            return bookingEntities.Select(bookingEntity =>
+            {
+                var user = bookingEntity.UserId != null
+                    ? UserService.GetUserByIdAsync(bookingEntity.UserId).Result
+                    : null;
+                var ticket = bookingEntity.TicketId != null
+                    ? TicketService.GetById(bookingEntity.TicketId).Result
+                    : null;
+                return bookingEntity.ToDomain(user, ticket);
+            }).ToImmutableList();
+        }
 
-            var results = await Task.WhenAll(tasks);
+        public async Task<ImmutableList<Booking>> GetByUserIdAsync(string userId)
+        {
+            var bookingEntities = await BookingRepository.GetByUserIdAsync(userId);
 
-            // Filter out nulls to match ImmutableList<Booking>
-            return results.Where(b => b != null).Cast<Booking>().ToImmutableList();
+            var user = await UserService.GetUserByIdAsync(userId);
+
+            return bookingEntities.Select(bookingEntity =>
+            {
+                var ticket = bookingEntity.TicketId != null
+                    ? TicketService.GetById(bookingEntity.TicketId).Result
+                    : null;
+                return bookingEntity.ToDomain(user, ticket);
+            }).ToImmutableList();
         }
 
         public async Task<Booking?> AddAsync(Booking booking)
         {
+            var ticket = booking.Ticket?.Id != null
+                ? await TicketService.GetById(booking.Ticket.Id)
+                : null;
+            booking.Price = ticket?.Seat?.Price - ticket?.TicketType?.Discount;
+            booking.Status = BookingStatus.Reserved;
             var bookingEntity = BookingEntity.FromDomain(booking);
             await BookingRepository.AddAsync(bookingEntity);
-            var userEntity = bookingEntity.UserId != null
-                ? await UserRepository.GetByIdAsync(bookingEntity.UserId)
-                : null;
 
-            var tripEntity = bookingEntity.TripId != null
-                ? await TripRepository.GetByIdAsync(bookingEntity.TripId)
+            var user = bookingEntity.UserId != null
+                ? await UserService.GetUserByIdAsync(bookingEntity.UserId)
                 : null;
+            
 
-            var seatEntity = bookingEntity.SeatId != null
-                ? await SeatRepository.GetByIdAsync(bookingEntity.SeatId)
-                : null;
-
-            var trainEntity = tripEntity?.TrainId != null
-                ? await TrainRepository.GetByIdAsync(tripEntity.TrainId)
-                : null;
-            return bookingEntity.ToDomain(userEntity, tripEntity, seatEntity, trainEntity);
+            return bookingEntity.ToDomain(user, ticket);
         }
 
         public async Task<Booking?> UpdateAsync(string id, Booking booking)
         {
             var bookingEntity = BookingEntity.FromDomain(booking);
             await BookingRepository.UpdateAsync(id, bookingEntity);
-            var userEntity = bookingEntity.UserId != null
-                ? await UserRepository.GetByIdAsync(bookingEntity.UserId)
-                : null;
 
-            var tripEntity = bookingEntity.TripId != null
-                ? await TripRepository.GetByIdAsync(bookingEntity.TripId)
+            var user = bookingEntity.UserId != null
+                ? await UserService.GetUserByIdAsync(bookingEntity.UserId)
                 : null;
-
-            var seatEntity = bookingEntity.SeatId != null
-                ? await SeatRepository.GetByIdAsync(bookingEntity.SeatId)
+            var ticket = bookingEntity.TicketId != null
+                ? await TicketService.GetById(bookingEntity.TicketId)
                 : null;
-
-            var trainEntity = tripEntity?.TrainId != null
-                ? await TrainRepository.GetByIdAsync(tripEntity.TrainId)
-                : null;
-            return bookingEntity.ToDomain(userEntity, tripEntity, seatEntity, trainEntity);
+            return bookingEntity.ToDomain(user, ticket);
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task SucceedBookingAsync(string id)
         {
-            await BookingRepository.DeleteAsync(id);
+            var bookingEntity = await BookingRepository.GetByIdAsync(id);
+            if (bookingEntity == null)
+            {
+                throw new NotFoundException("Booking Not Found");
+            }
+            bookingEntity.Status = BookingStatus.Paid;
+            await BookingRepository.UpdateAsync(id, bookingEntity);
+
+            var payment = await PaymentRepository.GetPendingByBookingIdAsync(id);
+            if(payment != null)
+            {
+                payment.Status = PaymentStatus.Success;
+                await PaymentRepository.UpdateAsync(payment.Id, payment);
+            }
+
+        }
+
+        public async Task CancelledBookingAsync(string id)
+        {
+            var bookingEntity = await BookingRepository.GetByIdAsync(id);
+            if (bookingEntity == null)
+            {
+                throw new NotFoundException("Booking Not Found");
+            }
+            bookingEntity.Status = BookingStatus.Cancelled;
+            await BookingRepository.UpdateAsync(id, bookingEntity);
+
+            var payment = await PaymentRepository.GetPendingByBookingIdAsync(id);
+            if (payment != null)
+            {
+                payment.Status = PaymentStatus.Failed;
+                await PaymentRepository.UpdateAsync(payment.Id, payment);
+            }
+
         }
     }
 }

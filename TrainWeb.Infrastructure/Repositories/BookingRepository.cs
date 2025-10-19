@@ -2,9 +2,10 @@
 using System.Collections;
 using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Entities;
+using TrainWeb.Infrastructure.Persistence;
 using TrainWeb.Infrastructure.Repositories;
 
-namespace TrainWeb.Infrastructure.Persistence
+namespace TrainWeb.Infrastructure.Repositories
 {
     public class BookingRepository : FirestoreRepository<BookingEntity>, IBookingRepository
     {
@@ -35,6 +36,12 @@ namespace TrainWeb.Infrastructure.Persistence
         public async Task DeleteAsync(string id)
         {
             await DeleteAsync(CollectionName, id);
+        }
+
+        public async Task<IEnumerable<BookingEntity>> GetByUserIdAsync(string userId)
+        {
+            var snapshot = await FirestoreDb.Collection(CollectionName).WhereEqualTo("UserId", userId).GetSnapshotAsync();
+            return snapshot.Documents.Select(doc => doc.ConvertTo<BookingEntity>()).ToList();
         }
     }
 }

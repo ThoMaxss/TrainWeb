@@ -6,7 +6,7 @@ using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Entities;
 using TrainWeb.Domain.Enum;
 
-namespace TrainWeb.Application.Services
+namespace TrainWeb.Infrastructure.Services
 {
     public class AuthService
     {
