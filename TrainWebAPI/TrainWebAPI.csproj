@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TrainWeb.Application\TrainWeb.Application.csproj" />
     <ProjectReference Include="..\TrainWeb.Infrastructure\TrainWeb.Infrastructure.csproj" />
   </ItemGroup>
 
