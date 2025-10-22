@@ -5,9 +5,10 @@ using System.Text;
 using System.Text.Json.Serialization;
 using TrainWeb.Application.Interfaces;
 using TrainWeb.Application.Services;
-using TrainWeb.Infrastructure.Persistence;
 using TrainWeb.Infrastructure.Repositories;
 using TrainWeb.Infrastructure.Services;
+using TrainWeb.Infrastructure.Services.Momo;
+using TrainWebAPI.Middlewares;
 using FirestoreDbContext = TrainWeb.Infrastructure.Persistence.FirestoreDbContext;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,13 +25,21 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>()
     .AddScoped<IUserRepository, UserRepository>()
     .AddScoped<ITrainRepository, TrainRepository>()
     .AddScoped<ITripRepository, TripRepository>()
-    .AddScoped<ISeatRepository, SeatRepository>();
+    .AddScoped<ISeatRepository, SeatRepository>()
+    .AddScoped<IPaymentRepository, PaymentRepository>()
+    .AddScoped<ITicketRepository, TicketRepository>()
+    .AddScoped<ITicketTypeRepository, TicketTypeRepository>();
 
 builder.Services.AddScoped<BookingService>()
     .AddScoped<UserService>()
     .AddScoped<TrainService>()
     .AddScoped<TripService>()
-    .AddScoped<SeatService>();
+    .AddScoped<SeatService>()
+    .AddScoped<MomoService>()
+    .AddScoped<AuthService>()
+    .AddScoped<PaymentService>()
+    .AddScoped<TicketService>()
+    .AddScoped<TicketTypeService>();
 
 builder.Services.AddHttpClient<MapService>();
 
@@ -98,6 +107,7 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<ExceptionMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

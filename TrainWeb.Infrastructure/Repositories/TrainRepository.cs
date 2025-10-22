@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Entities;
 using TrainWeb.Infrastructure.Persistence;
-using TrainWeb.Infrastructure.Repositories;
 
-namespace TrainWeb.Application.Interfaces
+namespace TrainWeb.Infrastructure.Repositories
 {
     public class TrainRepository : FirestoreRepository<TrainEntity>, ITrainRepository
     {

@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Entities;
 using TrainWeb.Domain.Enum;

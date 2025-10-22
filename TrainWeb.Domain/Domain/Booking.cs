@@ -15,20 +15,20 @@ namespace TrainWeb.Domain.Domain
 
         public User? User { get; }
 
-        public Trip? Trip { get; }
+        public Ticket? Ticket { get; }
 
-        public Seat? Seat { get; }
+        public double? Price { get; set; }
 
-        public BookingStatus? Status { get; }
+        public BookingStatus? Status { get; set; }
 
         public DateTime? CreatedAt { get; }
 
-        public Booking(string? id, User? user, Trip? trip, Seat? seat, BookingStatus? status, DateTime? createdAt)
+        public Booking(string? id, User? user, Ticket? ticket, double? price, BookingStatus? status, DateTime? createdAt)
         {
             Id = id;
             User = user;
-            Trip = trip;
-            Seat = seat;
+            Ticket = ticket;
+            Price = price;
             Status = status;
             CreatedAt = createdAt;
         }

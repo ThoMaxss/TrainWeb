@@ -26,7 +26,6 @@ namespace TrainWeb.API.Controllers
         public async Task<IActionResult> Get([FromRoute] string id)
         {
             var booking = await BookingService.GetById(id);
-            if (booking == null) return NotFound("Book Not Found");
             return Ok(booking.ToDto());
         }
 
@@ -38,12 +37,24 @@ namespace TrainWeb.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(
-            [FromBody] BookingDto bookingDto
-        )
+        public async Task<IActionResult> Create([FromBody] BookingDto bookingDto)
         {
             var createdBooking = await BookingService.AddAsync(bookingDto.FromDto());
             return Ok(createdBooking?.ToDto());
+        }
+
+        [HttpPost("{id}/success-booking")]
+        public async Task<IActionResult> SuccessBoooking([FromRoute] string id)
+        {
+            await BookingService.SucceedBookingAsync(id);
+            return Ok();
+        }
+
+        [HttpPost("{id}/cancel-booking")]
+        public async Task<IActionResult> CancelBoooking([FromRoute] string id)
+        {
+            await BookingService.CancelledBookingAsync(id);
+            return Ok();
         }
     }
 }

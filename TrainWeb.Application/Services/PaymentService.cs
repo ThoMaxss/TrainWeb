@@ -1,43 +1,130 @@
-﻿using Google.Cloud.Firestore;
-using TrainWeb.Domain.Entities;
+﻿using System.Collections.Immutable;
 using TrainWeb.Application.Interfaces;
+using TrainWeb.Domain.Domain;
+using TrainWeb.Domain.Entities;
+using TrainWeb.Domain.Enum;
+using TrainWeb.Domain.Exceptions;
 
 namespace TrainWeb.Application.Services
 {
-    public class PaymentService(FirestoreDbContext context) : IPaymentService
+    public class PaymentService
     {
-        private readonly FirestoreDb _db = context.Db ?? throw new ArgumentNullException(nameof(context.Db));
-        private const string CollectionName = "Payments";
-
-        public async Task<PaymentEntity?> GetByIdAsync(string id)
+        IPaymentRepository PaymentRepository { get; }
+        BookingService BookingService { get; }
+        public PaymentService(IPaymentRepository paymentRepository, BookingService bookingService)
         {
-            DocumentReference docRef = _db.Collection(CollectionName).Document(id);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+            PaymentRepository = paymentRepository;
+            BookingService = bookingService;
+        }
+       //Pao cao doanh thu
+       //PT giao dich
+        public async Task<Payment?> GetById(string id)
+        {
+            var paymentEntity = await PaymentRepository.GetByIdAsync(id);
 
-            return snapshot.Exists ? snapshot.ConvertTo<PaymentEntity>() : null;
+            if(paymentEntity == null)
+            {
+                return null;
+            }
+
+            var booking = paymentEntity.BookingId != null 
+                ? await BookingService.GetById(paymentEntity.BookingId)
+                : null;
+
+            return paymentEntity?.ToDomain(booking);
         }
 
-        public async Task<IEnumerable<PaymentEntity>> GetByBookingIdAsync(string bookingId)
+        public async Task<ImmutableList<Payment>?> GetByBookingId(string bookingId)
         {
-            Query query = _db.Collection(CollectionName).WhereEqualTo("BookingId", bookingId);
-            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+            var paymentEntities = await PaymentRepository.GetByBookingIdAsync(bookingId);
 
-            return snapshot.Documents.Select(doc => doc.ConvertTo<PaymentEntity>()).ToList();
+            var booking = await BookingService.GetById(bookingId);
+
+            return paymentEntities?.Select(paymentEntity => paymentEntity.ToDomain(booking)).ToImmutableList();
         }
 
-        public async Task AddAsync(PaymentEntity payment)
+        public async Task<Payment?> GetPendingByBookingId(string bookingId)
         {
-            await _db.Collection(CollectionName).Document(payment.Id).SetAsync(payment);
+            var paymentEntity = await PaymentRepository.GetPendingByBookingIdAsync(bookingId);
+
+            var booking = await BookingService.GetById(bookingId);
+
+            return paymentEntity?.ToDomain(booking);
         }
 
-        public async Task UpdateAsync(PaymentEntity payment)
+        public async Task<ImmutableList<Payment>> GetAllAsync()
         {
-            await _db.Collection(CollectionName).Document(payment.Id).SetAsync(payment, SetOptions.Overwrite);
-        }
-    }
+            var paymentEntities = await PaymentRepository.GetAllAsync();
 
-    public class FirestoreDbContext
-    {
-        public FirestoreDb? Db { get; internal set; }
+            return paymentEntities.Select(paymentEntity =>
+            {
+                var booking = paymentEntity.BookingId != null
+                    ? BookingService.GetById(paymentEntity.BookingId).Result
+                    : null;
+                return paymentEntity.ToDomain(booking);
+            }).ToImmutableList();
+        }
+
+        public async Task<ImmutableList<Payment>> GetByUserId(string userId)
+        {
+            var paymentEntities = await PaymentRepository.GetByUserIdAsync(userId);
+            return paymentEntities?.Select(paymentEntity =>
+            {
+                var booking = paymentEntity.BookingId != null
+                    ? BookingService.GetById(paymentEntity.BookingId).Result
+                    : null;
+                return paymentEntity.ToDomain(booking);
+            }).ToImmutableList() ?? ImmutableList<Payment>.Empty;
+        }
+
+        public async Task<Payment?> AddAsync(Payment payment)
+        {
+            var booking = await BookingService.GetById(payment.Booking?.Id!);
+            if (booking == null)
+            {
+                throw new BadRequestException("Booking Not Found");
+            }
+
+            payment.Amount = booking.Price;
+            var paymentEntity = PaymentEntity.FromDomain(payment);
+
+            await PaymentRepository.AddAsync(paymentEntity);
+
+            return paymentEntity.ToDomain(booking);
+        }
+
+        public async Task SuccessPaymentAsync(string id)
+        {
+            var paymentEntity = await PaymentRepository.GetByIdAsync(id);
+
+            if (paymentEntity == null || paymentEntity.BookingId == null)
+            {
+                throw new NotFoundException("Payment Or Booking Not Found");
+            }
+            paymentEntity.Status = PaymentStatus.Success;
+
+            await PaymentRepository.UpdateAsync(id, paymentEntity);
+
+            var existingBooking = await BookingService.GetById(paymentEntity.BookingId!);
+
+            existingBooking!.Status = BookingStatus.Paid;
+
+            var updatedBooking = await BookingService.UpdateAsync(existingBooking.Id!, existingBooking);
+        }
+
+        public async Task<Payment?> UpdateAsync(string id, Payment payment)
+        {
+            var paymentEntity = PaymentEntity.FromDomain(payment);
+            await PaymentRepository.UpdateAsync(id, paymentEntity);
+            var booking = paymentEntity.BookingId != null
+                ? await BookingService.GetById(paymentEntity.BookingId)
+                : null;
+            return paymentEntity.ToDomain(booking);
+        }
+
+        public async Task DeleteAsync(string id)
+        {
+            await PaymentRepository.DeleteAsync(id);
+        }
     }
 }
