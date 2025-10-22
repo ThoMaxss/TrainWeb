@@ -1,48 +1,49 @@
-// 🎨 Header component with unified theme system
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { H3, Small } from "@/components/ui/typography";
-import { Train, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { H3 } from "@/components/ui/typography";
+import Image from "next/image";
+import { Globe } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
 
 export function Header() {
   const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { href: "/search", label: "Tìm kiếm" },
-    { href: "/my-tickets", label: "Vé của tôi" },
+    { href: "/search", label: "Tìm vé" },
+    { href: "/schedule", label: "Lịch trình" },
     { href: "/promotions", label: "Ưu đãi" },
     { href: "/support", label: "Hỗ trợ" },
+    { href: "/my-tickets", label: "Vé của tôi" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+    <header className="sticky top-0 z-50 w-full border-b border-[#E5E6EB] bg-[#F5F6FA]">
+      <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-12">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary">
-            <Train className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <H3 className="hidden sm:block">TrainBook</H3>
+        <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+          <Image
+            src="/image/1213-Photoroom.png"
+            alt="TrainBook Logo"
+            width={150}
+            height={36}
+            className="object-contain"
+          />
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
+        {/* Navigation */}
+        <nav className="hidden md:flex items-center gap-8">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
+                "relative text-sm font-medium transition-colors duration-200 after:absolute after:left-0 after:-bottom-[4px] after:h-[2px] after:w-0 after:bg-[#6396f5] after:transition-all after:duration-300 hover:after:w-full",
                 pathname === item.href
-                  ? "text-foreground"
-                  : "text-muted-foreground"
+                  ? "text-[#1A1F2C] after:w-full"
+                  : "text-[#1A1F2C] hover:text-[#1A1F2C]"
               )}
             >
               {item.label}
@@ -50,73 +51,39 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-2">
-          <ThemeToggle variant="simple" />
-          
-          <div className="hidden md:flex items-center gap-2">
+
+        {/* Actions */}
+        <div className="flex items-center gap-4">
+          {/* Auth buttons */}
+          <div className="flex items-center gap-2">
             <Link href="/login">
-              <Button variant="ghost" size="sm">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-[#1A1F2C] hover:bg-[#E9EAEC] font-medium"
+              >
                 Đăng nhập
               </Button>
             </Link>
             <Link href="/register">
-              <Button size="sm">
+              <Button
+                size="sm"
+                className="bg-[#6396f5] text-white hover:bg-[#5288ef] font-medium"
+              >
                 Đăng ký
               </Button>
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          {/* Language icon */}
+          <button
+            aria-label="language"
+            className="p-2 hover:opacity-80 transition-opacity"
           >
-            {mobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </Button>
+            <Globe className="h-5 w-5 text-[#1A1F2C]" />
+          </button>
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t bg-background">
-          <nav className="container mx-auto flex flex-col gap-2 p-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={cn(
-                  "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  pathname === item.href
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
-            <div className="mt-2 flex flex-col gap-2 border-t pt-2">
-              <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="outline" size="sm" className="w-full">
-                  Đăng nhập
-                </Button>
-              </Link>
-              <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                <Button size="sm" className="w-full">
-                  Đăng ký
-                </Button>
-              </Link>
-            </div>
-          </nav>
-        </div>
-      )}
     </header>
   );
 }
