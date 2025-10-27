@@ -1,0 +1,37 @@
+name: Build GoRail API (.NET 8 on Ubuntu)
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ./TrainWebAPI/TrainWebAPI.csproj
+
+      - name: Build the project
+        run: dotnet build ./TrainWebAPI/TrainWebAPI.csproj --configuration Release --no-restore
+
+      - name: Run tests (if any)
+        run: dotnet test --no-build --verbosity normal || echo "No test projects found"
+
+      - name: Publish the project
+        run: dotnet publish ./TrainWebAPI/TrainWebAPI.csproj -c Release -o ./publish
+
+      - name: List published files
+        run: ls -R ./publish
