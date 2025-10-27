@@ -13,6 +13,12 @@ using FirestoreDbContext = TrainWeb.Infrastructure.Persistence.FirestoreDbContex
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables(); //GitHub Actions
+
+//Cấu hình Firestore
 var projectId = "trainweb-g16";
 var credentialPath = Path.Combine(builder.Environment.ContentRootPath, "firebase-key.json");
 
@@ -51,7 +57,7 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add CORS policy
+//Cấu hình CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -63,15 +69,11 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-//AuthService
-builder.Services.AddSingleton<AuthService>();
-
-//Cấu hình Authentication & Authorization
+//Authentication & Authorization
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
 {
-    throw new InvalidOperationException("JWT key is missing from configuration.");
+    throw new InvalidOperationException("JWT key is missing from configuration or environment variables.");
 }
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -91,23 +93,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("StaffOrAdmin", policy => policy.RequireRole("Staff", "Admin"));
 });
 
-
-
+//Build app
 var app = builder.Build();
 
-//Middleware 
+//Middlewares
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<ExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -116,9 +117,8 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "TrainWeb API v1");
         options.RoutePrefix = "swagger";
     });
-    app.UseDeveloperExceptionPage(); 
+    app.UseDeveloperExceptionPage();
 }
-
 
 app.MapControllers();
 app.Run();
