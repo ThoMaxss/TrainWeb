@@ -11,6 +11,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: ProductionKey  
+
+    env:                         
+      JWT_KEY: ${{ secrets.JWT_KEY }}
+      MAP_API_KEY: ${{ secrets.MAP_API_KEY }}
+      MOMO_ACCESS_KEY: ${{ secrets.MOMO_ACCESS_KEY }}
+      MOMO_SECRET_KEY: ${{ secrets.MOMO_SECRET_KEY }}
+      FIREBASE_KEY: ${{ secrets.FIREBASE_KEY }}
 
     steps:
       - name: Checkout source code
