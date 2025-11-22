@@ -36,7 +36,7 @@ function getStatusBadge(status: TicketStatus) {
       );
     case "cancelled":
       return (
-        <Badge className="bg-error/10 text-error hover:bg-error/10 gap-1 text-xs">
+        <Badge className="bg-destructive/10 text-destructive hover:bg-destructive/10 gap-1 text-xs">
           <XCircle className="h-3 w-3" />
           Hủy
         </Badge>
@@ -79,7 +79,7 @@ export function RecentScansTable({ scans }: RecentScansTableProps) {
                 className={cn(
                   "transition-colors",
                   scan.status === "checked-in" && "bg-success/5",
-                  scan.status === "cancelled" && "bg-error/5"
+                  scan.status === "cancelled" && "bg-destructive/5"
                 )}
               >
                 <TableCell className="font-mono text-sm">{scan.ticketId}</TableCell>

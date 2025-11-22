@@ -114,14 +114,14 @@ export default function TransactionsPage() {
         return {
           label: "Thất bại",
           icon: XCircle,
-          className: "bg-error/10 text-error hover:bg-error/10",
+          className: "bg-destructive/10 text-destructive hover:bg-destructive/10",
         };
       case "pending":
         return {
           label: "Đang xử lý",
           icon: Loader2,
           className:
-            "bg-orange-100 text-orange-700 hover:bg-orange-100",
+            "bg-warning/10 text-warning hover:bg-warning/10",
         };
     }
   };
@@ -136,10 +136,10 @@ export default function TransactionsPage() {
       case "MasterCard":
         return {
           label: "MasterCard",
-          color: "text-orange-600",
+          color: "text-warning",
         };
       case "MoMo":
-        return { label: "MoMo", color: "text-pink-600" };
+        return { label: "MoMo", color: "text-momo" }; // MoMo brand color
       case "VNPay":
         return { label: "VNPay", color: "text-primary" };
     }
@@ -157,13 +157,13 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-background shadow-sm">
         <div className="container mx-auto px-2 lg:px-2 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-700">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80">
                 <Receipt className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
@@ -291,7 +291,7 @@ export default function TransactionsPage() {
           </Tabs>
 
           {/* Summary Card */}
-          <Card className="border-0 bg-gradient-to-br from-blue-600 to-blue-700 text-primary-foreground shadow-lg">
+          <Card className="border-0 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg">
             <div className="p-2">
               <div className="flex items-center justify-between">
                 <div>

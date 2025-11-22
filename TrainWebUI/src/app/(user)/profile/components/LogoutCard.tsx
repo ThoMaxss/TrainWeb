@@ -8,18 +8,18 @@ interface LogoutCardProps {
 
 export function LogoutCard({ onLogout }: LogoutCardProps) {
   return (
-    <Card className="border-0 border-destructive/20 bg-error/10 shadow-md">
+    <Card className="border-0 border-destructive/20 bg-destructive/10 shadow-md">
       <div className="p-2">
         <Button
           variant="destructive"
           size="lg"
           onClick={onLogout}
-          className="w-full gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800"
+          className="w-full gap-2 bg-gradient-to-r from-destructive to-destructive/80 hover:from-destructive/80 hover:to-destructive/90"
         >
           <LogOut className="h-5 w-5" />
           Đăng xuất
         </Button>
-        <p className="mt-2 text-center text-xs text-error">
+        <p className="mt-2 text-center text-xs text-destructive">
           Bạn sẽ cần đăng nhập lại để sử dụng dịch vụ
         </p>
       </div>

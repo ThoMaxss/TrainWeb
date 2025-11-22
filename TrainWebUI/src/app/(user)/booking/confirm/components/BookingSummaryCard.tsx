@@ -96,7 +96,7 @@ export function BookingSummaryCard({ tripInfo, selectedSeats, formatPrice }: Boo
             <Separator />
             <div className="flex justify-between">
               <span className="font-semibold">Tổng cộng</span>
-              <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent text-lg font-bold">
+              <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent text-lg font-bold">
                 {formatPrice(selectedSeats.reduce((sum, seat) => sum + seat.price, 0))}
               </span>
             </div>

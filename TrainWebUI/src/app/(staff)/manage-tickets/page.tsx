@@ -147,7 +147,7 @@ export default function ManageTicketsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-muted via-primary/10 to-primary/20 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-3"></div>
           <p className="text-muted-foreground">Đang tải dữ liệu...</p>
@@ -158,10 +158,10 @@ export default function ManageTicketsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-muted via-primary/10 to-primary/20 flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-error mx-auto mb-3" />
-          <p className="text-error mb-3">Lỗi: {error}</p>
+          <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-3" />
+          <p className="text-destructive mb-3">Lỗi: {error}</p>
           <Button onClick={() => window.location.reload()}>Thử lại</Button>
         </div>
       </div>
@@ -169,7 +169,7 @@ export default function ManageTicketsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+    <div className="min-h-screen bg-gradient-to-br from-muted via-primary/10 to-primary/20">
       <div className="p-2 border-b bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto px-2 lg:px-2">
           <PageHeader

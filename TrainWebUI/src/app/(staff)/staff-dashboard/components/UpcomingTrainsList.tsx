@@ -25,9 +25,9 @@ interface UpcomingTrainsListProps {
 
 const getTrainStatusBadge = (train: UpcomingTrain) => {
   switch (train.status) {
-    case "on-time":
+      case "on-time":
       return (
-        <Badge className="bg-success/10 text-success border-emerald-200">
+        <Badge className="bg-success/10 text-success border-success/20">
           <CheckCircle className="mr-1 h-3 w-3" />
           Đúng giờ
         </Badge>
@@ -41,7 +41,7 @@ const getTrainStatusBadge = (train: UpcomingTrain) => {
       );
     case "cancelled":
       return (
-        <Badge className="bg-error/10 text-error border-destructive/20">
+        <Badge className="bg-destructive/10 text-destructive border-destructive/20">
           <XCircle className="mr-1 h-3 w-3" />
           Đã hủy
         </Badge>
@@ -68,7 +68,7 @@ export function UpcomingTrainsList({ trains, onNavigate }: UpcomingTrainsListPro
           {trains.map((train) => (
             <div
               key={train.code}
-              className="rounded-lg border-2 border-border p-2 transition-all hover:border-primary hover:bg-primary/10/50 cursor-pointer"
+              className="rounded-lg border-2 border-border p-2 transition-all hover:border-primary hover:bg-primary/10 cursor-pointer"
               onClick={() => onNavigate(`/trains/${train.code}`)}
             >
               <div className="flex items-start justify-between mb-3">
@@ -121,9 +121,9 @@ export function UpcomingTrainsList({ trains, onNavigate }: UpcomingTrainsListPro
                   </span>
                 </div>
                 {train.cancelled > 0 && (
-                  <div className="flex items-center gap-2 rounded-md bg-error/10 px-2 py-1 text-sm">
-                    <XCircle className="h-4 w-4 text-error" />
-                    <span className="text-error font-medium">
+                  <div className="flex items-center gap-2 rounded-md bg-destructive/10 px-2 py-1 text-sm">
+                    <XCircle className="h-4 w-4 text-destructive" />
+                    <span className="text-destructive font-medium">
                       {train.cancelled} đã hủy
                     </span>
                   </div>

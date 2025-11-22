@@ -15,6 +15,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
 export default function HomePage() {
   return (
@@ -36,20 +37,32 @@ export default function HomePage() {
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40" />
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 md:px-8">
-          <Display className="text-primary-foreground drop-shadow-md text-center">
-            Sẵn sàng cho chuyến đi?
-          </Display>
-          <Lead className="mt-3 max-w-2xl text-primary-foreground/95 text-center">
-            Tìm kiếm, so sánh và đặt vé tàu trên toàn quốc một cách dễ dàng.
-          </Lead>
-          <div className="mt-3">
-            <DynamicClientTime />
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex flex-col items-center"
+          >
+            <Display className="text-primary-foreground drop-shadow-md text-center">
+              Sẵn sàng cho chuyến đi?
+            </Display>
+            <Lead className="mt-3 max-w-2xl text-primary-foreground/95 text-center">
+              Tìm kiếm, so sánh và đặt vé tàu trên toàn quốc một cách dễ dàng.
+            </Lead>
+            <div className="mt-3">
+              <DynamicClientTime />
+            </div>
+          </motion.div>
 
           {/* Thẻ Search nổi */}
-          <div className="mt-5 w-full max-w-xl md:max-w-5xl rounded-2xl bg-background/95 backdrop-blur border shadow-2xl px-4 py-6 md:px-6 md:py-8">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            className="mt-5 w-full max-w-xl md:max-w-5xl rounded-2xl bg-background/95 backdrop-blur border shadow-2xl px-4 py-6 md:px-6 md:py-8"
+          >
             <SearchSection />
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -62,11 +75,22 @@ export default function HomePage() {
             { icon: <Sparkles className="h-8 w-8 text-primary" aria-hidden="true" />, title: 'Chọn chỗ bạn thích', desc: 'Tự do chọn ghế với bản đồ ghế dễ nhìn.' },
             { icon: <ShieldCheck className="h-8 w-8 text-primary" aria-hidden="true" />, title: 'Đặt vé an toàn', desc: 'Thanh toán bảo mật, an tâm tuyệt đối.' },
           ].map((f, i) => (
-            <Card key={i} className="rounded-2xl border hover:shadow-lg transition-shadow focus-within:ring-2 focus-within:ring-ring flex flex-col items-center justify-center text-center min-h-[260px] p-6 bg-card dark:bg-card">
-              <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-primary/10 mb-4">{f.icon}</div>
-              <H3 className="mb-2 text-xl font-semibold">{f.title}</H3>
-              <Body className="leading-relaxed text-base text-muted-foreground">{f.desc}</Body>
-            </Card>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              whileHover={{ y: -5 }}
+            >
+              <Card className="rounded-2xl border hover:shadow-lg transition-all focus-within:ring-2 focus-within:ring-ring flex flex-col items-center justify-center text-center min-h-[260px] p-6 bg-card dark:bg-card h-full">
+                <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-primary/10 mb-4 text-primary transition-transform duration-300 group-hover:scale-110">
+                  {f.icon}
+                </div>
+                <H3 className="mb-2 text-xl font-semibold">{f.title}</H3>
+                <Body className="leading-relaxed text-base text-muted-foreground">{f.desc}</Body>
+              </Card>
+            </motion.div>
           ))}
         </div>
       </section>
@@ -184,9 +208,13 @@ export default function HomePage() {
             { name: 'ZaloPay', img: '/image/partner5.png', alt: 'ZaloPay' },
             { name: 'Mastercard', img: '/image/partner6.png', alt: 'Mastercard' },
           ].map((p, i) => (
-            <div key={p.name} className="flex items-center justify-center rounded-xl border py-6 bg-card">
-              <Image src={p.img} alt={p.alt} width={80} height={40} className="object-contain h-10" loading="lazy" />
-            </div>
+            <motion.div
+              key={p.name}
+              whileHover={{ scale: 1.05, borderColor: "var(--primary)" }}
+              className="flex items-center justify-center rounded-xl border py-6 bg-card transition-colors cursor-pointer"
+            >
+              <Image src={p.img} alt={p.alt} width={80} height={40} className="object-contain h-10 grayscale hover:grayscale-0 transition-all duration-300" loading="lazy" />
+            </motion.div>
           ))}
         </div>
       </section>

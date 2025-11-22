@@ -115,12 +115,12 @@ export function RoutePreview({ trip }: RoutePreviewProps) {
         </div>
 
         {/* SVG Map */}
-        <div className="relative bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950/20 dark:to-green-950/20 rounded-lg p-6 mb-6">
+        <div className="relative bg-gradient-to-br from-primary/5 to-success/5 dark:from-primary-950/20 dark:to-success-950/20 rounded-lg p-6 mb-6">
           <svg viewBox="0 0 100 100" className="w-full h-full min-h-[300px]">
             <defs>
               <linearGradient id="adminRouteGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#3b82f6" />
-                <stop offset="100%" stopColor="#10b981" />
+                <stop offset="0%" stopColor="var(--color-primary)" />
+                <stop offset="100%" stopColor="var(--color-success)" />
               </linearGradient>
             </defs>
 
@@ -128,7 +128,7 @@ export function RoutePreview({ trip }: RoutePreviewProps) {
             <path
               d={pathD}
               fill="none"
-              stroke="#cbd5e1"
+              stroke="var(--color-border)"
               strokeWidth="0.5"
               strokeDasharray="2,2"
             />
@@ -142,13 +142,13 @@ export function RoutePreview({ trip }: RoutePreviewProps) {
 
             {/* Departure Station */}
             <g>
-              <circle cx={departurePos.x} cy={departurePos.y} r="3" fill="#3b82f6" />
-              <circle cx={departurePos.x} cy={departurePos.y} r="1.5" fill="#fff" />
+              <circle cx={departurePos.x} cy={departurePos.y} r="3" fill="var(--color-primary)" />
+              <circle cx={departurePos.x} cy={departurePos.y} r="1.5" fill="var(--color-background)" />
               <text
                 x={departurePos.x}
                 y={departurePos.y - 5}
                 textAnchor="middle"
-                className="text-[10px] font-bold fill-blue-600"
+                className="text-[10px] font-bold fill-primary"
               >
                 {trip.originStation || "—"}
               </text>
@@ -156,21 +156,21 @@ export function RoutePreview({ trip }: RoutePreviewProps) {
 
             {/* Arrival Station */}
             <g>
-              <circle cx={arrivalPos.x} cy={arrivalPos.y} r="3" fill="#10b981" />
-              <circle cx={arrivalPos.x} cy={arrivalPos.y} r="1.5" fill="#fff" />
+              <circle cx={arrivalPos.x} cy={arrivalPos.y} r="3" fill="var(--color-success)" />
+              <circle cx={arrivalPos.x} cy={arrivalPos.y} r="1.5" fill="var(--color-background)" />
               <text
                 x={arrivalPos.x}
                 y={arrivalPos.y - 5}
                 textAnchor="middle"
-                className="text-[10px] font-bold fill-green-600"
+                className="text-[10px] font-bold fill-success"
               >
                 {trip.destinationStation}
               </text>
             </g>
 
             {/* Train icon */}
-            <g>
-              <circle cx={midX} cy={controlY} r="2" fill="#f59e0b" />
+              <g>
+              <circle cx={midX} cy={controlY} r="2" fill="var(--color-warning)" />
               <text
                 x={midX}
                 y={controlY - 4}

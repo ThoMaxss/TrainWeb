@@ -190,7 +190,7 @@ export default function AdminProfilePage() {
             {/* Avatar Preview */}
             <div className="flex justify-center">
               <div className="relative">
-                <div className="h-24 w-24 rounded-full border-4 border-violet-100 dark:border-violet-900 bg-violet-500 text-primary-foreground text-2xl flex items-center justify-center overflow-hidden">
+                <div className="h-24 w-24 rounded-full border-4 border-secondary/20 dark:border-secondary/80 bg-secondary text-primary-foreground text-2xl flex items-center justify-center overflow-hidden">
                   {avatarPreview ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={avatarPreview} alt="Xem trước ảnh đại diện mới" className="h-full w-full object-cover" />
@@ -200,7 +200,7 @@ export default function AdminProfilePage() {
                 </div>
                 <button 
                   onClick={() => avatarInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 text-primary-foreground shadow-lg"
+                  className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-primary-foreground shadow-lg"
                   aria-label="Chọn ảnh đại diện"
                 >
                   <Camera className="h-4 w-4" />

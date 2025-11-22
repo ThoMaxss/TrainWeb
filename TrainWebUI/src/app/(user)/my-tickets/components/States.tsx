@@ -29,9 +29,9 @@ export function EmptyState({ onGoHome, tab }: EmptyStateProps) {
   const message = messages[tab]
 
   return (
-    <Card className="border-0 bg-background shadow-md">
+    <Card className="border-0 bg-card shadow-md">
       <div className="flex flex-col items-center justify-center py-16 px-2 text-center">
-        <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-blue-200">
+        <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary/10 to-primary/20">
           <Ticket className="h-10 w-10 text-primary" />
         </div>
         <h3 className="mb-2 text-foreground">{message.title}</h3>
@@ -40,7 +40,7 @@ export function EmptyState({ onGoHome, tab }: EmptyStateProps) {
           <Button
             size="lg"
             onClick={onGoHome}
-            className="gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+            className="gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
           >
             <Train className="h-5 w-5" />
             Tìm vé tàu
@@ -58,10 +58,10 @@ interface ErrorStateProps {
 
 export function ErrorState({ error, onRetry }: ErrorStateProps) {
   return (
-    <Card className="border-0 bg-background shadow-md">
+    <Card className="border-0 bg-card shadow-md">
       <div className="flex flex-col items-center justify-center py-16 px-2 text-center">
-        <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
-          <XCircle className="h-10 w-10 text-red-600" />
+        <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
+          <XCircle className="h-10 w-10 text-destructive" />
         </div>
         <h3 className="mb-2 text-foreground">Không thể tải vé</h3>
         <p className="mb-3 max-w-md text-muted-foreground">{error}</p>

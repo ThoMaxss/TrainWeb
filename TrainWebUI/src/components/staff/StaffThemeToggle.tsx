@@ -12,8 +12,8 @@ export function StaffThemeToggle() {
         onClick={() => setTheme("light")}
         className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
           theme === "light"
-            ? "bg-green-600 text-white border-green-600"
-            : "bg-background border-border hover:border-green-600/50"
+            ? "bg-success text-white border-success"
+            : "bg-background border-border hover:border-success/50"
         }`}
         aria-label="Chế độ sáng"
       >
@@ -24,8 +24,8 @@ export function StaffThemeToggle() {
         onClick={() => setTheme("dark")}
         className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
           theme === "dark"
-            ? "bg-green-600 text-white border-green-600"
-            : "bg-background border-border hover:border-green-600/50"
+            ? "bg-success text-white border-success"
+            : "bg-background border-border hover:border-success/50"
         }`}
         aria-label="Chế độ tối"
       >

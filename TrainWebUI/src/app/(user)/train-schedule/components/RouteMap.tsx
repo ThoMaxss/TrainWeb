@@ -112,7 +112,7 @@ export function RouteMap({ trip }: RouteMapProps) {
         </div>
 
         {/* SVG Map */}
-        <div className="relative bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950/20 dark:to-green-950/20 rounded-lg p-8 min-h-[400px]">
+        <div className="relative bg-gradient-to-br from-primary/5 to-success/5 dark:from-primary-950/20 dark:to-success-950/20 rounded-lg p-8 min-h-[400px]">
           <svg
             ref={svgRef}
             viewBox="0 0 100 100"
@@ -122,8 +122,8 @@ export function RouteMap({ trip }: RouteMapProps) {
             {/* Route Path */}
             <defs>
               <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#3b82f6" />
-                <stop offset="100%" stopColor="#10b981" />
+                <stop offset="0%" stopColor="var(--color-primary)" />
+                <stop offset="100%" stopColor="var(--color-success)" />
               </linearGradient>
               
               {/* Animated dash */}
@@ -135,7 +135,7 @@ export function RouteMap({ trip }: RouteMapProps) {
                 refY="3"
                 orient="auto"
               >
-                <polygon points="0 0, 10 3, 0 6" fill="#10b981" />
+                <polygon points="0 0, 10 3, 0 6" fill="var(--color-success)" />
               </marker>
             </defs>
 
@@ -143,7 +143,7 @@ export function RouteMap({ trip }: RouteMapProps) {
             <path
               d={pathD}
               fill="none"
-              stroke="#cbd5e1"
+              stroke="var(--color-border)"
               strokeWidth="0.5"
               strokeDasharray="2,2"
             />
@@ -164,20 +164,20 @@ export function RouteMap({ trip }: RouteMapProps) {
                 cx={departurePos.x}
                 cy={departurePos.y}
                 r="3"
-                fill="#3b82f6"
+                fill="var(--color-primary)"
                 className="drop-shadow-lg"
               />
               <circle
                 cx={departurePos.x}
                 cy={departurePos.y}
                 r="1.5"
-                fill="#fff"
+                fill="var(--color-card-foreground)"
               />
               <text
                 x={departurePos.x}
                 y={departurePos.y - 5}
                 textAnchor="middle"
-                className="text-xs font-bold fill-blue-600"
+                className="text-xs font-bold fill-primary"
               >
                 {trip.originStation}
               </text>
@@ -189,20 +189,20 @@ export function RouteMap({ trip }: RouteMapProps) {
                 cx={arrivalPos.x}
                 cy={arrivalPos.y}
                 r="3"
-                fill="#10b981"
+                fill="var(--color-success)"
                 className="drop-shadow-lg"
               />
               <circle
                 cx={arrivalPos.x}
                 cy={arrivalPos.y}
                 r="1.5"
-                fill="#fff"
+                fill="var(--color-card-foreground)"
               />
               <text
                 x={arrivalPos.x}
                 y={arrivalPos.y - 5}
                 textAnchor="middle"
-                className="text-xs font-bold fill-green-600"
+                className="text-xs font-bold fill-success"
               >
                 {trip.destinationStation}
               </text>
@@ -214,14 +214,14 @@ export function RouteMap({ trip }: RouteMapProps) {
                 cx={midX}
                 cy={controlY}
                 r="2"
-                fill="#f59e0b"
+                fill="var(--color-warning)"
                 className="drop-shadow-md"
               />
               <text
                 x={midX}
                 y={controlY - 4}
                 textAnchor="middle"
-                className="text-[8px] fill-orange-600"
+                className="text-[8px] fill-accent"
               >
                 🚄
               </text>

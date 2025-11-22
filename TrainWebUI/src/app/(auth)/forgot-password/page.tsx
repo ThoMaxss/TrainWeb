@@ -91,8 +91,8 @@ export default function ForgotPasswordPage() {
             ) : (
               // Success State
               <div className="text-center space-y-6">
-                <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto">
-                  <Mail className="w-8 h-8 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                <div className="w-16 h-16 bg-success/10 dark:bg-success/20 rounded-full flex items-center justify-center mx-auto">
+                  <Mail className="w-8 h-8 text-success dark:text-success" aria-hidden="true" />
                 </div>
                 
                 <div>

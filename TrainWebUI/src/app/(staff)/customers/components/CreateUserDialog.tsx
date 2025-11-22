@@ -81,7 +81,7 @@ export function CreateUserDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Hủy
           </Button>
-          <Button onClick={onSubmit} className="bg-green-600 hover:bg-green-700">
+          <Button onClick={onSubmit} className="bg-success hover:bg-success/80">
             Tạo người dùng
           </Button>
         </DialogFooter>

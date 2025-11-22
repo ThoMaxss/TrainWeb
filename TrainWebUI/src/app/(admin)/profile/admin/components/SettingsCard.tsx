@@ -15,8 +15,8 @@ export function SettingsCard({ language, setLanguage, onChangePassword }: Settin
     <Card className="bg-background/70 backdrop-blur-sm border-0 shadow-sm">
       <div className="p-6">
         <div className="mb-4 flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/30">
-            <Settings className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10 dark:bg-secondary/20">
+            <Settings className="h-5 w-5 text-secondary dark:text-secondary/30" />
           </div>
           <h3 className="text-foreground font-semibold">Cài đặt</h3>
         </div>

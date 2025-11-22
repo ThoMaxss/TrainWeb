@@ -49,7 +49,7 @@ export function TicketSearchFilters({
             className={cn(
               "transition-all",
               activeFilter === "all"
-                ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/30"
+                ? "bg-gradient-to-r from-primary to-primary/80 hover:from-primary/80 hover:to-primary/90 shadow-md shadow-primary/30"
                 : "hover:bg-primary/10 hover:border-primary",
             )}
           >
@@ -62,8 +62,8 @@ export function TicketSearchFilters({
             className={cn(
               "transition-all",
               activeFilter === "upcoming"
-                ? "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 shadow-md shadow-emerald-500/30"
-                : "hover:bg-emerald-50 hover:border-emerald-300",
+                ? "bg-gradient-to-r from-success to-success/80 hover:from-success/80 hover:to-success/90 shadow-md shadow-success/30"
+                : "hover:bg-success/10 hover:border-success/30",
             )}
           >
             Sắp đi ({ticketCounts.upcoming})
@@ -88,8 +88,8 @@ export function TicketSearchFilters({
             className={cn(
               "transition-all",
               activeFilter === "cancelled"
-                ? "bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 shadow-md shadow-rose-500/30"
-                : "hover:bg-rose-50 hover:border-rose-300",
+                ? "bg-gradient-to-r from-destructive to-destructive/80 hover:from-destructive/80 hover:to-destructive/90 shadow-md shadow-destructive/30"
+                : "hover:bg-destructive/10 hover:border-destructive/20",
             )}
           >
             Đã hủy ({ticketCounts.cancelled})

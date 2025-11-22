@@ -94,15 +94,15 @@ export default function BookingSuccessPage() {
       <div className="relative aspect-square w-full max-w-[200px] mx-auto">
         <svg viewBox="0 0 200 200" className="w-full h-full">
           {/* QR Code Pattern - simplified mock */}
-          <rect width="200" height="200" fill="white" />
-          <g fill="black">
+          <rect width="200" height="200" className="fill-background" />
+          <g className="fill-foreground">
             {/* Corner markers */}
             <rect x="10" y="10" width="50" height="50" />
-            <rect x="20" y="20" width="30" height="30" fill="white" />
+            <rect x="20" y="20" width="30" height="30" className="fill-background" />
             <rect x="140" y="10" width="50" height="50" />
-            <rect x="150" y="20" width="30" height="30" fill="white" />
+            <rect x="150" y="20" width="30" height="30" className="fill-background" />
             <rect x="10" y="140" width="50" height="50" />
-            <rect x="20" y="150" width="30" height="30" fill="white" />
+            <rect x="20" y="150" width="30" height="30" className="fill-background" />
             
             {/* Random pattern blocks */}
             {Array.from({ length: 100 }).map((_, i) => {
@@ -137,7 +137,7 @@ export default function BookingSuccessPage() {
               y="5"
               width={width}
               height={height}
-              fill="black"
+              className="fill-foreground"
             />
           );
         })}
@@ -182,7 +182,7 @@ export default function BookingSuccessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-background">
       <SuccessHeader />
 
       {/* Main Content */}
@@ -191,7 +191,7 @@ export default function BookingSuccessPage() {
           {/* E-Ticket Card */}
           <Card className="overflow-hidden border-0 shadow-xl bg-background">
             {/* Ticket Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-2 py-2 text-primary-foreground">
+            <div className="bg-gradient-to-r from-primary to-primary/80 px-2 py-2 text-primary-foreground">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="rounded-lg bg-background/20 p-2 backdrop-blur-sm">
@@ -243,7 +243,7 @@ export default function BookingSuccessPage() {
               </div>
 
               {/* Right Section - QR & Price */}
-              <div className="flex flex-col items-center justify-between bg-gradient-to-br from-blue-50 to-indigo-50 p-2">
+              <div className="flex flex-col items-center justify-between bg-muted/30 p-2">
                 <div className="w-full space-y-3">
                   <p className="text-center text-sm text-muted-foreground">
                     Xuất trình mã QR khi lên tàu
@@ -266,7 +266,7 @@ export default function BookingSuccessPage() {
                   {/* Total Price */}
                   <div className="rounded-lg bg-background p-2 text-center shadow-sm">
                     <p className="text-sm text-muted-foreground">Tổng thanh toán</p>
-                    <p className="text-2xl bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+                    <p className="text-2xl bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent font-bold">
                       {formatPrice(grandTotal)}
                     </p>
                   </div>
@@ -285,7 +285,7 @@ export default function BookingSuccessPage() {
                 <JourneyInfo tripInfo={tripInfo} />
 
                 {/* QR Code - Mobile */}
-                <div className="rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 p-2">
+                <div className="rounded-xl bg-muted/30 p-2">
                   <p className="mb-3 text-center text-sm text-muted-foreground">
                     Xuất trình mã QR khi lên tàu
                   </p>
@@ -305,9 +305,9 @@ export default function BookingSuccessPage() {
                 <Separator />
 
                 {/* Total Price - Mobile */}
-                <div className="rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 p-2 text-center">
+                <div className="rounded-lg bg-muted/30 p-2 text-center">
                   <p className="text-sm text-muted-foreground">Tổng thanh toán</p>
-                  <p className="text-2xl bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+                  <p className="text-2xl bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent font-bold">
                     {formatPrice(grandTotal)}
                   </p>
                 </div>
@@ -392,7 +392,7 @@ export default function BookingSuccessPage() {
 
                 <div className="flex justify-between pt-2">
                   <span>Tổng cộng:</span>
-                  <span className="text-xl bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+                  <span className="text-xl bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                     {formatPrice(grandTotal)}
                   </span>
                 </div>
@@ -497,7 +497,7 @@ export default function BookingSuccessPage() {
             <Button
               size="lg"
               onClick={handleGoHome}
-              className="flex-1 gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+              className="flex-1 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/80 hover:to-primary/90"
             >
               <Home className="h-5 w-5" />
               Về trang chủ

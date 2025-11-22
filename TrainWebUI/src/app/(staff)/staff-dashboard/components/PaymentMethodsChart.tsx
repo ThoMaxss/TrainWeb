@@ -44,7 +44,7 @@ export function PaymentMethodsChart({ data, formatCurrency }: PaymentMethodsChar
                 `${method} ${((percent || 0) * 100).toFixed(0)}%`
               }
               outerRadius={80}
-              fill="#8884d8"
+              fill="var(--color-secondary)"
               dataKey="value"
             >
               {data.map((entry, index) => (
@@ -80,7 +80,7 @@ export function PaymentMethodsChart({ data, formatCurrency }: PaymentMethodsChar
                 {method.trend === "up" ? (
                   <ArrowUpRight className="h-3 w-3 text-success" />
                 ) : (
-                  <ArrowDownRight className="h-3 w-3 text-error" />
+                  <ArrowDownRight className="h-3 w-3 text-destructive" />
                 )}
               </div>
             </div>

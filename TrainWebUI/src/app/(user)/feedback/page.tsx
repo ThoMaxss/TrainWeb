@@ -140,7 +140,7 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-muted to-primary/5">
       <FeedbackHeader />
 
       {/* Main Content */}
@@ -148,9 +148,9 @@ export default function FeedbackPage() {
         <div className="mx-auto max-w-3xl space-y-3">
           {/* Error Display */}
           {error && (
-            <Card className="border-destructive/20 bg-error/10">
+            <Card className="border-destructive/20 bg-destructive/10">
               <div className="p-2">
-                <p className="text-error">{error}</p>
+                <p className="text-destructive">{error}</p>
               </div>
             </Card>
           )}
@@ -187,7 +187,7 @@ export default function FeedbackPage() {
               size="lg"
               onClick={handleSubmit}
               disabled={rating === 0 || isLoading}
-              className="flex-1 gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500"
+              className="flex-1 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/80 hover:to-primary/90 disabled:from-gray-400 disabled:to-gray-500"
             >
               {isLoading ? (
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />

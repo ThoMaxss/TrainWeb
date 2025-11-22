@@ -97,8 +97,8 @@ const SeatButton = ({ seat, onSeatSelect, selectedSeats, seatTypeLabel, coachNum
           ${selectedSeats.includes(String(seat.id)) 
             ? "bg-primary text-primary-foreground shadow-md" 
             : seat.isAvailable 
-              ? "bg-success/10 text-emerald-800 hover:bg-emerald-200 border border-emerald-300" 
-              : "bg-error/10 text-destructive cursor-not-allowed border border-destructive/30"}
+              ? "bg-success/10 text-success hover:bg-success/20 border border-success/30" 
+              : "bg-destructive/10 text-destructive cursor-not-allowed border border-destructive/30"}
           `}
           onClick={() => seat.isAvailable && onSeatSelect(seat)}
           whileHover={seat.isAvailable ? { scale: 1.05 } : {}}
@@ -191,7 +191,7 @@ export function SeatMap({
   if (error) {
     return (
       <div className="rounded-lg border bg-background p-2">
-        <div className="text-error mb-3 p-2 bg-error/10 rounded-lg border border-destructive/20">
+        <div className="text-destructive mb-3 p-2 bg-destructive/10 rounded-lg border border-destructive/20">
           <div className="font-medium">Lỗi tải dữ liệu ghế</div>
           <div className="text-sm mt-1">{error}</div>
         </div>
@@ -239,7 +239,7 @@ export function SeatMap({
       {/* Legend */}
       <div className="flex gap-3 mb-3 p-2 bg-card rounded-lg">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-success/10 border border-emerald-300 rounded"></div>
+          <div className="w-4 h-4 bg-success/10 border border-success/30 rounded"></div>
           <span className="text-sm text-foreground">Trống</span>
         </div>
         <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ export function SeatMap({
           <span className="text-sm text-foreground">Đã chọn</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-error/10 border border-destructive/30 rounded"></div>
+          <div className="w-4 h-4 bg-destructive/10 border border-destructive/30 rounded"></div>
           <span className="text-sm text-foreground">Đã đặt</span>
         </div>
       </div>

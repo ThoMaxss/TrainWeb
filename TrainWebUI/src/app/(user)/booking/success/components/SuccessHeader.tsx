@@ -10,7 +10,7 @@ export function SuccessHeader({
   subtitle = "Vé điện tử đã được phát hành. Vui lòng xuất trình QR code khi lên tàu."
 }: SuccessHeaderProps) {
   return (
-    <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-primary-foreground">
+    <div className="bg-gradient-to-r from-success to-success/80 text-primary-foreground">
       <div className="container mx-auto px-2 lg:px-2 py-5 lg:py-12">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-3 flex justify-center">
@@ -19,7 +19,7 @@ export function SuccessHeader({
             </div>
           </div>
           <h1 className="mb-3 text-primary-foreground">{title}</h1>
-          <p className="text-lg text-emerald-50">{subtitle}</p>
+          <p className="text-lg text-primary-foreground/90">{subtitle}</p>
         </div>
       </div>
     </div>

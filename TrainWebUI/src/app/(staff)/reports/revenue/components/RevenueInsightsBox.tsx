@@ -5,10 +5,10 @@ import { Card } from "@/components/ui/card";
 
 export function RevenueInsightsBox() {
   return (
-    <Card className="border-2 border-primary/60 bg-gradient-to-r from-blue-50/80 via-indigo-50/60 to-violet-50/80 backdrop-blur-sm shadow-xl shadow-blue-500/10">
+    <Card className="border-2 border-primary/60 bg-gradient-to-r from-primary/5 via-primary/10 to-secondary/5 backdrop-blur-sm shadow-xl shadow-primary/10">
       <div className="p-2">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/40 shrink-0">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/10 to-primary/20 shadow-lg shadow-primary/40 shrink-0">
             <Info className="h-5 w-5 text-primary-foreground" />
           </div>
           <div className="flex-1">

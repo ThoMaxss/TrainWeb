@@ -60,10 +60,10 @@ export function ScanStatsCards({ stats }: ScanStatsCardsProps) {
       {/* Cancelled */}
       <Card className="p-3 border-0 bg-gradient-to-br from-error/5 to-error/10">
         <div className="flex items-center gap-2 mb-2">
-          <XCircle className="h-5 w-5 text-error" />
-          <p className="text-sm font-semibold text-error">Đã hủy</p>
+          <XCircle className="h-5 w-5 text-destructive" />
+          <p className="text-sm font-semibold text-destructive">Đã hủy</p>
         </div>
-        <p className="text-2xl font-bold text-error">{stats.cancelled}</p>
+        <p className="text-2xl font-bold text-destructive">{stats.cancelled}</p>
       </Card>
     </div>
   );

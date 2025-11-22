@@ -11,8 +11,8 @@ export function ActivitySummary() {
               <p className="text-sm text-muted-foreground">Trạng thái tài khoản</p>
               <p className="text-xl font-bold text-foreground mt-1">Hoạt động</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-              <Activity className="h-6 w-6 text-green-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
+              <Activity className="h-6 w-6 text-success" />
             </div>
           </div>
         </CardContent>
@@ -25,8 +25,8 @@ export function ActivitySummary() {
               <p className="text-sm text-muted-foreground">Đăng nhập lần cuối</p>
               <p className="text-xl font-bold text-foreground mt-1">—</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-              <Clock className="h-6 w-6 text-blue-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <Clock className="h-6 w-6 text-primary" />
             </div>
           </div>
         </CardContent>

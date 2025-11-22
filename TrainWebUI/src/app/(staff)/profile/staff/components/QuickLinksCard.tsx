@@ -13,45 +13,45 @@ const quickLinks = [
     label: "Quản lý khách hàng",
     description: "Xem và quản lý thông tin khách hàng",
     path: "/customers",
-    color: "text-blue-600",
-    bgColor: "bg-blue-600/10",
-    hoverColor: "hover:bg-blue-600/20",
+    color: "text-primary",
+    bgColor: "bg-primary/10",
+    hoverColor: "hover:bg-primary/20",
   },
   {
     icon: QrCode,
     label: "Quét mã QR",
     description: "Kiểm tra và xác nhận vé",
     path: "/qr-check",
-    color: "text-purple-600",
-    bgColor: "bg-purple-600/10",
-    hoverColor: "hover:bg-purple-600/20",
+    color: "text-secondary",
+    bgColor: "bg-secondary/10",
+    hoverColor: "hover:bg-secondary/20",
   },
   {
     icon: RefreshCw,
     label: "Hoàn vé",
     description: "Xử lý yêu cầu hoàn vé",
     path: "/feedback-management",
-    color: "text-orange-600",
-    bgColor: "bg-orange-600/10",
-    hoverColor: "hover:bg-orange-600/20",
+    color: "text-warning",
+    bgColor: "bg-warning/10",
+    hoverColor: "hover:bg-warning/20",
   },
   {
     icon: Ticket,
     label: "Quản lý vé",
     description: "Theo dõi và quản lý vé",
     path: "/manage-tickets",
-    color: "text-green-600",
-    bgColor: "bg-green-600/10",
-    hoverColor: "hover:bg-green-600/20",
+    color: "text-success",
+    bgColor: "bg-success/10",
+    hoverColor: "hover:bg-success/20",
   },
   {
     icon: BarChart3,
     label: "Báo cáo doanh thu",
     description: "Xem thống kê và báo cáo",
     path: "/reports/revenue",
-    color: "text-red-600",
-    bgColor: "bg-red-600/10",
-    hoverColor: "hover:bg-red-600/20",
+    color: "text-destructive",
+    bgColor: "bg-destructive/10",
+    hoverColor: "hover:bg-destructive/20",
   },
 ];
 
@@ -60,7 +60,7 @@ export function QuickLinksCard({ onNavigate }: QuickLinksCardProps) {
     <Card className="bg-background/70 backdrop-blur-sm border-0 shadow-sm">
       <div className="p-6">
         <div className="flex items-center gap-2 mb-6">
-          <ClipboardList className="h-5 w-5 text-green-600" />
+          <ClipboardList className="h-5 w-5 text-success" />
           <h3 className="text-lg font-semibold">Truy cập nhanh</h3>
         </div>
 
@@ -80,7 +80,7 @@ export function QuickLinksCard({ onNavigate }: QuickLinksCardProps) {
                   <p className="font-medium text-sm">{link.label}</p>
                   <p className="text-xs text-muted-foreground">{link.description}</p>
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-green-600 transition-colors" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-success transition-colors" />
               </button>
             );
           })}

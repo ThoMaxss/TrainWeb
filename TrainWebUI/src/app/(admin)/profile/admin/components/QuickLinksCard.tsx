@@ -14,16 +14,16 @@ export function QuickLinksCard({ onNavigate }: QuickLinksCardProps) {
         <div className="space-y-3">
           <button 
             onClick={() => onNavigate("/admin-dashboard")}
-            className="flex w-full items-center gap-3 rounded-lg border-2 border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-900/30 p-3 transition-all hover:border-violet-400 dark:hover:border-violet-600 hover:bg-violet-100 dark:hover:bg-violet-900/50"
+            className="flex w-full items-center gap-3 rounded-lg border-2 border-secondary/20 dark:border-secondary/80 bg-secondary/10 dark:bg-secondary/20 p-3 transition-all hover:border-secondary/40 dark:hover:border-secondary/60 hover:bg-secondary/20 dark:hover:bg-secondary/30"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-violet-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
               <BarChart3 className="h-6 w-6 text-primary-foreground" />
             </div>
             <div className="flex-1 text-left">
-              <p className="font-medium text-violet-900 dark:text-violet-100">Dashboard</p>
-              <p className="text-sm text-violet-700 dark:text-violet-300">Tổng quan hệ thống</p>
+              <p className="font-medium text-secondary/90 dark:text-secondary/30">Dashboard</p>
+              <p className="text-sm text-secondary dark:text-secondary/30">Tổng quan hệ thống</p>
             </div>
-            <ChevronRight className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+            <ChevronRight className="h-5 w-5 text-secondary dark:text-secondary/30" />
           </button>
 
           <button 
@@ -42,44 +42,44 @@ export function QuickLinksCard({ onNavigate }: QuickLinksCardProps) {
 
           <button 
             onClick={() => onNavigate("/trains")}
-            className="flex w-full items-center gap-3 rounded-lg border-2 border-emerald-200 dark:border-emerald-800 bg-success/10 dark:bg-success/20 p-3 transition-all hover:border-emerald-400 dark:hover:border-emerald-600 hover:bg-success/20 dark:hover:bg-success/30"
+            className="flex w-full items-center gap-3 rounded-lg border-2 border-success/20 dark:border-success/80 bg-success/10 dark:bg-success/20 p-3 transition-all hover:border-success/40 dark:hover:border-success/60 hover:bg-success/20 dark:hover:bg-success/30"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success">
               <Train className="h-6 w-6 text-primary-foreground" />
             </div>
             <div className="flex-1 text-left">
-              <p className="font-medium text-emerald-900 dark:text-emerald-100">Quản lý tàu</p>
-              <p className="text-sm text-success dark:text-emerald-300">Cấu hình tàu và tuyến đường</p>
+              <p className="font-medium text-success/90 dark:text-success/30">Quản lý tàu</p>
+              <p className="text-sm text-success dark:text-success/30">Cấu hình tàu và tuyến đường</p>
             </div>
             <ChevronRight className="h-5 w-5 text-success" />
           </button>
 
           <button 
             onClick={() => onNavigate("/tickets")}
-            className="flex w-full items-center gap-3 rounded-lg border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/30 p-3 transition-all hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50"
+            className="flex w-full items-center gap-3 rounded-lg border-2 border-primary/20 dark:border-primary/30 bg-primary/5 dark:bg-primary/10 p-3 transition-all hover:border-primary/40 dark:hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/20"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
               <Ticket className="h-6 w-6 text-primary-foreground" />
             </div>
             <div className="flex-1 text-left">
-              <p className="font-medium text-blue-900 dark:text-blue-100">Quản lý mẫu vé</p>
-              <p className="text-sm text-blue-700 dark:text-blue-300">Cấu hình các loại vé</p>
+              <p className="font-medium text-primary">Quản lý mẫu vé</p>
+              <p className="text-sm text-primary/80 dark:text-primary/30">Cấu hình các loại vé</p>
             </div>
-            <ChevronRight className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <ChevronRight className="h-5 w-5 text-primary" />
           </button>
 
           <button 
             onClick={() => onNavigate("/reports")}
-            className="flex w-full items-center gap-3 rounded-lg border-2 border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/30 p-3 transition-all hover:border-orange-400 dark:hover:border-orange-600 hover:bg-orange-100 dark:hover:bg-orange-900/50"
+            className="flex w-full items-center gap-3 rounded-lg border-2 border-accent/20 dark:border-accent/80 bg-accent/10 dark:bg-accent/20 p-3 transition-all hover:border-accent/40 dark:hover:border-accent/60 hover:bg-accent/20 dark:hover:bg-accent/30"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
               <Database className="h-6 w-6 text-primary-foreground" />
             </div>
             <div className="flex-1 text-left">
-              <p className="font-medium text-orange-900 dark:text-orange-100">Báo cáo</p>
-              <p className="text-sm text-orange-700 dark:text-orange-300">Thống kê và phân tích</p>
+              <p className="font-medium text-accent/90 dark:text-accent/30">Báo cáo</p>
+              <p className="text-sm text-accent dark:text-accent/30">Thống kê và phân tích</p>
             </div>
-            <ChevronRight className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+            <ChevronRight className="h-5 w-5 text-accent dark:text-accent/30" />
           </button>
         </div>
       </div>

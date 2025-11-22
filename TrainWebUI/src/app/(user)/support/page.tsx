@@ -183,32 +183,32 @@ export default function SupportPage() {
       title: "Hotline",
       value: "1900-xxxx",
       description: "Hỗ trợ 24/7",
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
+      color: "text-info",
+      bgColor: "bg-info/10",
     },
     {
       icon: Mail,
       title: "Email",
       value: "support@trainbooking.vn",
       description: "Phản hồi trong 24h",
-      color: "text-emerald-600",
-      bgColor: "bg-emerald-50",
+      color: "text-success",
+      bgColor: "bg-success/10",
     },
     {
       icon: MessageCircle,
       title: "Live Chat",
       value: "Chat ngay",
       description: "8:00 - 22:00 hàng ngày",
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
+      color: "text-secondary",
+      bgColor: "bg-secondary/10",
     },
     {
       icon: MapPin,
       title: "Văn phòng",
       value: "Hà Nội & TP.HCM",
       description: "Thứ 2 - 6: 8:00 - 17:30",
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
+      color: "text-warning",
+      bgColor: "bg-warning/10",
     },
   ];
 
@@ -235,13 +235,13 @@ export default function SupportPage() {
         <div className="mb-8">
           <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-primary p-0 flex items-center min-h-[110px]">
             <CardContent className="flex items-center gap-6 w-full p-6">
-              <div className="flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-xl bg-emerald-100 group-hover:bg-primary transition-colors">
-                <ShieldCheck className="h-8 w-8 md:h-10 md:w-10 text-emerald-600 group-hover:text-white" />
+              <div className="flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-xl bg-success/10 group-hover:bg-primary transition-colors">
+                <ShieldCheck className="h-8 w-8 md:h-10 md:w-10 text-success group-hover:text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-lg text-foreground mb-1 truncate">Trạng thái hệ thống</h3>
                 <p className="text-sm text-muted-foreground mb-1 truncate">Hệ thống hoạt động ổn định</p>
-                <p className="font-bold text-emerald-600 truncate">Không có sự cố</p>
+                <p className="font-bold text-success truncate">Không có sự cố</p>
               </div>
               <ChevronRight className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
             </CardContent>
@@ -394,29 +394,29 @@ export default function SupportPage() {
               const Icon = channel.icon;
               if (channel.title === "Hotline") {
                 return (
-                  <Card key={channel.title} className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-primary p-4 md:p-6 lg:p-8 flex items-center min-h-[110px]">
-                    <CardContent className="flex items-center gap-6 w-full p-0">
-                      <div className="flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-xl bg-blue-100 group-hover:bg-primary transition-colors">
-                        <Icon className="h-8 w-8 md:h-10 md:w-10 text-blue-600 group-hover:text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-lg text-foreground mb-1 truncate">{channel.title}</h3>
-                        <p className="text-sm text-muted-foreground mb-1 truncate">{channel.description}</p>
-                        <p className="font-bold text-blue-600 truncate">{channel.value}</p>
-                      </div>
-                      <ChevronRight className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                  // Match "Additional Resources" card style (vertical, gradient, centered icon)
+                  <Card key={channel.title} className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/20 dark:to-primary/10 border-primary/20 dark:border-primary/30 hover:shadow-xl transition-all duration-300 cursor-pointer">
+                    <CardContent className="p-8 md:p-10 lg:p-12 flex flex-col items-center justify-center text-center min-h-[160px]">
+                      <Icon className={cn("h-12 w-12 mx-auto mb-4", channel.color || 'text-primary')} />
+                      <h3 className="font-semibold text-lg text-foreground mb-2 truncate">{channel.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-2 truncate">{channel.description}</p>
+                      <p className="font-bold text-primary">{channel.value}</p>
                     </CardContent>
                   </Card>
                 );
               } else {
+                const gradientClass = channel.title === "Email"
+                  ? "bg-gradient-to-br from-success/5 to-success/10 dark:from-success/20 dark:to-success/10 border-success/20 dark:border-success/80"
+                  : channel.title === "Live Chat"
+                    ? "bg-gradient-to-br from-secondary/5 to-secondary/10 dark:from-secondary-950/20 dark:to-secondary-950/10 border-secondary/20"
+                    : channel.title === "Văn phòng"
+                      ? "bg-gradient-to-br from-warning/5 to-warning/10 dark:from-warning-950/20 dark:to-warning-950/10 border-warning/20"
+                      : "bg-card border-border";
+
                 return (
-                  <Card key={channel.title} className={cn("hover:shadow-lg transition-shadow p-0 border", channel.bgColor)}>
-                    <CardContent className="p-8 md:p-10 lg:p-12 text-center">
-                      <div className="flex items-center justify-center">
-                        <div className="h-14 w-14 md:h-16 md:w-16 rounded-full flex items-center justify-center mx-auto mb-6">
-                          <Icon className={cn("h-8 w-8 md:h-10 md:w-10", channel.color)} />
-                        </div>
-                      </div>
+                  <Card key={channel.title} className={cn("hover:shadow-lg transition-shadow", gradientClass)}>
+                    <CardContent className="p-8 md:p-10 lg:p-12 flex flex-col items-center justify-center text-center min-h-[160px]">
+                      <Icon className={cn("h-12 w-12 mx-auto mb-4", channel.color)} />
                       <h3 className="font-semibold text-lg text-foreground mb-2">
                         {channel.title}
                       </h3>
@@ -502,9 +502,9 @@ export default function SupportPage() {
 
         {/* Additional Resources */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/20 dark:to-primary/10 border-primary/20 dark:border-primary/30">
             <CardContent className="p-8 md:p-10 lg:p-12 text-center">
-              <FileText className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+              <FileText className="h-12 w-12 text-primary mx-auto mb-4" />
               <h3 className="font-semibold text-lg text-foreground mb-2">
                 Hướng dẫn sử dụng
               </h3>
@@ -518,9 +518,9 @@ export default function SupportPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200">
+          <Card className="bg-gradient-to-br from-success/5 to-success/10 dark:from-success/20 dark:to-success/10 border-success/20 dark:border-success/80">
             <CardContent className="p-8 md:p-10 lg:p-12 text-center">
-              <ShieldCheck className="h-12 w-12 text-emerald-600 mx-auto mb-4" />
+              <ShieldCheck className="h-12 w-12 text-success mx-auto mb-4" />
               <h3 className="font-semibold text-lg text-foreground mb-2">
                 Chính sách & Điều khoản
               </h3>
@@ -534,9 +534,9 @@ export default function SupportPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+          <Card className="bg-gradient-to-br from-secondary/5 to-secondary/10 dark:from-secondary/20 dark:to-secondary/10 border-secondary/20 dark:border-secondary/80">
             <CardContent className="p-8 md:p-10 lg:p-12 text-center">
-              <MessageCircle className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+              <MessageCircle className="h-12 w-12 text-secondary mx-auto mb-4" />
               <h3 className="font-semibold text-lg text-foreground mb-2">
                 Cộng đồng
               </h3>

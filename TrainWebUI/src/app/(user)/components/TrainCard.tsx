@@ -48,7 +48,7 @@ export function TrainCard({
   const displayedSeats = showAllSeats ? seatClasses : seatClasses.slice(0, 2);
 
   return (
-    <Card className="group overflow-hidden border-2 border-border dark:border-primary/30 bg-gradient-to-br from-blue-50/60 to-background/50 dark:from-blue-950/20 dark:to-background rounded-2xl shadow-lg transition-all hover:border-primary hover:shadow-2xl dark:hover:shadow-primary/20">
+    <Card className="group overflow-hidden border-2 border-border dark:border-primary/30 bg-gradient-to-br from-primary/5 to-background/50 dark:from-primary/10 dark:to-background rounded-2xl shadow-lg transition-all hover:border-primary hover:shadow-2xl dark:hover:shadow-primary/20">
       <div className="p-4">
         {/* Stylized train journey line */}
         <div className="flex items-center gap-4 mb-3">

@@ -96,8 +96,8 @@ export default function RegisterPage() {
             )}
 
             {success && (
-              <div className="mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
-                <Small className="text-emerald-600 dark:text-emerald-400">
+              <div className="mb-6 p-4 bg-success/10 dark:bg-success/20 border border-success/20 dark:border-success/80 rounded-xl">
+                <Small className="text-success dark:text-success/30">
                   Đăng ký thành công! Đang chuyển hướng...
                 </Small>
               </div>

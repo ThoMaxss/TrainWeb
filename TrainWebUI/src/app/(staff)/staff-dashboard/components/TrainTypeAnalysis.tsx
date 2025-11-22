@@ -52,18 +52,18 @@ export function TrainTypeAnalysis({ data, formatCurrency }: TrainTypeAnalysisPro
       <CardContent>
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={data} margin={{ top: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
             <XAxis
               dataKey="type"
-              stroke="#6B7280"
+              stroke="var(--color-muted-foreground)"
               fontSize={12}
               tickLine={false}
             />
-            <YAxis stroke="#6B7280" fontSize={12} tickLine={false} />
+            <YAxis stroke="var(--color-muted-foreground)" fontSize={12} tickLine={false} />
             <RechartsTooltip
               contentStyle={{
-                backgroundColor: "white",
-                border: "1px solid #E5E7EB", 
+                backgroundColor: "var(--color-card)",
+                border: `1px solid var(--color-border)`, 
                 borderRadius: "8px",
                 fontSize: "14px",
                 boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
@@ -102,7 +102,7 @@ export function TrainTypeAnalysis({ data, formatCurrency }: TrainTypeAnalysisPro
               <div className="text-right">
                 <div className={cn(
                   "flex items-center gap-1 text-sm font-medium",
-                  type.growth > 0 ? "text-success" : "text-error"
+                  type.growth > 0 ? "text-success" : "text-destructive"
                 )}>
                   {type.growth > 0 ? (
                     <ArrowUpRight className="h-4 w-4" />

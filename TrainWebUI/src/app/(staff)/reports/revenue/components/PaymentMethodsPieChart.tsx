@@ -14,11 +14,12 @@ interface PaymentMethodsChartProps {
   data: PaymentMethodData[];
 }
 
-const PIE_COLORS = ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"];
+import CHART_COLORS, { PIE_COLORS as LIB_PIE_COLORS } from '@/lib/chartColors';
+const PIE_COLORS = LIB_PIE_COLORS;
 
 export function PaymentMethodsPieChart({ data }: PaymentMethodsChartProps) {
   return (
-    <Card className="border-0 bg-background/80 backdrop-blur-sm shadow-xl shadow-blue-500/10">
+    <Card className="border-0 bg-background/80 backdrop-blur-sm shadow-xl shadow-primary/10">
       <div className="p-2">
         <div className="mb-3">
           <h3 className="text-lg font-bold text-foreground">Phương thức thanh toán</h3>
@@ -42,7 +43,7 @@ export function PaymentMethodsPieChart({ data }: PaymentMethodsChartProps) {
             <Tooltip
               contentStyle={{
                 backgroundColor: "white",
-                border: "1px solid #E5E7EB",
+                border: `1px solid var(--color-border)`,
                 borderRadius: "8px",
               }}
               formatter={(value: any) => `${value.toLocaleString("vi-VN")}₫`}

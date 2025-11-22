@@ -37,8 +37,8 @@ export function StaffStats({
               <p className="text-sm text-muted-foreground">Quản lý</p>
               <p className="text-2xl font-bold text-foreground mt-1">{staffCount}</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-              <Shield className="h-6 w-6 text-blue-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <Shield className="h-6 w-6 text-primary" />
             </div>
           </div>
         </div>

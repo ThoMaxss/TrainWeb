@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import CHART_COLORS, { PIE_COLORS } from '@/lib/chartColors';
 
 interface RevenueData {
   date: string;
@@ -17,13 +18,13 @@ interface RevenueTrendChartProps {
 }
 
 const COLORS = {
-  primary: "#3B82F6",
-  danger: "#EF4444",
+  primary: CHART_COLORS.primary,
+  danger: CHART_COLORS.destructive,
 };
 
 export function RevenueTrendChart({ data, timeFilterLabel }: RevenueTrendChartProps) {
   return (
-    <Card className="border-0 bg-background/80 backdrop-blur-sm shadow-xl shadow-blue-500/10 lg:col-span-2">
+    <Card className="border-0 bg-background/80 backdrop-blur-sm shadow-xl shadow-primary/10 lg:col-span-2">
       <div className="p-2">
         <div className="mb-3 flex items-center justify-between">
           <div>
@@ -31,22 +32,22 @@ export function RevenueTrendChart({ data, timeFilterLabel }: RevenueTrendChartPr
             <p className="text-sm text-muted-foreground font-medium">{timeFilterLabel}</p>
           </div>
           <div className="flex gap-2">
-            <Badge variant="outline" className="gap-1.5 border-primary bg-primary/10/50">
+            <Badge variant="outline" className="gap-1.5 border-primary bg-primary/10">
               <div className="h-2 w-2 rounded-full bg-primary"></div>
               <span className="text-xs font-medium">Doanh thu</span>
             </Badge>
-            <Badge variant="outline" className="gap-1.5 border-destructive/20 bg-error/10/50">
-              <div className="h-2 w-2 rounded-full bg-error"></div>
+            <Badge variant="outline" className="gap-1.5 border-destructive/20 bg-destructive/10">
+              <div className="h-2 w-2 rounded-full bg-destructive"></div>
               <span className="text-xs font-medium">Hoàn vé</span>
             </Badge>
           </div>
         </div>
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-            <XAxis dataKey="date" stroke="#6B7280" fontSize={12} tickLine={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+            <XAxis dataKey="date" stroke="var(--color-muted-foreground)" fontSize={12} tickLine={false} />
             <YAxis
-              stroke="#6B7280"
+              stroke="var(--color-muted-foreground)"
               fontSize={12}
               tickLine={false}
               tickFormatter={(value) => `${value / 1000}K`}
@@ -54,7 +55,7 @@ export function RevenueTrendChart({ data, timeFilterLabel }: RevenueTrendChartPr
             <Tooltip
               contentStyle={{
                 backgroundColor: "white",
-                border: "1px solid #E5E7EB",
+                border: `1px solid var(--color-border)`,
                 borderRadius: "8px",
               }}
               formatter={(value: any) => `${value.toLocaleString("vi-VN")}₫`}

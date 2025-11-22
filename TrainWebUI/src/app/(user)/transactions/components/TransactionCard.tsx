@@ -104,7 +104,7 @@ export function TransactionCard({
             {/* Amount */}
             <div className="flex-1 text-left sm:text-right">
               <p className="text-xs text-muted-foreground">Số tiền</p>
-              <p className="mt-1 text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              <p className="mt-1 text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                 {formatPrice(transaction.amount)}
               </p>
             </div>

@@ -13,7 +13,7 @@ export function RatingCard({ rating, onRatingChange }: RatingCardProps) {
   const [hoveredRating, setHoveredRating] = useState<number>(0);
 
   const getEmojiForRating = (stars: number) => {
-    if (stars <= 2) return { icon: Frown, color: "text-error", label: "Không hài lòng" };
+    if (stars <= 2) return { icon: Frown, color: "text-destructive", label: "Không hài lòng" };
     if (stars <= 3) return { icon: Meh, color: "text-warning", label: "Bình thường" };
     return { icon: Smile, color: "text-success", label: "Hài lòng" };
   };

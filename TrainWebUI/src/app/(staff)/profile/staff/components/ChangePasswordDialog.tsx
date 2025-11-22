@@ -44,7 +44,7 @@ export function ChangePasswordDialog({ isOpen, onClose, onChangePassword }: Chan
               onChangePassword()
               onClose()
             }}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-success hover:bg-success/80"
           >
             Đổi mật khẩu
           </Button>

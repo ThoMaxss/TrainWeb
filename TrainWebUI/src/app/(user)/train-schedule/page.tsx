@@ -101,7 +101,7 @@ export default function TrainSchedulePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Page Header */}
-      <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950/20 dark:to-green-950/20 border-b">
+      <div className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/20 dark:to-primary/10 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <PageHeader
             title="Lịch trình tàu"

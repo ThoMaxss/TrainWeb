@@ -13,11 +13,11 @@ interface RouteRevenueChartProps {
   data: RouteRevenueData[];
 }
 
-const COLORS = { primary: "#3B82F6" };
+const COLORS = { primary: "var(--color-primary)" };
 
 export function RouteRevenueBarChart({ data }: RouteRevenueChartProps) {
   return (
-    <Card className="border-0 bg-background/80 backdrop-blur-sm shadow-xl shadow-blue-500/10">
+    <Card className="border-0 bg-background/80 backdrop-blur-sm shadow-xl shadow-primary/10">
       <div className="p-2">
         <div className="mb-3 flex items-center justify-between">
           <div>
@@ -27,19 +27,19 @@ export function RouteRevenueBarChart({ data }: RouteRevenueChartProps) {
         </div>
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={data} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
             <XAxis
               type="number"
-              stroke="#6B7280"
+              stroke="var(--color-muted-foreground)"
               fontSize={12}
               tickLine={false}
               tickFormatter={(value) => `${value / 1000}K`}
             />
-            <YAxis type="category" dataKey="route" stroke="#6B7280" fontSize={12} tickLine={false} width={150} />
+            <YAxis type="category" dataKey="route" stroke="var(--color-muted-foreground)" fontSize={12} tickLine={false} width={150} />
             <Tooltip
               contentStyle={{
                 backgroundColor: "white",
-                border: "1px solid #E5E7EB",
+                border: `1px solid var(--color-border)`,
                 borderRadius: "8px",
               }}
               formatter={(value: any, name: string) => {
