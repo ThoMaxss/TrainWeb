@@ -26,12 +26,13 @@
   --color-input: #E5E7EB;
   --color-ring: rgba(37, 99, 235, 0.5);
 
-  /* Status Colors */
-  --color-destructive: #DC2626;
+  /* Status Colors - Refined for better contrast & vibrancy */
+  --color-destructive: #EF4444;
   --color-destructive-foreground: #FFFFFF;
-  --color-success: #16A34A;
-  --color-warning: #F59E0B;
-  --color-info: #0EA5E9;
+  --color-success: #10B981; /* Emerald-500: More modern than Green */
+  --color-warning: #F59E0B; /* Amber-500 */
+  --color-info: #06B6D4; /* Cyan-500: More vibrant than Sky */
+  --color-momo: #A50064; /* MoMo brand color (magenta) */
 
   /* Interaction */
   --color-hover-primary: color-mix(in srgb, var(--color-primary) 90%, white);
@@ -58,24 +59,25 @@
    🌙 DARK MODE OVERRIDES
    =============================== */
 .dark {
-  --color-primary: #3B82F6;
-  --color-accent: #FB923C;
-  --color-secondary: #A78BFA;
+  --color-primary: #60A5FA; /* Blue-400: Better contrast on dark */
+  --color-primary-foreground: #0F172A; /* Dark text on bright primary */
+  --color-accent: #FB923C; /* Orange-400 */
+  --color-secondary: #C084FC; /* Violet-400 */
 
-  --color-background: #0F172A;
-  --color-foreground: #E2E8F0;
-  --color-card: #1E293B;
+  --color-background: #020617; /* Slate-950: Deeper, richer black */
+  --color-foreground: #F1F5F9; /* Slate-100 */
+  --color-card: #0F172A; /* Slate-900 */
   --color-card-foreground: #F8FAFC;
-  --color-muted: #1E293B;
+  --color-muted: #1E293B; /* Slate-800 */
   --color-muted-foreground: #94A3B8;
-  --color-border: #334155;
-  --color-input: #334155;
-  --color-ring: rgba(59, 130, 246, 0.5);
+  --color-border: #1E293B; /* Slate-800: Subtle borders */
+  --color-input: #1E293B;
+  --color-ring: rgba(96, 165, 250, 0.5);
 
-  --color-destructive: #EF4444;
-  --color-success: #22C55E;
-  --color-warning: #FACC15;
-  --color-info: #38BDF8;
+  --color-destructive: #F87171; /* Red-400 */
+  --color-success: #34D399; /* Emerald-400 */
+  --color-warning: #FBBF24; /* Amber-400 */
+  --color-info: #22D3EE; /* Cyan-400 */
 }
 
 /* ===============================
@@ -140,6 +142,27 @@
   /* Global transitions */
   button, [role="button"], a {
     transition: all 150ms ease-in-out;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-muted-foreground);
+    opacity: 0.5;
+    border-radius: 5px;
+    border: 2px solid var(--color-background);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
   }
 }
 

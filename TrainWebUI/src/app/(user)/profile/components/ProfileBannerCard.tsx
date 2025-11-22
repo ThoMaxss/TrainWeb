@@ -17,7 +17,7 @@ export function ProfileBannerCard({ profile, onAvatarUpload, getInitials }: Prof
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <Card className="border-0 bg-gradient-to-br from-blue-600 to-blue-700 text-primary-foreground shadow-xl">
+    <Card className="border-0 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-xl">
       <div className="p-2 sm:p-2">
         <div className="flex flex-col sm:flex-row items-center gap-3">
           {/* Avatar */}

@@ -238,12 +238,12 @@ export default function RevenueReportPage() {
 
   // Chart colors
   const COLORS = {
-    primary: "#3B82F6",
-    secondary: "#8B5CF6",
-    success: "#10B981",
-    warning: "#F59E0B",
-    danger: "#EF4444",
-    info: "#06B6D4",
+    primary: "var(--color-primary)",
+    secondary: "var(--color-secondary)",
+    success: "var(--color-success)",
+    warning: "var(--color-warning)",
+    danger: "var(--color-destructive)",
+    info: "var(--color-info)",
   }
 
   const PIE_COLORS = [COLORS.primary, COLORS.secondary, COLORS.success, COLORS.warning]
@@ -277,7 +277,7 @@ export default function RevenueReportPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 items-center justify-center">
+      <div className="flex h-screen flex-col bg-gradient-to-br from-muted via-primary/10 to-primary/20 items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-3"></div>
           <p className="text-muted-foreground">Đang tải dữ liệu báo cáo...</p>
@@ -288,10 +288,10 @@ export default function RevenueReportPage() {
 
   if (error) {
     return (
-      <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 items-center justify-center">
+      <div className="flex h-screen flex-col bg-gradient-to-br from-muted via-primary/10 to-primary/20 items-center justify-center">
         <div className="text-center">
-          <XCircle className="h-12 w-12 text-error mx-auto mb-3" />
-          <p className="text-error mb-3">Lỗi: {error}</p>
+          <XCircle className="h-12 w-12 text-destructive mx-auto mb-3" />
+          <p className="text-destructive mb-3">Lỗi: {error}</p>
           <Button onClick={() => window.location.reload()}>Thử lại</Button>
         </div>
       </div>
@@ -299,7 +299,7 @@ export default function RevenueReportPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+    <div className="flex h-screen flex-col bg-gradient-to-br from-muted via-primary/10 to-primary/20">
       <ScrollArea className="flex-1">
         <div className="p-2 lg:p-2 space-y-3">
           <RevenueKPICards data={kpiData} />

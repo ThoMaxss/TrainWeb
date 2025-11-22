@@ -85,17 +85,17 @@ export default function StaffDashboardPage() {
 
   // Tickets by train type with enhanced details
   const [ticketsByType] = useState([
-    { type: "SE", tickets: 456, revenue: 68400000, fill: "#3B82F6", growth: +8.5 },
-    { type: "TN", tickets: 389, revenue: 42790000, fill: "#10B981", growth: +12.3 },
-    { type: "ĐP", tickets: 402, revenue: 32160000, fill: "#F59E0B", growth: -2.1 },
+    { type: "SE", tickets: 456, revenue: 68400000, fill: "var(--color-primary)", growth: +8.5 },
+    { type: "TN", tickets: 389, revenue: 42790000, fill: "var(--color-success)", growth: +12.3 },
+    { type: "ĐP", tickets: 402, revenue: 32160000, fill: "var(--color-warning)", growth: -2.1 },
   ]);
 
   // Payment methods with enhanced data
   const [paymentMethods] = useState([
-    { method: "VISA", value: 42, amount: 65880000, fill: "#3B82F6", trend: "up" as const },
-    { method: "MasterCard", value: 28, amount: 43904000, fill: "#8B5CF6", trend: "up" as const },
-    { method: "MoMo", value: 18, amount: 28220400, fill: "#EC4899", trend: "down" as const },
-    { method: "VNPay", value: 12, amount: 18813600, fill: "#10B981", trend: "up" as const },
+    { method: "VISA", value: 42, amount: 65880000, fill: "var(--color-primary)", trend: "up" as const },
+    { method: "MasterCard", value: 28, amount: 43904000, fill: "var(--color-secondary)", trend: "up" as const },
+    { method: "MoMo", value: 18, amount: 28220400, fill: "var(--color-destructive)", trend: "down" as const },
+    { method: "VNPay", value: 12, amount: 18813600, fill: "var(--color-success)", trend: "up" as const },
   ]);
 
   // Enhanced upcoming trains with real-time status

@@ -26,7 +26,7 @@ export function KPICards({ data, onNavigate }: KPICardsProps) {
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {/* Today's Tickets */}
       <Card 
-        className="border-0 bg-gradient-to-br from-blue-500 to-blue-600 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl"
+        className="border-0 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl"
         onClick={() => onNavigate("/manage-tickets")}
       >
         <CardContent className="p-2">
@@ -54,17 +54,17 @@ export function KPICards({ data, onNavigate }: KPICardsProps) {
 
       {/* Today's Revenue */}
       <Card 
-        className="border-0 bg-gradient-to-br from-green-500 to-green-600 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl"
+        className="border-0 bg-gradient-to-br from-success to-success/80 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl"
         onClick={() => onNavigate("/reports/revenue")}
       >
         <CardContent className="p-2">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-emerald-100">Doanh thu hôm nay</p>
+              <p className="text-sm text-success/70">Doanh thu hôm nay</p>
               <h2 className="mt-2 text-3xl font-bold text-primary-foreground">
                 {(data.todayRevenue / 1000000).toFixed(1)}M
               </h2>
-              <div className="mt-2 flex items-center gap-1 text-sm text-emerald-100">
+              <div className="mt-2 flex items-center gap-1 text-sm text-success/70">
                 {data.revenueChange > 0 ? (
                   <ArrowUpRight className="h-4 w-4" />
                 ) : (
@@ -81,13 +81,13 @@ export function KPICards({ data, onNavigate }: KPICardsProps) {
       </Card>
 
       {/* Upcoming Trains */}
-      <Card className="border-0 bg-gradient-to-br from-orange-500 to-orange-600 text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
+      <Card className="border-0 bg-gradient-to-br from-accent to-accent/60 text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
         <CardContent className="p-2">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-orange-100">Tàu sắp khởi hành</p>
+              <p className="text-sm text-accent/10">Tàu sắp khởi hành</p>
               <h2 className="mt-2 text-3xl font-bold text-primary-foreground">{data.upcomingTrains}</h2>
-              <div className="mt-2 flex items-center gap-1 text-sm text-orange-100">
+              <div className="mt-2 flex items-center gap-1 text-sm text-accent/10">
                 <Clock className="h-4 w-4" />
                 <span>Trong 24 giờ tới</span>
               </div>
@@ -104,7 +104,7 @@ export function KPICards({ data, onNavigate }: KPICardsProps) {
         <CardContent className="p-2">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-violet-100">Hiệu suất hoàn thành</p>
+              <p className="text-sm text-secondary/10">Hiệu suất hoàn thành</p>
               <h2 className="mt-2 text-3xl font-bold text-primary-foreground">{data.completionRate}%</h2>
               <div className="mt-2 w-full bg-background/20 rounded-full h-2">
                 <div 

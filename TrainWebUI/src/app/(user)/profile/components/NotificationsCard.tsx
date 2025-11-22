@@ -15,8 +15,8 @@ export function NotificationsCard({
     <Card className="border-0 bg-background shadow-md">
       <div className="p-2">
         <div className="mb-3 flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100">
-            <Bell className="h-5 w-5 text-orange-600" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
+            <Bell className="h-5 w-5 text-warning" />
           </div>
           <h3 className="text-foreground">Thông báo & Quyền riêng tư</h3>
         </div>
@@ -32,7 +32,7 @@ export function NotificationsCard({
             </div>
             <input
               type="checkbox"
-              className="h-5 w-5 accent-blue-600"
+              className="h-5 w-5 accent-primary"
               checked={notificationsEnabled}
               onChange={(e) => onNotificationsChange(e.target.checked)}
             />

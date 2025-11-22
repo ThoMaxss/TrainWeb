@@ -11,11 +11,11 @@ interface BadgeStatusProps {
 }
 
 const statusConfig = {
-  success: "bg-success/10 text-success border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800",
-  upcoming: "bg-success/10 text-success border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800",
-  warning: "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-800",
-  error: "bg-error/10 text-error border-destructive/20 dark:bg-destructive/10  dark:border-destructive/80",
-  cancelled: "bg-error/10 text-error border-destructive/20 dark:bg-destructive/10  dark:border-destructive/80",
+  success: "bg-success/10 text-success border-success/20 dark:bg-success/20 dark:text-success/30 dark:border-success/80",
+  upcoming: "bg-success/10 text-success border-success/20 dark:bg-success/20 dark:text-success/30 dark:border-success/80",
+  warning: "bg-warning/10 text-warning border-warning/20 dark:bg-warning/20 dark:text-warning/30 dark:border-warning/80",
+  error: "bg-destructive/10 text-destructive border-destructive/20 dark:bg-destructive/10 dark:text-destructive/30 dark:border-destructive/80",
+  cancelled: "bg-destructive/10 text-destructive border-destructive/20 dark:bg-destructive/10 dark:text-destructive/30 dark:border-destructive/80",
   info: "bg-primary/10 text-primary border-primary dark:bg-primary/10 dark:text-primary-foreground/80 dark:border-primary",
   completed: "bg-card text-foreground border-border dark:bg-gray-800 dark:text-muted-foreground dark:border-gray-700"
 };

@@ -14,7 +14,7 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
     if (role === undefined) return null;
     const colorClasses = {
       [UserRole.Admin]: "bg-purple-100 text-purple-700 hover:bg-purple-100",
-      [UserRole.Staff]: "bg-blue-100 text-blue-700 hover:bg-blue-100",
+      [UserRole.Staff]: "bg-primary/10 text-primary hover:bg-primary/10",
       [UserRole.Passenger]: "bg-gray-100 text-gray-700 hover:bg-gray-100",
     };
     return (

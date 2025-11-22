@@ -37,11 +37,11 @@ interface TicketsTableProps {
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "upcoming":
-      return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0 shadow-sm">Sắp đi</Badge>
+      return <Badge className="bg-success/10 text-success hover:bg-success/10 border-0 shadow-sm">Sắp đi</Badge>
     case "completed":
       return <Badge className="bg-muted text-foreground/90 hover:bg-muted border-0 shadow-sm">Đã đi</Badge>
     case "cancelled":
-      return <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-100 border-0 shadow-sm">Đã hủy</Badge>
+      return <Badge className="bg-destructive/10 text-destructive hover:bg-destructive/10 border-0 shadow-sm">Đã hủy</Badge>
     default:
       return null
   }
@@ -60,7 +60,7 @@ export function TicketsTable({
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gradient-to-r from-slate-50 to-blue-50/30 hover:from-slate-50 hover:to-blue-50/30 border-b border-border">
+            <TableRow className="bg-gradient-to-r from-muted to-primary/10 hover:from-muted hover:to-primary/10 border-b border-border">
               <TableHead className="font-semibold text-foreground/90">Mã vé</TableHead>
               <TableHead className="font-semibold text-foreground/90">Chuyến tàu</TableHead>
               <TableHead className="font-semibold text-foreground/90">Hành khách</TableHead>
@@ -75,7 +75,7 @@ export function TicketsTable({
             {tickets.map((ticket) => (
               <TableRow
                 key={ticket.id}
-                className="group hover:bg-primary/10/50 transition-colors cursor-pointer border-b border-border/50"
+                className="group hover:bg-primary/10 transition-colors cursor-pointer border-b border-border/50"
               >
                 <TableCell>
                   <div className="font-semibold text-primary">{ticket.id}</div>
@@ -117,7 +117,7 @@ export function TicketsTable({
                       onClick={() => onPrint(ticket.id)}
                       className="h-8 w-8 hover:bg-primary/10 transition-colors"
                     >
-                      <Printer className="h-4 w-4 text-indigo-600" />
+                      <Printer className="h-4 w-4 text-primary" />
                     </Button>
                     {ticket.status === "upcoming" && (
                       <>
@@ -125,7 +125,7 @@ export function TicketsTable({
                           variant="ghost"
                           size="icon"
                           onClick={() => onRefundExchange(ticket.id)}
-                          className="h-8 w-8 hover:bg-amber-100 transition-colors"
+                          className="h-8 w-8 hover:bg-warning/10 transition-colors"
                         >
                           <RefreshCw className="h-4 w-4 text-warning" />
                         </Button>
@@ -133,9 +133,9 @@ export function TicketsTable({
                           variant="ghost"
                           size="icon"
                           onClick={() => onCheckIn(ticket.id)}
-                          className="h-8 w-8 hover:bg-emerald-100 transition-colors"
+                          className="h-8 w-8 hover:bg-success/10 transition-colors"
                         >
-                          <CheckCircle className="h-4 w-4 text-emerald-600" />
+                          <CheckCircle className="h-4 w-4 text-success" />
                         </Button>
                       </>
                     )}

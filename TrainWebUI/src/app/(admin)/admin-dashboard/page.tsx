@@ -297,13 +297,13 @@ export default function AdminDashboardPage() {
 
   // Chart colors
   const COLORS = {
-    primary: "#3B82F6",
-    secondary: "#8B5CF6",
-    success: "#10B981",
-    warning: "#F59E0B",
-    danger: "#EF4444",
-    info: "#06B6D4",
-    indigo: "#6366F1",
+    primary: "var(--color-primary)",
+    secondary: "var(--color-secondary)",
+    success: "var(--color-success)",
+    warning: "var(--color-warning)",
+    danger: "var(--color-destructive)",
+    info: "var(--color-info)",
+    indigo: "var(--color-secondary)",
   };
 
   const PIE_COLORS = [
@@ -340,7 +340,7 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-blue-950 dark:to-indigo-900">
+    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-primary/10 to-primary/20 dark:from-slate-900 dark:via-primary-950 dark:to-primary-900">
       {/* Main Content */}
       <ScrollArea className="flex-1">
         <div className="p-4 lg:p-8 space-y-8">
@@ -363,7 +363,7 @@ export default function AdminDashboardPage() {
           {/* KPI Cards - Large & Bold */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
             {/* Total Revenue */}
-            <Card className="border-0 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-600 text-white shadow-xl lg:col-span-2">
+            <Card className="border-0 bg-gradient-to-br from-success via-success/60 to-secondary/60 text-white shadow-xl lg:col-span-2">
               <div className="p-8">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-background/20 backdrop-blur">
@@ -384,8 +384,8 @@ export default function AdminDashboardPage() {
                 <h2 className="text-3xl font-bold text-white mb-2">
                   {Math.round(displayRevenue).toLocaleString("vi-VN")}₫
                 </h2>
-                <p className="text-emerald-100">Tổng doanh thu tháng</p>
-                <div className="mt-4 flex items-center gap-2 text-sm text-emerald-100">
+                <p className="text-success/10">Tổng doanh thu tháng</p>
+                <div className="mt-4 flex items-center gap-2 text-sm text-success/10">
                   <TrendingUp className="h-4 w-4" />
                   <span>Tăng so với tháng trước</span>
                 </div>
@@ -393,7 +393,7 @@ export default function AdminDashboardPage() {
             </Card>
 
             {/* Tickets Sold */}
-            <Card className="border-0 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 text-white shadow-xl">
+            <Card className="border-0 bg-gradient-to-br from-primary via-primary/80 to-secondary/80 text-white shadow-xl">
               <div className="p-8">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-background/20 backdrop-blur">
@@ -415,7 +415,7 @@ export default function AdminDashboardPage() {
             </Card>
 
             {/* Refund Rate */}
-            <Card className="border-0 bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 text-white shadow-xl">
+            <Card className="border-0 bg-gradient-to-br from-warning via-accent to-destructive text-white shadow-xl">
               <div className="p-8">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-background/20 backdrop-blur">
@@ -430,12 +430,12 @@ export default function AdminDashboardPage() {
                   </Badge>
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-2">{kpiData.refundRate}%</h2>
-                <p className="text-amber-100">Tỷ lệ hoàn vé</p>
+                <p className="text-warning/10">Tỷ lệ hoàn vé</p>
               </div>
             </Card>
 
             {/* Failed Transaction Rate */}
-            <Card className="border-0 bg-gradient-to-br from-rose-500 via-pink-500 to-fuchsia-600 text-white shadow-xl">
+            <Card className="border-0 bg-gradient-to-br from-destructive/60 via-destructive/70 to-destructive/80 text-white shadow-xl">
               <div className="p-8">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-background/20 backdrop-blur">
@@ -443,14 +443,14 @@ export default function AdminDashboardPage() {
                   </div>
                   <Badge
                     variant="outline"
-                    className="gap-1 border-white/40 bg-emerald-500/80 text-white backdrop-blur"
+                    className="gap-1 border-white/40 bg-success/60 text-white backdrop-blur"
                   >
                     <ArrowDownRight className="h-3 w-3" />
                     {Math.abs(kpiData.failedTransactionChange)}%
                   </Badge>
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-2">{kpiData.failedTransactionRate}%</h2>
-                <p className="text-rose-100">Giao dịch thất bại</p>
+                <p className="text-destructive/10">Giao dịch thất bại</p>
               </div>
             </Card>
           </div>
@@ -458,7 +458,7 @@ export default function AdminDashboardPage() {
           {/* Second Row: Staff Online + AI Insights */}
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Staff Online */}
-            <Card className="border-0 bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-600 text-white shadow-xl">
+            <Card className="border-0 bg-gradient-to-br from-secondary via-secondary/80 to-primary/80 text-white shadow-xl">
               <div className="p-8">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-background/20 backdrop-blur">
@@ -470,8 +470,8 @@ export default function AdminDashboardPage() {
                   </Badge>
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-2">{kpiData.staffOnline}</h2>
-                <p className="text-violet-100">Nhân viên đang online</p>
-                <div className="mt-4 flex items-center gap-2 text-sm text-violet-100">
+                <p className="text-secondary/10">Nhân viên đang online</p>
+                <div className="mt-4 flex items-center gap-2 text-sm text-secondary/10">
                   <Clock className="h-4 w-4" />
                   <span>Tất cả các ca</span>
                 </div>
@@ -479,39 +479,39 @@ export default function AdminDashboardPage() {
             </Card>
 
             {/* AI Insights Box */}
-            <Card className="border-2 border-primary/20 bg-gradient-to-br from-white via-blue-50 to-indigo-50 shadow-xl lg:col-span-2">
+            <Card className="border-2 border-primary/20 bg-gradient-to-br from-white via-primary/10 to-primary/20 shadow-xl lg:col-span-2">
               <div className="p-8">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 shrink-0">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/80 to-secondary shrink-0">
                     <Sparkles className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-4">
                       <h3 className="text-lg font-semibold text-foreground">Phân tích AI</h3>
-                      <Badge className="bg-gradient-to-r from-indigo-600 to-purple-600">
+                      <Badge className="bg-gradient-to-r from-primary/80 to-secondary">
                         <Zap className="mr-1 h-3 w-3" />
                         Tự động
                       </Badge>
                     </div>
                     <div className="space-y-3">
-                      <div className="rounded-lg bg-background/80 backdrop-blur p-4 border border-indigo-100">
+                      <div className="rounded-lg bg-background/80 backdrop-blur p-4 border border-border/50">
                         <div className="flex items-start gap-2">
-                          <div className="h-2 w-2 rounded-full bg-emerald-500 mt-2 shrink-0"></div>
+                          <div className="h-2 w-2 rounded-full bg-success mt-2 shrink-0"></div>
                           <p className="text-sm text-foreground">
                             <span className="font-medium text-primary">Tuyến Hà Nội – Sài Gòn</span> chiếm{" "}
                             <span className="font-medium">35%</span> doanh thu tháng này.
                           </p>
                         </div>
                       </div>
-                      <div className="rounded-lg bg-background/80 backdrop-blur p-4 border border-indigo-100">
+                      <div className="rounded-lg bg-background/80 backdrop-blur p-4 border border-border/50">
                         <div className="flex items-start gap-2">
-                          <div className="h-2 w-2 rounded-full bg-amber-500 mt-2 shrink-0"></div>
+                          <div className="h-2 w-2 rounded-full bg-warning mt-2 shrink-0"></div>
                           <p className="text-sm text-foreground">
-                            Tỷ lệ hoàn vé <span className="font-medium text-amber-700">tăng 2%</span> so với tháng trước.
+                            Tỷ lệ hoàn vé <span className="font-medium text-warning">tăng 2%</span> so với tháng trước.
                           </p>
                         </div>
                       </div>
-                      <div className="rounded-lg bg-background/80 backdrop-blur p-4 border border-indigo-100">
+                      <div className="rounded-lg bg-background/80 backdrop-blur p-4 border border-border/50">
                         <div className="flex items-start gap-2">
                           <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0"></div>
                           <p className="text-sm text-foreground">
@@ -552,10 +552,10 @@ export default function AdminDashboardPage() {
                         <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                    <XAxis dataKey="date" stroke="#6B7280" fontSize={12} tickLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                    <XAxis dataKey="date" stroke="var(--color-muted-foreground)" fontSize={12} tickLine={false} />
                     <YAxis
-                      stroke="#6B7280"
+                      stroke="var(--color-muted-foreground)"
                       fontSize={12}
                       tickLine={false}
                       tickFormatter={(value: number) => `${value / 1000}K`}
@@ -563,7 +563,7 @@ export default function AdminDashboardPage() {
                     <Tooltip
                       contentStyle={{
                         backgroundColor: "white",
-                        border: "1px solid #E5E7EB",
+                        border: `1px solid var(--color-border)`,
                         borderRadius: "12px",
                         padding: "12px",
                       }}
@@ -608,7 +608,7 @@ export default function AdminDashboardPage() {
                     <Tooltip
                       contentStyle={{
                         backgroundColor: "white",
-                        border: "1px solid #E5E7EB",
+                        border: "1px solid var(--color-border)",
                         borderRadius: "12px",
                       }}
                       formatter={(value: any) => `${value.toLocaleString("vi-VN")}₫`}
@@ -648,10 +648,10 @@ export default function AdminDashboardPage() {
               </div>
               <ResponsiveContainer width="100%" height={320}>
                 <BarChart data={routeTicketData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                  <XAxis
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                    <XAxis
                     type="number"
-                    stroke="#6B7280"
+                    stroke="var(--color-muted-foreground)"
                     fontSize={12}
                     tickLine={false}
                     tickFormatter={(value: number) => value.toLocaleString()}
@@ -659,15 +659,15 @@ export default function AdminDashboardPage() {
                   <YAxis
                     type="category"
                     dataKey="route"
-                    stroke="#6B7280"
+                    stroke="var(--color-muted-foreground)"
                     fontSize={12}
                     tickLine={false}
                     width={170}
                   />
-                  <Tooltip
+                    <Tooltip
                     contentStyle={{
                       backgroundColor: "white",
-                      border: "1px solid #E5E7EB",
+                      border: "1px solid var(--color-border)",
                       borderRadius: "12px",
                       padding: "12px",
                     }}
@@ -692,7 +692,7 @@ export default function AdminDashboardPage() {
                     <h3 className="text-lg font-semibold text-foreground">Nhân viên hoạt động</h3>
                     <p className="text-sm text-muted-foreground">Hiện đang online</p>
                   </div>
-                  <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+                  <Badge className="bg-success/10 text-success hover:bg-success/10">
                     {kpiData.staffOnline} online
                   </Badge>
                 </div>
@@ -705,7 +705,7 @@ export default function AdminDashboardPage() {
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm">
+                            <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-white text-sm">
                               {staff.name.split(" ").slice(-2).map((n) => n[0]).join("")}
                             </AvatarFallback>
                           </Avatar>
@@ -719,14 +719,14 @@ export default function AdminDashboardPage() {
                           className={cn(
                             "gap-1 text-xs",
                             staff.status === "online"
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              ? "bg-success/10 text-success border-success/20"
                               : "bg-card text-muted"
                           )}
                         >
                           <div
                             className={cn(
                               "h-2 w-2 rounded-full",
-                              staff.status === "online" ? "bg-emerald-500" : "bg-muted"
+                              staff.status === "online" ? "bg-success" : "bg-muted"
                             )}
                           />
                           {staff.shift}
@@ -737,9 +737,9 @@ export default function AdminDashboardPage() {
                           <p className="text-primary font-medium">{staff.ticketsProcessed}</p>
                           <p className="text-primary">Vé xử lý</p>
                         </div>
-                        <div className="rounded bg-violet-50 p-2">
-                          <p className="text-violet-700 font-medium">{staff.feedbackHandled}</p>
-                          <p className="text-violet-600">Feedback</p>
+                        <div className="rounded bg-secondary/10 p-2">
+                          <p className="text-secondary font-medium">{staff.feedbackHandled}</p>
+                          <p className="text-secondary">Feedback</p>
                         </div>
                       </div>
                     </div>
@@ -760,14 +760,14 @@ export default function AdminDashboardPage() {
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                      <Button className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/80 hover:to-primary/90">
                         <Download className="h-4 w-4" />
                         Xuất báo cáo
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleExport("excel")} className="gap-2">
-                        <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
+                        <FileSpreadsheet className="h-4 w-4 text-success" />
                         Xuất Excel (.xlsx)
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleExport("pdf")} className="gap-2">
@@ -807,7 +807,7 @@ export default function AdminDashboardPage() {
                             <TableCell className="text-right text-destructive">
                               -{row.refunds.toLocaleString("vi-VN")}₫
                             </TableCell>
-                            <TableCell className="text-right font-medium text-emerald-600">
+                            <TableCell className="text-right font-medium text-success">
                               {row.netRevenue.toLocaleString("vi-VN")}₫
                             </TableCell>
                           </TableRow>

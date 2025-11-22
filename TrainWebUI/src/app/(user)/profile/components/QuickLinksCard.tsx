@@ -29,13 +29,13 @@ export function QuickLinksCard({ onMyTickets, onTransactions }: QuickLinksCardPr
 
           <button
             onClick={onTransactions}
-            className="flex w-full items-center gap-3 rounded-lg border-2 border-emerald-200 bg-success/10 p-2 transition-all hover:border-emerald-400 hover:bg-success/10"
+            className="flex w-full items-center gap-3 rounded-lg border-2 border-success/20 bg-success/10 p-2 transition-all hover:border-success/40 hover:bg-success/10"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success">
               <Receipt className="h-6 w-6 text-primary-foreground" />
             </div>
             <div className="flex-1 text-left">
-              <p className="font-medium text-emerald-900">Giao dịch của tôi</p>
+              <p className="font-medium text-success">Giao dịch của tôi</p>
               <p className="text-sm text-success">Xem lịch sử thanh toán</p>
             </div>
             <ChevronRight className="h-5 w-5 text-success" />

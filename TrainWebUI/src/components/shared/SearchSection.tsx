@@ -1,15 +1,17 @@
 'use client';
 
-import { ArrowRightLeft, Calendar, Search } from 'lucide-react';
+import { ArrowRightLeft, Calendar, Search, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { TripSearchParams } from '@/types';
 import { H2, Small, Display } from '@/components/ui/typography';
+import { cn } from '@/lib/utils';
 
 export function SearchSection() {
   const router = useRouter();
+  const [tripType, setTripType] = useState<'one-way' | 'round-trip'>('one-way');
   const [from, setFrom] = useState<string>('Hà Nội (HAN)');
   const [to, setTo] = useState<string>('Sài Gòn (SGN)');
   const [departureDate, setDepartureDate] = useState<string>('2025-11-15');
@@ -40,8 +42,32 @@ export function SearchSection() {
   return (
     <div className="w-full bg-gradient-to-br from-primary/5 via-background to-secondary/5 border-b">
       <div className="container mx-auto px-4 lg:px-8 py-6">
-  <Display className="mb-6 text-center">Bạn muốn đi đâu?</Display>
-  <Card className="mx-auto max-w-5xl border-0 shadow-xl rounded-2xl">
+        <Display className="mb-6 text-center">Bạn muốn đi đâu?</Display>
+        <Card className="mx-auto max-w-5xl border-0 shadow-xl rounded-2xl overflow-hidden">
+          {/* Trip Type Toggle */}
+          <div className="flex border-b bg-muted/30">
+            <button
+              onClick={() => setTripType('one-way')}
+              className={cn(
+                "flex-1 py-3 text-sm font-medium transition-colors relative",
+                tripType === 'one-way' ? "text-primary bg-background" : "text-muted-foreground hover:bg-background/50"
+              )}
+            >
+              Một chiều
+              {tripType === 'one-way' && <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />}
+            </button>
+            <button
+              onClick={() => setTripType('round-trip')}
+              className={cn(
+                "flex-1 py-3 text-sm font-medium transition-colors relative",
+                tripType === 'round-trip' ? "text-primary bg-background" : "text-muted-foreground hover:bg-background/50"
+              )}
+            >
+              Khứ hồi
+              {tripType === 'round-trip' && <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />}
+            </button>
+          </div>
+
           <div className="p-6">
             {/* Desktop: 2 rows layout */}
             <div className="flex flex-col gap-4">
@@ -52,13 +78,16 @@ export function SearchSection() {
                   <Small className="block text-muted-foreground font-medium">
                     Điểm đi
                   </Small>
-                  <input
-                    type="text"
-                    value={from}
-                    onChange={(e) => setFrom(e.target.value)}
-                    className="w-full h-12 rounded-2xl border bg-card px-4 py-3 transition-colors focus:border-primary focus:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-sm"
-                    placeholder="Chọn điểm đi"
-                  />
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={from}
+                      onChange={(e) => setFrom(e.target.value)}
+                      className="w-full h-12 rounded-2xl border bg-card pl-10 pr-4 py-3 transition-colors focus:border-primary focus:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-sm font-medium"
+                      placeholder="Chọn điểm đi"
+                    />
+                  </div>
                 </div>
 
                 {/* Swap button */}
@@ -66,7 +95,7 @@ export function SearchSection() {
                   variant="outline"
                   size="icon"
                   onClick={swapLocations}
-                  className="h-12 w-12 rounded-full hover:bg-primary/10 hover:text-primary hover:border-primary transition-all shrink-0"
+                  className="h-12 w-12 rounded-full hover:bg-primary/10 hover:text-primary hover:border-primary transition-all shrink-0 mb-0.5"
                   aria-label="Đổi điểm đi và điểm đến"
                 >
                   <ArrowRightLeft className="h-5 w-5" />
@@ -77,13 +106,16 @@ export function SearchSection() {
                   <Small className="block text-muted-foreground font-medium">
                     Điểm đến
                   </Small>
-                  <input
-                    type="text"
-                    value={to}
-                    onChange={(e) => setTo(e.target.value)}
-                    className="w-full h-12 rounded-2xl border bg-card px-4 py-3 transition-colors focus:border-primary focus:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-sm"
-                    placeholder="Chọn điểm đến"
-                  />
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={to}
+                      onChange={(e) => setTo(e.target.value)}
+                      className="w-full h-12 rounded-2xl border bg-card pl-10 pr-4 py-3 transition-colors focus:border-primary focus:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-sm font-medium"
+                      placeholder="Chọn điểm đến"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -106,7 +138,7 @@ export function SearchSection() {
                 </div>
 
                 {/* Return date */}
-                <div className="space-y-2">
+                <div className={cn("space-y-2 transition-opacity duration-200", tripType === 'one-way' ? "opacity-50 pointer-events-none grayscale" : "opacity-100")}>
                   <Small className="block text-muted-foreground font-medium">
                     Ngày về
                   </Small>
@@ -115,6 +147,7 @@ export function SearchSection() {
                       type="date"
                       value={returnDate}
                       onChange={(e) => setReturnDate(e.target.value)}
+                      disabled={tripType === 'one-way'}
                       className="w-full h-12 rounded-2xl border bg-card px-4 py-3 pr-10 transition-colors focus:border-primary focus:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-sm"
                     />
                     <Calendar className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />

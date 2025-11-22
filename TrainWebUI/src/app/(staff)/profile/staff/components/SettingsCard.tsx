@@ -25,7 +25,7 @@ export function SettingsCard({
     <Card className="bg-background/70 backdrop-blur-sm border-0 shadow-sm">
       <div className="p-6">
         <div className="flex items-center gap-2 mb-6">
-          <Settings className="h-5 w-5 text-green-600" />
+          <Settings className="h-5 w-5 text-success" />
           <h3 className="text-lg font-semibold">Cài đặt</h3>
         </div>
 
@@ -33,8 +33,8 @@ export function SettingsCard({
           {/* Language */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-600/10">
-                <Globe className="h-5 w-5 text-green-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
+                <Globe className="h-5 w-5 text-success" />
               </div>
               <div className="flex-1">
                 <p className="font-medium">Ngôn ngữ</p>
@@ -46,8 +46,8 @@ export function SettingsCard({
                 onClick={() => setLanguage("vi")}
                 className={`px-4 py-2 rounded-lg border transition-all ${
                   language === "vi"
-                    ? "bg-green-600 text-white border-green-600"
-                    : "bg-background border-border hover:border-green-600/50"
+                    ? "bg-success text-white border-success"
+                    : "bg-background border-border hover:border-success/50"
                 }`}
               >
                 Tiếng Việt
@@ -56,8 +56,8 @@ export function SettingsCard({
                 onClick={() => setLanguage("en")}
                 className={`px-4 py-2 rounded-lg border transition-all ${
                   language === "en"
-                    ? "bg-green-600 text-white border-green-600"
-                    : "bg-background border-border hover:border-green-600/50"
+                    ? "bg-success text-white border-success"
+                    : "bg-background border-border hover:border-success/50"
                 }`}
               >
                 English
@@ -70,8 +70,8 @@ export function SettingsCard({
           {/* Theme */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-600/10">
-                <Settings className="h-5 w-5 text-green-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
+                <Settings className="h-5 w-5 text-success" />
               </div>
               <div className="flex-1">
                 <p className="font-medium">Giao diện</p>
@@ -88,16 +88,16 @@ export function SettingsCard({
           {/* Change Password */}
           <button
             onClick={onChangePassword}
-            className="w-full flex items-center gap-3 p-4 rounded-lg hover:bg-green-600/10 transition-colors group"
+            className="w-full flex items-center gap-3 p-4 rounded-lg hover:bg-success/10 transition-colors group"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-600/10 group-hover:bg-green-600 group-hover:text-white transition-colors">
-              <Lock className="h-5 w-5 text-green-600 group-hover:text-white" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10 group-hover:bg-success group-hover:text-white transition-colors">
+              <Lock className="h-5 w-5 text-success group-hover:text-white" />
             </div>
             <div className="flex-1 text-left">
               <p className="font-medium">Đổi mật khẩu</p>
               <p className="text-sm text-muted-foreground">Cập nhật mật khẩu của bạn</p>
             </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-green-600" />
+            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-success" />
           </button>
 
           {/* Notifications */}
@@ -106,10 +106,10 @@ export function SettingsCard({
               <Separator />
               <button
                 onClick={onToggleNotifications}
-                className="w-full flex items-center gap-3 p-4 rounded-lg hover:bg-green-600/10 transition-colors group"
+                className="w-full flex items-center gap-3 p-4 rounded-lg hover:bg-success/10 transition-colors group"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-600/10 group-hover:bg-green-600 group-hover:text-white transition-colors">
-                  <Bell className="h-5 w-5 text-green-600 group-hover:text-white" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10 group-hover:bg-success group-hover:text-white transition-colors">
+                    <Bell className="h-5 w-5 text-success group-hover:text-white" />
                 </div>
                 <div className="flex-1 text-left">
                   <p className="font-medium">Thông báo</p>
@@ -119,7 +119,7 @@ export function SettingsCard({
                 </div>
                 <div
                   className={`w-12 h-6 rounded-full transition-colors ${
-                    notificationsEnabled ? "bg-green-600" : "bg-gray-300"
+                    notificationsEnabled ? "bg-success" : "bg-gray-300"
                   }`}
                 >
                   <div

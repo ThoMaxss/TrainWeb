@@ -21,7 +21,7 @@ interface RevenueDetailTableProps {
 
 export function RevenueDetailTable({ data }: RevenueDetailTableProps) {
   return (
-    <Card className="border-0 bg-background/80 backdrop-blur-sm shadow-xl shadow-blue-500/10">
+    <Card className="border-0 bg-background/80 backdrop-blur-sm shadow-xl shadow-primary/10">
       <div className="p-2">
         <div className="mb-3 flex items-center justify-between">
           <div>
@@ -41,7 +41,7 @@ export function RevenueDetailTable({ data }: RevenueDetailTableProps) {
         <div className="rounded-xl border border-primary/50 overflow-hidden shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-50 hover:to-indigo-50">
+              <TableRow className="bg-gradient-to-r from-primary/5 to-primary/10 hover:from-primary/5 hover:to-primary/10">
                 <TableHead className="font-bold text-primary">Ngày</TableHead>
                 <TableHead className="font-bold text-primary">Tuyến</TableHead>
                 <TableHead className="text-right font-bold text-primary">Vé bán</TableHead>
@@ -52,7 +52,7 @@ export function RevenueDetailTable({ data }: RevenueDetailTableProps) {
             </TableHeader>
             <TableBody>
               {data.map((row, index) => (
-                <TableRow key={index} className="hover:bg-primary/10/50 transition-colors">
+                <TableRow key={index} className="hover:bg-primary/10 transition-colors">
                   <TableCell className="font-semibold text-foreground">{row.date}</TableCell>
                   <TableCell className="font-medium text-foreground">{row.route}</TableCell>
                   <TableCell className="text-right">
@@ -67,7 +67,7 @@ export function RevenueDetailTable({ data }: RevenueDetailTableProps) {
                     {row.refunds.toLocaleString("vi-VN")}₫
                   </TableCell>
                   <TableCell className="text-right">
-                    <Badge variant="outline" className="border-primary bg-gradient-to-r from-blue-500 to-indigo-600 text-primary-foreground font-bold shadow-md">
+                    <Badge variant="outline" className="border-primary bg-gradient-to-r from-primary/10 to-primary/20 text-primary-foreground font-bold shadow-md shadow-primary/20">
                       {row.netRevenue.toLocaleString("vi-VN")}₫
                     </Badge>
                   </TableCell>

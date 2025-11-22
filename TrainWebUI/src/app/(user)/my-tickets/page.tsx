@@ -187,7 +187,7 @@ export function TicketManagementScreen({
         return {
           label: "Đã hủy",
           variant: "destructive" as const,
-          className: "bg-error/10 text-error hover:bg-error/10",
+          className: "bg-destructive/10 text-destructive hover:bg-destructive/10",
         };
     }
   };
@@ -197,15 +197,15 @@ export function TicketManagementScreen({
     return (
       <div className="relative aspect-square w-full max-w-[120px]">
         <svg viewBox="0 0 200 200" className="h-full w-full">
-          <rect width="200" height="200" fill="white" />
-          <g fill="black">
+          <rect width="200" height="200" className="fill-background" />
+          <g className="fill-foreground">
             {/* Corner markers */}
             <rect x="10" y="10" width="50" height="50" />
-            <rect x="20" y="20" width="30" height="30" fill="white" />
+            <rect x="20" y="20" width="30" height="30" className="fill-background" />
             <rect x="140" y="10" width="50" height="50" />
-            <rect x="150" y="20" width="30" height="30" fill="white" />
+            <rect x="150" y="20" width="30" height="30" className="fill-background" />
             <rect x="10" y="140" width="50" height="50" />
-            <rect x="20" y="150" width="30" height="30" fill="white" />
+            <rect x="20" y="150" width="30" height="30" className="fill-background" />
             
             {/* Random pattern blocks */}
             {Array.from({ length: 100 }).map((_, i) => {
@@ -231,7 +231,7 @@ export function TicketManagementScreen({
       <PageHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-sm">
               <Ticket className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
@@ -263,7 +263,7 @@ export function TicketManagementScreen({
             onValueChange={(value) => setActiveTab(value as typeof activeTab)}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-3 bg-background">
+            <TabsList className="grid w-full grid-cols-3 bg-muted/50">
               <TabsTrigger value="upcoming" className="gap-2">
                 <Calendar className="h-4 w-4" />
                 Sắp tới
@@ -286,7 +286,7 @@ export function TicketManagementScreen({
                 placeholder="Nhập mã vé hoặc tuyến (VD: Hà Nội – Đà Nẵng)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-12 border-primary bg-background pl-11 shadow-sm focus:border-primary focus:ring-blue-400"
+                className="h-12 border-primary bg-background pl-11 shadow-sm focus:border-primary focus:ring-ring"
               />
             </div>
 
@@ -456,7 +456,7 @@ function TicketCard({
   return (
     <Card className="overflow-hidden border-0 shadow-md transition-all hover:shadow-lg">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-2 py-2 text-primary-foreground">
+      <div className="bg-gradient-to-r from-primary to-primary/90 px-2 py-2 text-primary-foreground">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Train className="h-5 w-5" />
@@ -483,7 +483,7 @@ function TicketCard({
           </div>
           <ArrowRight className="h-4 w-4 text-muted-foreground" />
           <div className="flex flex-1 items-center gap-2">
-            <MapPin className="h-4 w-4 text-error" />
+            <MapPin className="h-4 w-4 text-destructive" />
             <div className="flex-1">
               <p className="text-sm">{ticket.destination}</p>
             </div>
@@ -576,7 +576,7 @@ function TicketCard({
               </div>
               <div>
                 <p className="text-muted-foreground">Tổng tiền</p>
-                <p className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+                <p className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent font-bold">
                   {formatPrice(ticket.totalPrice)}
                 </p>
               </div>
@@ -584,7 +584,7 @@ function TicketCard({
 
             {/* QR Code */}
             {ticket.status === "upcoming" && (
-              <div className="rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 p-2">
+              <div className="rounded-lg bg-muted/50 p-2">
                 <p className="mb-3 text-center text-sm text-muted-foreground">
                   Mã QR để lên tàu
                 </p>

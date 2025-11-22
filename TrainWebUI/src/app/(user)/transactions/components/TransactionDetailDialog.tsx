@@ -95,7 +95,7 @@ export function TransactionDetailDialog({
             </div>
             <div className="flex justify-between">
               <Label className="text-muted-foreground">Số tiền</Label>
-              <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              <p className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                 {formatPrice(transaction.amount)}
               </p>
             </div>

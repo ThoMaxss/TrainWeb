@@ -25,14 +25,14 @@ const getStatusBadge = (status: string) => {
   switch (status) {
     case "success":
       return (
-        <Badge className="bg-success/10 text-success hover:bg-success/10 border-emerald-200">
+        <Badge className="bg-success/10 text-success hover:bg-success/10 border-success/20">
           <CheckCircle className="mr-1 h-3 w-3" />
           Thành công
         </Badge>
       );
     case "failed":
       return (
-        <Badge className="bg-error/10 text-error hover:bg-error/10 border-destructive/20">
+        <Badge className="bg-destructive/10 text-destructive hover:bg-destructive/10 border-destructive/20">
           <XCircle className="mr-1 h-3 w-3" />
           Thất bại
         </Badge>
@@ -65,7 +65,7 @@ export function RecentTransactions({ transactions, onNavigate, formatCurrency }:
           {transactions.map((txn) => (
             <div
               key={txn.id}
-              className="rounded-lg border border-border p-2 transition-all hover:border-primary hover:bg-primary/10/50 cursor-pointer"
+              className="rounded-lg border border-border p-2 transition-all hover:border-primary hover:bg-primary/10 cursor-pointer"
               onClick={() => onNavigate(`/transactions/${txn.id}`)}
             >
               <div className="flex items-start justify-between mb-2">

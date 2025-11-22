@@ -33,7 +33,7 @@ export function PaymentMethodsCard({ paymentMethods, onAddPayment, onDeletePayme
             variant="outline"
             size="sm"
             onClick={onAddPayment}
-            className="gap-2 border-emerald-200 hover:bg-success/10"
+            className="gap-2 border-success/30 hover:bg-success/10"
           >
             <Plus className="h-4 w-4" />
             Thêm
@@ -44,7 +44,7 @@ export function PaymentMethodsCard({ paymentMethods, onAddPayment, onDeletePayme
           {paymentMethods.map((method) => (
             <div
               key={method.id}
-              className="group relative flex items-center gap-3 rounded-lg border-2 border-border p-2 transition-all hover:border-primary hover:bg-primary/10/50"
+              className="group relative flex items-center gap-3 rounded-lg border-2 border-border p-2 transition-all hover:border-primary hover:bg-primary/10"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-card">
                 <method.icon className="h-6 w-6 text-muted-foreground" />
@@ -57,11 +57,11 @@ export function PaymentMethodsCard({ paymentMethods, onAddPayment, onDeletePayme
               </div>
               <button
                 onClick={() => onDeletePayment(method.id)}
-                className="absolute right-4 flex h-8 w-8 items-center justify-center rounded-full bg-error text-primary-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                className="absolute right-4 flex h-8 w-8 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
               >
                 <X className="h-4 w-4" />
               </button>
-              <Badge variant="outline" className="border-emerald-200 text-success">
+              <Badge variant="outline" className="border-success/30 text-success">
                 Đã xác minh
               </Badge>
             </div>

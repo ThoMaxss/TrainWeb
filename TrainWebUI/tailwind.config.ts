@@ -28,6 +28,7 @@ const config: Config = {
         success: "var(--color-success)",
         warning: "var(--color-warning)",
         destructive: "var(--color-destructive)",
+        momo: "var(--color-momo)",
         info: "var(--color-info)",
         input: "var(--color-input)",
         ring: "var(--color-ring)",

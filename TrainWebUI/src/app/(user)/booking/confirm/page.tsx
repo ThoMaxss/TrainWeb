@@ -320,7 +320,7 @@ export default function BookingConfirmPage() {
             <div className="flex-1">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-700">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80">
                     <Train className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <div>
@@ -364,7 +364,7 @@ export default function BookingConfirmPage() {
                   <Train className="h-5 w-5 text-primary" />
                   Thông tin chuyến tàu
                 </h2>
-                <div className="space-y-3 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 p-2">
+                <div className="space-y-3 rounded-lg bg-muted/30 p-2">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Ngày đi</p>
@@ -436,7 +436,7 @@ export default function BookingConfirmPage() {
                     />
                     <div className="flex-1">
                       <Label htmlFor="meal" className="flex items-center gap-2 cursor-pointer font-medium">
-                        <UtensilsCrossed className="h-4 w-4 text-orange-600" />
+                        <UtensilsCrossed className="h-4 w-4 text-warning" />
                         Suất ăn trên tàu
                       </Label>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -502,7 +502,7 @@ export default function BookingConfirmPage() {
                 size="lg"
                 onClick={handleContinue}
                 disabled={submitting}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
               >
                 {submitting ? "Đang xử lý..." : "Tiếp tục thanh toán"}
               </Button>
@@ -554,7 +554,7 @@ export default function BookingConfirmPage() {
 
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-lg font-semibold">Tổng cộng</span>
-                    <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+                    <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                       {grandTotal.toLocaleString("vi-VN")}đ
                     </span>
                   </div>
@@ -564,7 +564,7 @@ export default function BookingConfirmPage() {
                       size="lg"
                       onClick={handleContinue}
                       disabled={submitting}
-                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                      className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
                     >
                       {submitting ? "Đang xử lý..." : "Tiếp tục thanh toán"}
                     </Button>

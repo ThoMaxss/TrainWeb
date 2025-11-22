@@ -43,7 +43,7 @@ function getStatusBadge(status: TicketStatus) {
       );
     case "cancelled":
       return (
-        <Badge className="bg-error/10 text-error hover:bg-error/10 gap-1">
+        <Badge className="bg-destructive/10 text-destructive hover:bg-destructive/10 gap-1">
           <XCircle className="h-3 w-3" />
           Đã hủy
         </Badge>

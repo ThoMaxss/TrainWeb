@@ -22,8 +22,8 @@ export function SettingsCard({
     <Card className="border-0 bg-background shadow-md">
       <div className="p-2">
         <div className="mb-3 flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100">
-            <SettingsIcon className="h-5 w-5 text-violet-600" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10">
+            <SettingsIcon className="h-5 w-5 text-secondary" />
           </div>
           <h3 className="text-foreground">Cài đặt</h3>
         </div>

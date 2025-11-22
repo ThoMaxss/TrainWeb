@@ -58,7 +58,7 @@ export function ImageUploadCard({ uploadedImages, onImageUpload, onRemoveImage }
                   <button
                     type="button"
                     onClick={() => onRemoveImage(index)}
-                    className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-error text-primary-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                    className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-primary-foreground opacity-0 transition-opacity group-hover:opacity-100"
                   >
                     <X className="h-4 w-4" />
                   </button>

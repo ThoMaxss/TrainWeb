@@ -57,7 +57,7 @@ export function EditProfileDialog({ isOpen, onClose, profile, onSave, getInitial
           {/* Avatar Preview */}
           <div className="flex justify-center">
             <div className="relative">
-              <div className="h-24 w-24 rounded-full border-4 border-green-100 dark:border-green-900 bg-green-600 text-primary-foreground text-2xl font-bold flex items-center justify-center overflow-hidden">
+              <div className="h-24 w-24 rounded-full border-4 border-success/10 dark:border-success/90 bg-success text-primary-foreground text-2xl font-bold flex items-center justify-center overflow-hidden">
                 {avatarPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={avatarPreview} alt="Xem trước ảnh đại diện mới" className="h-full w-full object-cover" />
@@ -67,7 +67,7 @@ export function EditProfileDialog({ isOpen, onClose, profile, onSave, getInitial
               </div>
               <button
                 onClick={() => avatarInputRef.current?.click()}
-                className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-primary-foreground shadow-lg hover:bg-green-700 transition-colors"
+                className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-success text-primary-foreground shadow-lg hover:bg-success/80 transition-colors"
                 aria-label="Chọn ảnh đại diện"
               >
                 <Camera className="h-4 w-4" />
@@ -139,7 +139,7 @@ export function EditProfileDialog({ isOpen, onClose, profile, onSave, getInitial
           <Button variant="outline" onClick={onClose}>
             Hủy
           </Button>
-          <Button onClick={handleSave} className="bg-green-600 hover:bg-green-700">
+          <Button onClick={handleSave} className="bg-success hover:bg-success/80">
             <Check className="h-4 w-4 mr-2" />
             Lưu thay đổi
           </Button>

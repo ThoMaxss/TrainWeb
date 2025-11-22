@@ -66,7 +66,7 @@ export function TicketInfoCard({ ticket, formatCurrency, onCheckIn, onCancelChec
           <Separator className="mb-4" />
 
           {/* Train info */}
-          <div className="mb-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-primary/20 p-4">
+          <div className="mb-4 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/20 dark:to-primary/10 border border-primary/20 p-4">
             <div className="mb-3 flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <TrainFront className="h-4 w-4 text-primary-foreground" />
@@ -82,9 +82,9 @@ export function TicketInfoCard({ ticket, formatCurrency, onCheckIn, onCancelChec
           </div>
 
           {/* Passenger info */}
-          <div className="mb-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border border-violet-200 dark:border-violet-800/30 p-4">
+          <div className="mb-4 rounded-xl bg-gradient-to-br from-secondary/5 to-secondary/10 dark:from-secondary/20 dark:to-secondary/20 border border-secondary/20 dark:border-secondary/80 p-4">
             <div className="mb-3 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
                 <User className="h-4 w-4 text-primary-foreground" />
               </div>
               <h4 className="text-sm font-semibold text-foreground">Hành khách</h4>
@@ -95,9 +95,9 @@ export function TicketInfoCard({ ticket, formatCurrency, onCheckIn, onCancelChec
           </div>
 
           {/* Ticket info */}
-          <div className="mb-4 rounded-xl bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border border-emerald-200 dark:border-emerald-800/30 p-4">
+          <div className="mb-4 rounded-xl bg-gradient-to-br from-success/5 to-success/10 dark:from-success/20 dark:to-success/20 border border-success/20 dark:border-success/80 p-4">
             <div className="mb-3 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-success">
                 <MapPin className="h-4 w-4 text-white" />
               </div>
               <h4 className="text-sm font-semibold text-foreground">Chi tiết vé</h4>

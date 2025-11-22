@@ -77,20 +77,20 @@ export function RevenueChart({
           <AreaChart data={data}>
             <defs>
               <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0.1}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
             <XAxis
               dataKey="day"
-              stroke="#6B7280"
+              stroke="var(--color-muted-foreground)"
               fontSize={12}
               tickLine={false}
             />
             <YAxis
               yAxisId="revenue"
-              stroke="#6B7280"
+              stroke="var(--color-muted-foreground)"
               fontSize={12}
               tickLine={false}
               tickFormatter={(value) => `${value / 1000}K`}
@@ -98,14 +98,14 @@ export function RevenueChart({
             <YAxis
               yAxisId="tickets"
               orientation="right"
-              stroke="#10B981"
+              stroke="var(--color-success)"
               fontSize={12}
               tickLine={false}
             />
             <RechartsTooltip
               contentStyle={{
-                backgroundColor: "white",
-                border: "1px solid #E5E7EB",
+                backgroundColor: "var(--color-card)",
+                border: `1px solid var(--color-border)`,
                 borderRadius: "8px",
                 fontSize: "14px",
                 boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
@@ -119,7 +119,7 @@ export function RevenueChart({
               yAxisId="revenue"
               type="monotone"
               dataKey="revenue"
-              stroke="#3B82F6"
+              stroke="var(--color-primary)"
               strokeWidth={3}
               fillOpacity={1}
               fill="url(#colorRevenue)"
@@ -128,7 +128,7 @@ export function RevenueChart({
               yAxisId="revenue"
               type="monotone"
               dataKey="target"
-              stroke="#F59E0B"
+              stroke="var(--color-warning)"
               strokeWidth={2}
               strokeDasharray="5 5"
               dot={false}
@@ -136,7 +136,7 @@ export function RevenueChart({
             <Bar
               yAxisId="tickets"
               dataKey="tickets"
-              fill="#10B981"
+              fill="var(--color-success)"
               fillOpacity={0.6}
               radius={[2, 2, 0, 0]}
             />

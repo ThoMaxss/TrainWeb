@@ -24,11 +24,11 @@ export function UserTable({ users, loading, onEditUser, onDeleteUser }: UserTabl
   const getRoleBadgeColor = (role: UserRole) => {
     switch (role) {
       case UserRole.Admin:
-        return "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300";
+        return "bg-secondary/10 text-secondary dark:bg-secondary/20 dark:text-secondary/30";
       case UserRole.Staff:
-        return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300";
+        return "bg-success/10 text-success dark:bg-success/20 dark:text-success/30";
       case UserRole.Passenger:
-        return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300";
+        return "bg-primary/10 text-primary dark:bg-primary-900/30 dark:text-primary/30";
       default:
         return "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300";
     }
@@ -111,7 +111,7 @@ export function UserTable({ users, loading, onEditUser, onDeleteUser }: UserTabl
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-green-600 text-white">
+                          <AvatarFallback className="bg-success text-white">
                             {getInitials(user.name ?? "U")}
                           </AvatarFallback>
                         </Avatar>

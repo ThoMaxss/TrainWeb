@@ -78,7 +78,7 @@ export function TransactionFilters({
             variant={timeFilter === "7" ? "default" : "ghost"}
             size="sm"
             onClick={() => onTimeFilterChange("7")}
-            className={timeFilter === "7" ? "bg-gradient-to-r from-blue-600 to-blue-700" : ""}
+            className={timeFilter === "7" ? "bg-gradient-to-r from-primary to-primary/80" : ""}
           >
             7 ngày
           </Button>
@@ -86,7 +86,7 @@ export function TransactionFilters({
             variant={timeFilter === "30" ? "default" : "ghost"}
             size="sm"
             onClick={() => onTimeFilterChange("30")}
-            className={timeFilter === "30" ? "bg-gradient-to-r from-blue-600 to-blue-700" : ""}
+            className={timeFilter === "30" ? "bg-gradient-to-r from-primary to-primary/80" : ""}
           >
             30 ngày
           </Button>
@@ -94,7 +94,7 @@ export function TransactionFilters({
             variant={timeFilter === "custom" ? "default" : "ghost"}
             size="sm"
             onClick={() => onTimeFilterChange("custom")}
-            className={timeFilter === "custom" ? "bg-gradient-to-r from-blue-600 to-blue-700" : ""}
+            className={timeFilter === "custom" ? "bg-gradient-to-r from-primary to-primary/80" : ""}
           >
             Tùy chỉnh
           </Button>

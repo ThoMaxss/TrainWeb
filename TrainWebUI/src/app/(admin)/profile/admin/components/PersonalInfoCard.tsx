@@ -23,8 +23,8 @@ export function PersonalInfoCard({ profile, onEdit }: PersonalInfoCardProps) {
       <div className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/30">
-              <UserIcon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10 dark:bg-secondary/20">
+              <UserIcon className="h-5 w-5 text-secondary dark:text-secondary/30" />
             </div>
             <h3 className="text-foreground font-semibold">Thông tin cá nhân</h3>
           </div>
@@ -32,7 +32,7 @@ export function PersonalInfoCard({ profile, onEdit }: PersonalInfoCardProps) {
             variant="outline"
             size="sm"
             onClick={onEdit}
-            className="gap-2 border-violet-200 dark:border-violet-800 hover:bg-violet-50 dark:hover:bg-violet-900/30"
+            className="gap-2 border-secondary/20 dark:border-secondary/80 hover:bg-secondary/10 dark:hover:bg-secondary/20"
           >
             <Edit2 className="h-4 w-4" />
             Chỉnh sửa

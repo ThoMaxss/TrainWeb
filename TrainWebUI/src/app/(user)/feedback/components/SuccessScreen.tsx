@@ -13,7 +13,7 @@ interface SuccessScreenProps {
 
 export function SuccessScreen({ rating, onGoHome, onViewTickets }: SuccessScreenProps) {
   const getEmojiForRating = (stars: number) => {
-    if (stars <= 2) return { icon: Frown, color: "text-error", label: "Không hài lòng" };
+    if (stars <= 2) return { icon: Frown, color: "text-destructive", label: "Không hài lòng" };
     if (stars <= 3) return { icon: Meh, color: "text-warning", label: "Bình thường" };
     return { icon: Smile, color: "text-success", label: "Hài lòng" };
   };
@@ -21,18 +21,18 @@ export function SuccessScreen({ rating, onGoHome, onViewTickets }: SuccessScreen
   const emojiRating = rating > 0 ? getEmojiForRating(rating) : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-success/5 to-primary/5">
       <div className="container mx-auto px-2 py-16">
         <div className="mx-auto max-w-2xl">
           <Card className="border-0 bg-background shadow-xl">
             <div className="flex flex-col items-center justify-center py-16 px-2 text-center">
               {/* Success Icon */}
-              <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-600 animate-bounce-once">
+              <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-success to-success/80 animate-bounce-once">
                 <CheckCircle className="h-12 w-12 text-primary-foreground" />
               </div>
 
               {/* Thank You Message */}
-              <h1 className="mb-3 bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent text-2xl font-bold">
+              <h1 className="mb-3 bg-gradient-to-r from-success/80 to-success bg-clip-text text-transparent text-2xl font-bold">
                 Cảm ơn bạn đã gửi phản hồi!
               </h1>
               <p className="mb-2 max-w-md text-muted-foreground">
@@ -73,7 +73,7 @@ export function SuccessScreen({ rating, onGoHome, onViewTickets }: SuccessScreen
                 <Button
                   size="lg"
                   onClick={onGoHome}
-                  className="flex-1 gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                  className="flex-1 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
                 >
                   <Home className="h-5 w-5" />
                   Quay lại trang chủ

@@ -27,11 +27,11 @@ const getFeedbackCategoryColor = (category: Feedback["category"]) => {
     case "service":
       return "bg-primary/10 text-primary border-primary";
     case "comfort":
-      return "bg-success/10 text-success border-emerald-200";
+      return "bg-success/10 text-success border-success/20";
     case "punctuality":
       return "bg-warning/10 text-warning border-warning/20";
     case "cleanliness":
-      return "bg-violet-100 text-violet-700 border-violet-200";
+      return "bg-secondary/10 text-secondary border-secondary/20";
     default:
       return "bg-card text-foreground border-border";
   }
@@ -59,7 +59,7 @@ export function CustomerFeedback({ feedbackList, onNavigate }: CustomerFeedbackP
           {feedbackList.map((feedback) => (
             <div
               key={feedback.id}
-              className="rounded-lg border-2 border-border p-2 transition-all hover:border-warning/30 hover:bg-warning/10/50 cursor-pointer"
+              className="rounded-lg border-2 border-border p-2 transition-all hover:border-warning/30 hover:bg-warning/10 cursor-pointer"
               onClick={() => onNavigate(`/feedback/${feedback.id}`)}
             >
               <div className="flex items-start justify-between mb-3">

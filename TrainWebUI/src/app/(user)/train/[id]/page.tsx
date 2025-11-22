@@ -174,7 +174,7 @@ export default function TrainDetailPage({ params }: TrainDetailPageProps) {
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-700">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80">
                     <Train className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <div>
@@ -206,7 +206,7 @@ export default function TrainDetailPage({ params }: TrainDetailPageProps) {
         <div className="mx-auto max-w-5xl space-y-3">
           {/* Train Journey Info */}
           <Card className="overflow-hidden border-0 shadow-md">
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-2 text-primary-foreground">
+            <div className="bg-gradient-to-r from-primary to-primary/80 p-2 text-primary-foreground">
               <div className="grid gap-3 md:grid-cols-3">
                 <div>
                   <div className="mb-1 text-sm text-primary-foreground">Khởi hành</div>
@@ -231,7 +231,7 @@ export default function TrainDetailPage({ params }: TrainDetailPageProps) {
 
           {/* Seat Types - IMPROVED UI */}
           <Card className="overflow-hidden border-0 shadow-lg">
-            <div className="border-b bg-gradient-to-r from-blue-600 to-blue-700 p-4">
+            <div className="border-b bg-gradient-to-r from-primary to-primary/80 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
                   <Train className="h-5 w-5 text-white" />
@@ -250,7 +250,7 @@ export default function TrainDetailPage({ params }: TrainDetailPageProps) {
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
+                          <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
                             <Train className="h-6 w-6 text-white" />
                           </div>
                           <div>
@@ -279,7 +279,7 @@ export default function TrainDetailPage({ params }: TrainDetailPageProps) {
                         </div>
 
                         <div className="flex items-baseline gap-2">
-                          <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+                          <span className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                             {seat.price?.toLocaleString("vi-VN")}đ
                           </span>
                           <span className="text-sm text-muted-foreground">/người</span>
@@ -288,7 +288,7 @@ export default function TrainDetailPage({ params }: TrainDetailPageProps) {
 
                       <Button 
                         size="lg"
-                        className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-8 h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+                        className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary px-8 h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
                         onClick={() => handleContinue(seat.name)}
                       >
                         <Train className="mr-2 h-5 w-5" />
@@ -373,13 +373,13 @@ export default function TrainDetailPage({ params }: TrainDetailPageProps) {
           <div className="flex items-center justify-between gap-3">
             <div className="hidden sm:block">
               <div className="text-sm text-muted-foreground">Giá từ</div>
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              <div className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                 {minPrice ? `${minPrice.toLocaleString("vi-VN")}đ` : "--"}
               </div>
             </div>
             <Button
               size="lg"
-              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 sm:flex-none sm:px-12"
+              className="flex-1 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary sm:flex-none sm:px-12"
               onClick={() => handleContinue()}
             >
               Chọn loại ghế & Tiếp tục

@@ -36,8 +36,8 @@ export function ScheduleStats({ totalSchedules, activeSchedules, uniqueRoutes }:
 
       <Card className="p-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/10">
-            <MapPin className="h-6 w-6 text-blue-500" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+            <MapPin className="h-6 w-6 text-primary" />
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">Tuyến đường</p>

@@ -20,12 +20,12 @@ interface TicketDetailSheetProps {
 
 const getStatusBadge = (status: string) => {
   switch (status) {
-    case "upcoming":
-      return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0 shadow-sm">Sắp đi</Badge>
+      case "upcoming":
+        return <Badge className="bg-success/10 text-success hover:bg-success/10 border-0 shadow-sm">Sắp đi</Badge>
     case "completed":
       return <Badge className="bg-muted text-foreground/90 hover:bg-muted border-0 shadow-sm">Đã đi</Badge>
     case "cancelled":
-      return <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-100 border-0 shadow-sm">Đã hủy</Badge>
+      return <Badge className="bg-destructive/10 text-destructive hover:bg-destructive/10 border-0 shadow-sm">Đã hủy</Badge>
     default:
       return null
   }
@@ -65,7 +65,7 @@ export function TicketDetailSheet({
           {/* QR Code */}
           <div className="mb-3 flex justify-center">
             <div className="rounded-2xl border-2 border-dashed border-border bg-background p-2 shadow-inner">
-              <div className="h-48 w-48 bg-gradient-to-br from-blue-100 via-indigo-100 to-blue-200 rounded-xl flex items-center justify-center shadow-md">
+              <div className="h-48 w-48 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl flex items-center justify-center shadow-md">
                 <div className="text-center">
                   <Train className="h-12 w-12 mx-auto mb-2 text-primary" />
                   <p className="text-xs text-primary font-medium">QR Code</p>
@@ -79,7 +79,7 @@ export function TicketDetailSheet({
           <div className="mb-3 flex justify-center">{getStatusBadge(ticket.status)}</div>
 
           {/* Train Info */}
-          <Card className="mb-3 border-2 border-primary bg-gradient-to-br from-blue-50 to-indigo-50/50 shadow-md">
+          <Card className="mb-3 border-2 border-primary bg-gradient-to-br from-primary/5 to-primary/10 shadow-md">
             <div className="p-2">
               <div className="mb-3 flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
@@ -115,10 +115,10 @@ export function TicketDetailSheet({
           </Card>
 
           {/* Passenger Info */}
-          <Card className="mb-3 border-2 border-violet-200 bg-gradient-to-br from-purple-50 to-pink-50/50 shadow-md">
+          <Card className="mb-3 border-2 border-secondary/20 bg-gradient-to-br from-secondary/5 to-secondary/10 shadow-md">
             <div className="p-2">
               <div className="mb-3 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
                   <User className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <h3 className="font-semibold text-foreground">Thông tin hành khách</h3>
@@ -141,10 +141,10 @@ export function TicketDetailSheet({
           </Card>
 
           {/* Ticket Info */}
-          <Card className="mb-3 border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50/50 shadow-md">
+          <Card className="mb-3 border-2 border-success/20 bg-gradient-to-br from-success/5 to-success/10 shadow-md">
             <div className="p-2">
               <div className="mb-3 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-success">
                   <MapPin className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <h3 className="font-semibold text-foreground">Thông tin vé</h3>
@@ -167,10 +167,10 @@ export function TicketDetailSheet({
           </Card>
 
           {/* Payment Info */}
-          <Card className="mb-3 border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50/50 shadow-md">
+          <Card className="mb-3 border-2 border-warning/20 bg-gradient-to-br from-warning/5 to-accent/10 shadow-md">
             <div className="p-2">
               <div className="mb-3 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-warning">
                   <CreditCard className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <h3 className="font-semibold text-foreground">Thông tin thanh toán</h3>
@@ -225,7 +225,7 @@ export function TicketDetailSheet({
           {/* Actions */}
           <div className="space-y-3">
             <Button
-              className="w-full gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/30 transition-all"
+              className="w-full gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/80 hover:to-primary/90 shadow-lg shadow-primary/30 transition-all"
               onClick={() => onPrint(ticket.id)}
             >
               <Printer className="h-4 w-4" />
@@ -236,17 +236,17 @@ export function TicketDetailSheet({
               <>
                 <Button
                   variant="outline"
-                  className="w-full gap-2 border-2 border-amber-200 text-amber-700 hover:bg-amber-50 transition-colors bg-transparent"
+                  className="w-full gap-2 border-2 border-warning/20 text-warning hover:bg-warning/10 transition-colors bg-transparent"
                   onClick={() => onRefundExchange(ticket.id)}
                 >
                   <RefreshCw className="h-4 w-4" />
                   Hoàn/Đổi vé
                 </Button>
-                <Button
-                  variant="outline"
-                  className="w-full gap-2 border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-colors bg-transparent"
-                  onClick={() => onCheckIn(ticket.id)}
-                >
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2 border-2 border-success/20 text-success hover:bg-success/10 transition-colors bg-transparent"
+                    onClick={() => onCheckIn(ticket.id)}
+                  >
                   <CheckCircle className="h-4 w-4" />
                   Check-in
                 </Button>

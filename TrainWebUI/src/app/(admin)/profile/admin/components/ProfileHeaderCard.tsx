@@ -33,7 +33,7 @@ export function ProfileHeaderCard({
         <div className="flex flex-col sm:flex-row items-center gap-4">
           {/* Avatar */}
           <div className="relative group">
-            <div className="h-24 w-24 rounded-full border-4 border-white/20 shadow-lg bg-violet-500 flex items-center justify-center text-primary-foreground text-2xl overflow-hidden">
+            <div className="h-24 w-24 rounded-full border-4 border-white/20 shadow-lg bg-secondary flex items-center justify-center text-primary-foreground text-2xl overflow-hidden">
               {avatarPreview ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img 
@@ -47,7 +47,7 @@ export function ProfileHeaderCard({
             </div>
             <button 
               onClick={() => avatarInputRef.current?.click()}
-              className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-background text-violet-600 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-background text-secondary shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
               aria-label="Thay đổi ảnh đại diện"
             >
               <Camera className="h-4 w-4" aria-hidden="true" />
@@ -70,11 +70,11 @@ export function ProfileHeaderCard({
               {profile.role} - {profile.department}
             </Badge>
             <div className="space-y-2">
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-violet-100">
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-secondary/10">
                 <Mail className="h-4 w-4" />
                 <span className="text-sm">{profile.email}</span>
               </div>
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-violet-100">
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-secondary/10">
                 <Phone className="h-4 w-4" />
                 <span className="text-sm">{profile.phone || "--"}</span>
               </div>
