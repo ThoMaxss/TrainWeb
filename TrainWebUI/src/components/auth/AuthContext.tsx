@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { UserDto, UserRole } from '@/types';
+import { UserDto, UserRole, isUserRole } from '@/types';
 
 interface AuthState {
   user: UserDto | null;
@@ -19,11 +19,26 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ROLE_HIERARCHY: Record<string, number> = {
-  [UserRole.ADMIN]: 3,
-  [UserRole.STAFF]: 2, 
-  [UserRole.PASSENGER]: 1,
+const ROLE_HIERARCHY: Record<UserRole, number> = {
+  [UserRole.Admin]: 3,
+  [UserRole.Staff]: 2,
+  [UserRole.Passenger]: 1,
 };
+
+function normalizeUserRole(role: unknown): UserRole | null {
+  if (typeof role === 'number' && isUserRole(role)) return role;
+  if (typeof role === 'string') {
+    const r = role.trim().toLowerCase();
+    if (r.includes('admin')) return UserRole.Admin;
+    if (r.includes('staff')) return UserRole.Staff;
+    if (r.includes('passenger') || r.includes('user')) return UserRole.Passenger;
+    console.warn(`Unknown role string: "${role}", defaulting to Passenger`);
+    return UserRole.Passenger; // Default to Passenger instead of null
+  }
+  if (role == null) return null;
+  console.warn(`Unexpected role type: ${typeof role}`, role);
+  return null;
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>({
@@ -39,12 +54,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const storedUser = localStorage.getItem('train_booking_user');
         if (storedUser) {
-          const user = JSON.parse(storedUser) as UserDto;
+          const loaded = JSON.parse(storedUser) as UserDto;
+          const normalizedRole = normalizeUserRole(loaded.role ?? null);
+          const user: UserDto = { ...loaded, role: normalizedRole ?? undefined };
           setAuthState({
             user,
             isLoading: false,
             isAuthenticated: true,
-            role: user.role,
+            role: normalizedRole,
           });
         } else {
           setAuthState(prev => ({ ...prev, isLoading: false }));
@@ -59,12 +76,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (user: UserDto) => {
-    localStorage.setItem('train_booking_user', JSON.stringify(user));
+    const normalizedRole = normalizeUserRole(user.role ?? null);
+    const normalizedUser: UserDto = { ...user, role: normalizedRole ?? undefined };
+    localStorage.setItem('train_booking_user', JSON.stringify(normalizedUser));
     setAuthState({
-      user,
+      user: normalizedUser,
       isLoading: false,
       isAuthenticated: true,
-      role: user.role,
+      role: normalizedRole,
     });
   };
 
@@ -79,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const hasRole = (requiredRole: UserRole | UserRole[]): boolean => {
-    if (!authState.role) return false;
+    if (authState.role === null) return false;
     
     const userLevel = ROLE_HIERARCHY[authState.role];
     const requiredRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
@@ -95,11 +114,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // Define resource access rules
     const accessRules: Record<string, UserRole[]> = {
-      '/admin': [UserRole.ADMIN],
-      '/staff': [UserRole.STAFF, UserRole.ADMIN],
-      '/user': [UserRole.PASSENGER, UserRole.STAFF, UserRole.ADMIN],
-      '/booking': [UserRole.PASSENGER, UserRole.STAFF, UserRole.ADMIN],
-      '/my-tickets': [UserRole.PASSENGER, UserRole.STAFF, UserRole.ADMIN],
+      '/admin': [UserRole.Admin],
+      '/staff': [UserRole.Staff, UserRole.Admin],
+      '/user': [UserRole.Passenger, UserRole.Staff, UserRole.Admin],
+      '/booking': [UserRole.Passenger, UserRole.Staff, UserRole.Admin],
+      '/my-tickets': [UserRole.Passenger, UserRole.Staff, UserRole.Admin],
     };
 
     const allowedRoles = accessRules[resource];

@@ -52,6 +52,7 @@ import {
 import { CardSection } from "@/components/shared/CardSection";
 import { BadgeStatus } from "@/components/shared/BadgeStatus";
 import { PageContainer, PageHeader, PageContent } from "@/components/shared/PageLayout";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import {
   Table,
   TableBody,
@@ -313,6 +314,14 @@ export default function AdminDashboardPage() {
     COLORS.danger,
   ];
 
+  const PIE_COLORS_MAP = {
+    "VISA/MasterCard": COLORS.primary,
+    "MoMo": COLORS.secondary,
+    "VNPay": COLORS.success,
+    "ZaloPay": COLORS.warning,
+    "Khác": COLORS.danger,
+  };
+
   // Handle export
   const handleExport = (format: "excel" | "pdf") => {
     console.log(`Exporting ${format} report...`);
@@ -331,152 +340,26 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <header className="border-b bg-background/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
-        <div className="flex h-20 items-center justify-between px-4 lg:px-8">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 shadow-lg">
-              <Shield className="h-7 w-7 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
-                Admin Dashboard
-                <Badge variant="outline" className="bg-gradient-to-r from-blue-50 to-indigo-50 border-primary text-primary">
-                  Executive
-                </Badge>
-              </h1>
-              <p className="text-sm text-muted-foreground">Tổng quan hệ thống và phân tích chiến lược</p>
-            </div>
-          </div>
-
-          {/* Desktop Filters & Actions */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Select value={timeFilter} onValueChange={(v: any) => setTimeFilter(v)}>
-              <SelectTrigger className="w-[160px]">
-                <Calendar className="mr-2 h-4 w-4" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="today">Hôm nay</SelectItem>
-                <SelectItem value="7days">7 ngày qua</SelectItem>
-                <SelectItem value="30days">30 ngày qua</SelectItem>
-                <SelectItem value="custom">Tùy chỉnh</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={routeFilter} onValueChange={setRouteFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Tất cả tuyến" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả tuyến</SelectItem>
-                <SelectItem value="north-south">Hà Nội - TP.HCM</SelectItem>
-                <SelectItem value="north-central">Hà Nội - Đà Nẵng</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={trainTypeFilter} onValueChange={setTrainTypeFilter}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Loại tàu" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả loại tàu</SelectItem>
-                <SelectItem value="se">Thống Nhất (SE)</SelectItem>
-                <SelectItem value="spt">Sài Gòn (SPT)</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Separator orientation="vertical" className="h-8" />
-
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive"></span>
-            </Button>
-
-            <Button variant="ghost" size="icon">
-              <Settings className="h-5 w-5" />
-            </Button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-gradient-to-br from-blue-600 to-indigo-600 text-white">
-                      AD
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="text-left">
-                    <p className="text-sm font-medium">Admin User</p>
-                    <p className="text-xs text-muted-foreground">admin@railway.vn</p>
-                  </div>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem className="gap-2">
-                  <User className="h-4 w-4" />
-                  Thông tin tài khoản
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2">
-                  <Settings className="h-4 w-4" />
-                  Cài đặt
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="gap-2 text-destructive" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4" />
-                  Đăng xuất
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          {/* Mobile Actions */}
-          <div className="lg:hidden flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive"></span>
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreHorizontal className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Cài đặt
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Đăng xuất
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        {/* Mobile Filters */}
-        <div className="lg:hidden border-t p-4 space-y-2 bg-background/90">
-          <Select value={timeFilter} onValueChange={(v: any) => setTimeFilter(v)}>
-            <SelectTrigger className="w-full">
-              <Calendar className="mr-2 h-4 w-4" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Hôm nay</SelectItem>
-              <SelectItem value="7days">7 ngày qua</SelectItem>
-              <SelectItem value="30days">30 ngày qua</SelectItem>
-              <SelectItem value="custom">Tùy chỉnh</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </header>
-
+    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-blue-950 dark:to-indigo-900">
       {/* Main Content */}
       <ScrollArea className="flex-1">
         <div className="p-4 lg:p-8 space-y-8">
+          <AdminPageHeader
+            title="Admin Dashboard"
+            description="Overview and key metrics"
+            icon={LayoutDashboard}
+            stats={[
+              { icon: DollarSign, label: "Revenue (month)", value: `${Math.round(kpiData.totalRevenue).toLocaleString("vi-VN")}₫` },
+              { icon: Ticket, label: "Tickets", value: kpiData.ticketsSold },
+              { icon: Users, label: "Online Staff", value: kpiData.staffOnline },
+            ]}
+            actions={
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => handleExport("excel")}>
+                <FileSpreadsheet className="h-4 w-4" />
+                Export
+              </Button>
+            }
+          />
           {/* KPI Cards - Large & Bold */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
             {/* Total Revenue */}
@@ -718,8 +601,8 @@ export default function AdminDashboardPage() {
                       paddingAngle={5}
                       dataKey="value"
                     >
-                      {paymentMethodData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      {paymentMethodData.map((entry) => (
+                        <Cell key={entry.method} fill={PIE_COLORS_MAP[entry.method as keyof typeof PIE_COLORS_MAP]} />
                       ))}
                     </Pie>
                     <Tooltip
@@ -733,12 +616,12 @@ export default function AdminDashboardPage() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="mt-6 space-y-3">
-                  {paymentMethodData.map((item, index) => (
+                  {paymentMethodData.map((item) => (
                     <div key={item.method} className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
                         <div
                           className="h-3 w-3 rounded-full"
-                          style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
+                          style={{ backgroundColor: PIE_COLORS_MAP[item.method as keyof typeof PIE_COLORS_MAP] }}
                         />
                         <span className="text-muted-foreground">{item.method}</span>
                       </div>
@@ -895,42 +778,44 @@ export default function AdminDashboardPage() {
                   </DropdownMenu>
                 </div>
 
-                <div className="rounded-lg border overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-card">
-                        <TableHead>Ngày</TableHead>
-                        <TableHead>Tuyến</TableHead>
-                        <TableHead className="text-right">Vé bán</TableHead>
-                        <TableHead className="text-right">Doanh thu</TableHead>
-                        <TableHead className="text-right">Hoàn vé</TableHead>
-                        <TableHead className="text-right">Doanh thu ròng</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {detailedData.map((row, index) => (
-                        <TableRow key={index} className="hover:bg-card">
-                          <TableCell className="font-medium">{row.date}</TableCell>
-                          <TableCell>{row.route}</TableCell>
-                          <TableCell className="text-right">
-                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary">
-                              {row.ticketsSold}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right font-medium">
-                            {row.revenue.toLocaleString("vi-VN")}₫
-                          </TableCell>
-                          <TableCell className="text-right text-destructive">
-                            -{row.refunds.toLocaleString("vi-VN")}₫
-                          </TableCell>
-                          <TableCell className="text-right font-medium text-emerald-600">
-                            {row.netRevenue.toLocaleString("vi-VN")}₫
-                          </TableCell>
+                <ScrollArea className="w-full rounded-lg border">
+                  <div className="min-w-[800px]">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-card">
+                          <TableHead>Ngày</TableHead>
+                          <TableHead>Tuyến</TableHead>
+                          <TableHead className="text-right">Vé bán</TableHead>
+                          <TableHead className="text-right">Doanh thu</TableHead>
+                          <TableHead className="text-right">Hoàn vé</TableHead>
+                          <TableHead className="text-right">Doanh thu ròng</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                      </TableHeader>
+                      <TableBody>
+                        {detailedData.map((row, index) => (
+                          <TableRow key={index} className="hover:bg-card">
+                            <TableCell className="font-medium">{row.date}</TableCell>
+                            <TableCell>{row.route}</TableCell>
+                            <TableCell className="text-right">
+                              <Badge variant="outline" className="bg-primary/10 text-primary border-primary">
+                                {row.ticketsSold}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              {row.revenue.toLocaleString("vi-VN")}₫
+                            </TableCell>
+                            <TableCell className="text-right text-destructive">
+                              -{row.refunds.toLocaleString("vi-VN")}₫
+                            </TableCell>
+                            <TableCell className="text-right font-medium text-emerald-600">
+                              {row.netRevenue.toLocaleString("vi-VN")}₫
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </ScrollArea>
 
                 <div className="mt-6 flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">Hiển thị 5 trong 127 kết quả</p>

@@ -1,6 +1,6 @@
-﻿// tailwind.config.ts
+﻿// tailwind.config.ts - Tailwind v4 compatible
 import type { Config } from "tailwindcss";
-import typography from "@tailwindcss/typography"; // 👈 ESM import
+import typography from "@tailwindcss/typography";
 
 const config: Config = {
   darkMode: "class",
@@ -12,27 +12,30 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // Colors are now defined in @theme in globals.css (Tailwind v4)
+      // But we keep the mapping here for compatibility
       colors: {
-        primary: "var(--primary)",
-        accent: "var(--accent)",
-        secondary: "var(--secondary)",
-        background: "var(--background)",
-        card: "var(--card)",
-        foreground: "var(--foreground)",
-        muted: "var(--muted)",
-        "disabled-text": "var(--disabled-text)",
-        border: "var(--border)",
-        "disabled-bg": "var(--disabled-bg)",
-        success: "var(--success)",
-        warning: "var(--warning)",
-        error: "var(--error)",
-        info: "var(--info)",
-        "hover-primary": "var(--hover-primary)",
-        "active-primary": "var(--active-primary)",
-        "hover-accent": "var(--hover-accent)",
-        "active-accent": "var(--active-accent)",
+        primary: "var(--color-primary)",
+        accent: "var(--color-accent)",
+        secondary: "var(--color-secondary)",
+        background: "var(--color-background)",
+        card: "var(--color-card)",
+        foreground: "var(--color-foreground)",
+        muted: "var(--color-muted)",
+        "disabled-text": "var(--color-disabled-text)",
+        border: "var(--color-border)",
+        "disabled-bg": "var(--color-disabled-bg)",
+        success: "var(--color-success)",
+        warning: "var(--color-warning)",
+        destructive: "var(--color-destructive)",
+        info: "var(--color-info)",
+        input: "var(--color-input)",
+        ring: "var(--color-ring)",
+        "hover-primary": "var(--color-hover-primary)",
+        "active-primary": "var(--color-active-primary)",
+        "hover-accent": "var(--color-hover-accent)",
+        "active-accent": "var(--color-active-accent)",
       },
-      ringColor: { ring: "var(--focus-ring)" },
       boxShadow: {
         card: "0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08)",
       },

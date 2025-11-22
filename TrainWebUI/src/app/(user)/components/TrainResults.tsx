@@ -5,8 +5,10 @@ import { ChevronLeft, ChevronRight, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrainCard } from "./TrainCard";
 import { searchTrips, getAllTrips, getSeatsByTripId } from "@/lib/api/trip";
-import { TripDto, SeatDto } from "@/types";
+import { TripDto, SeatDto, SeatType } from "@/types";
 import { H2, Body } from "@/components/ui/typography";
+
+import { useRouter } from "next/navigation";
 
 interface TrainResultsProps {
   onViewDetail?: (tripId: string, trainId?: string) => void;
@@ -28,6 +30,7 @@ function formatCurrencyVND(amount?: number) {
 }
 
 export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: TrainResultsProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [trips, setTrips] = useState<TripDto[]>([]);
@@ -51,7 +54,7 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
       } catch (e) {
         console.error('API Error:', e);
         if (!mounted) return;
-        setError("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy ở https://localhost:7128");
+        setError("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy ở http://localhost:5191");
         setTrips([]);
       } finally {
         if (mounted) setLoading(false);
@@ -82,12 +85,12 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
                 console.warn(`⚠️ No seats found for trip ID: ${id}`);
                 return { id, info: { priceFrom: undefined, seatClasses: [] } };
               }
-              const availableSeats = seats.filter((s) => s.isAvailable && typeof s.price === "number") as Required<SeatDto>[];
+              const availableSeats = seats.filter((s) => s.price != null);
               const minPrice = availableSeats.length ? Math.min(...availableSeats.map((s) => s.price!)) : undefined;
               // Group by type for preview classes
               const byType = new Map<string, number>();
               for (const s of availableSeats) {
-                const typeName = s.type === "Soft" ? "Ngồi mềm điều hòa" : "Ngồi cứng điều hòa";
+                const typeName = s.type === SeatType.Soft ? "Ngồi mềm điều hòa" : "Ngồi cứng điều hòa";
                 if (!byType.has(typeName)) byType.set(typeName, s.price!);
                 else byType.set(typeName, Math.min(byType.get(typeName)!, s.price!));
               }
@@ -117,72 +120,100 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
 
   if (loading) {
     return (
-      <div className="space-y-3">
-        <div className="flex items-center justify-center gap-2 py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          <Body className="text-muted-foreground">Đang tìm kiếm chuyến tàu...</Body>
+      <div className="space-y-6 py-12">
+        <div className="flex flex-col items-center justify-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+          <Body className="text-lg text-muted-foreground">Đang tìm kiếm chuyến tàu...</Body>
         </div>
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-48 animate-pulse rounded-xl bg-muted/30" />
-        ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-48 animate-pulse rounded-2xl bg-muted/30 shadow-inner" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <H2 className="text-foreground">
-          Tìm thấy <span className="text-primary">{trips.length}</span> chuyến tàu
+    <div className="space-y-8 py-6">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-2">
+        <H2 className="text-foreground text-2xl font-bold tracking-tight">
+          Tìm thấy <span className="text-primary font-extrabold">{trips.length}</span> chuyến tàu
         </H2>
       </div>
 
-      <div className="space-y-3">
-        {pageTrips.map((trip, index) => {
-          const trainName = trip.train?.type || "Tàu";
-          const trainCode = trip.train?.name || trip.train?.id || "";
-          const departure = trip.departureTime ? new Date(trip.departureTime).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "--:--";
-          const departureDate = trip.departureTime ? new Date(trip.departureTime).toLocaleDateString("vi-VN") : "";
-          // Note: arrival isn't in TripDto; keep blank or compute when backend adds
-          const arrival = "";
-          const arrivalDate = "";
-          const from = trip.departureStation || "";
-          const to = trip.arrivalStation || "";
-          const duration = "--"; // needs backend to provide or compute
-          const stops = ""; // optional until backend provides
-          const sInfo = (trip.id && seatInfo[trip.id]) || { seatClasses: [] };
-          const priceFrom = sInfo.priceFrom;
+      {trips.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <TrainCard
+            trainName="Không có chuyến tàu phù hợp"
+            trainCode="--"
+            departure="--:--"
+            arrival="--:--"
+            departureDate=""
+            arrivalDate=""
+            from="--"
+            to="--"
+            duration="--"
+            stops=""
+            priceFrom="--"
+            seatClasses={[]}
+            amenities={[]}
+          />
+          <Body className="text-muted-foreground mt-2">Không tìm thấy chuyến tàu nào phù hợp với tiêu chí của bạn.</Body>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {pageTrips.map((trip, index) => {
+            const trainName = trip.train?.type || "Tàu";
+            const trainCode = trip.train?.name || trip.train?.id || "";
+            const departure = trip.departure ? new Date(trip.departure).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "--:--";
+            const departureDate = trip.departure ? new Date(trip.departure).toLocaleDateString("vi-VN") : "";
+            // Note: arrival isn't in TripDto; keep blank or compute when backend adds
+            const arrival = "";
+            const arrivalDate = "";
+            const from = trip.originStation || "";
+            const to = trip.destinationStation || "";
+            const duration = "--"; // needs backend to provide or compute
+            const stops = ""; // optional until backend provides
+            const sInfo = (trip.id && seatInfo[trip.id]) || { seatClasses: [] };
+            const priceFrom = sInfo.priceFrom;
 
-          return (
-            <TrainCard
-              key={trip.id ?? index}
-              trainName={trainName}
-              trainCode={trainCode}
-              departure={departure}
-              arrival={arrival}
-              departureDate={departureDate}
-              arrivalDate={arrivalDate}
-              from={from}
-              to={to}
-              duration={duration}
-              stops={stops}
-              priceFrom={priceFrom || "Liên hệ"}
-              seatClasses={sInfo.seatClasses}
-              amenities={["Wifi", "Điều hòa", "Vé điện tử QR"]}
-              onViewDetail={() => onViewDetail?.(trip.id || "", trip.train?.id)}
-            />
-          );
-        })}
-      </div>
+            return (
+              <TrainCard
+                key={trip.id ?? index}
+                trainName={trainName}
+                trainCode={trainCode}
+                departure={departure}
+                arrival={arrival}
+                departureDate={departureDate}
+                arrivalDate={arrivalDate}
+                from={from}
+                to={to}
+                duration={duration}
+                stops={stops}
+                priceFrom={priceFrom || "Liên hệ"}
+                seatClasses={sInfo.seatClasses}
+                amenities={["Wifi", "Điều hòa", "Vé điện tử QR"]}
+                onViewDetail={() => onViewDetail?.(trip.id || "", trip.train?.id)}
+                onBook={() => {
+                  // Navigate directly to booking step, skipping info
+                  router.push(`/booking/${trip.id}`);
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 pt-3">
+        <div className="flex items-center justify-center gap-2 pt-6">
           <Button
             variant="outline"
             size="icon"
-            className="h-10 w-10"
+            className="h-10 w-10 rounded-full border-2 border-primary/30"
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
+            aria-label="Trang trước"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -191,8 +222,9 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
               key={i}
               variant={page === i + 1 ? "default" : "outline"}
               size="icon"
-              className={`h-10 w-10 ${page === i + 1 ? "bg-primary hover:bg-hover-primary" : ""}`}
+              className={`h-10 w-10 rounded-full ${page === i + 1 ? "bg-primary text-primary-foreground shadow-lg" : "border-primary/20"}`}
               onClick={() => setPage(i + 1)}
+              aria-label={`Trang ${i + 1}`}
             >
               {i + 1}
             </Button>
@@ -200,9 +232,10 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
           <Button
             variant="outline"
             size="icon"
-            className="h-10 w-10"
+            className="h-10 w-10 rounded-full border-2 border-primary/30"
             disabled={page >= totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            aria-label="Trang sau"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -210,9 +243,9 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
       )}
 
       {error && (
-        <div className="flex items-center gap-3 rounded-lg border border-warning bg-warning/10 p-4">
-          <AlertCircle className="h-5 w-5 text-warning shrink-0" />
-          <Body className="text-warning">{error}</Body>
+        <div className="flex items-center gap-3 rounded-xl border-2 border-warning bg-warning/10 p-6 mt-6 shadow">
+          <AlertCircle className="h-6 w-6 text-warning shrink-0" />
+          <Body className="text-warning text-base font-medium">{error}</Body>
         </div>
       )}
     </div>

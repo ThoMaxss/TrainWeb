@@ -387,9 +387,9 @@ export default function NotificationsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <div className="border-b bg-background/80 backdrop-blur-sm shadow-sm sticky top-0 z-40">
-        <div className="container mx-auto px-2 lg:px-2 py-2">
+      {/* Notification Header Section - Converted from sticky header */}
+      <div className="border-b bg-background/80 backdrop-blur-sm shadow-sm">
+        <div className="container mx-auto px-2 lg:px-2 py-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 shadow-lg">
@@ -531,7 +531,7 @@ export default function NotificationsPage() {
             }
             className="w-full"
           >
-            <div className="sticky top-20 z-30 bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 pb-3">
+            <div className="sticky top-4 z-[25] bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 pb-3">
               <TabsList className="grid w-full grid-cols-5 bg-background/90 backdrop-blur-sm shadow-sm">
                 <TabsTrigger value="all" className="gap-2 data-[state=active]:bg-primary/10">
                   <Bell className="h-4 w-4" />

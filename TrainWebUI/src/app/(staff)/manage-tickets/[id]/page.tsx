@@ -298,8 +298,8 @@ export default function ManageTicketPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-sm">
+      {/* Ticket Management Info Section - Converted from sticky header */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-sm">
         <div className="container mx-auto px-2 lg:px-2">
           <div className="flex h-16 items-center justify-between">
             {/* Back Button + Title */}
@@ -330,7 +330,7 @@ export default function ManageTicketPage() {
             </Button>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-2 lg:px-2 py-5">

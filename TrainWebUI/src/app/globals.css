@@ -4,66 +4,78 @@
 @import "tailwindcss";
 
 /* ===============================
-   🎨 THEME CONFIGURATION (CSS Vars to match tailwind.config.ts)
+   🎨 THEME CONFIGURATION (Tailwind v4 format)
    =============================== */
-:root {
+@theme {
   /* Brand Colors */
-  --primary: #0B5FFF;
-  --primary-foreground: #FFFFFF;
-  --accent: #FF6A00;
-  --accent-foreground: #FFFFFF;
-  --secondary: #8B5CF6;
-  --secondary-foreground: #FFFFFF;
+  --color-primary: #2563EB;
+  --color-primary-foreground: #FFFFFF;
+  --color-accent: #FF6A00;
+  --color-accent-foreground: #FFFFFF;
+  --color-secondary: #8B5CF6;
+  --color-secondary-foreground: #FFFFFF;
 
   /* UI Colors */
-  --background: #FFFFFF;
-  --foreground: #1F2937;
-  --card: #F9FAFB;
-  --card-foreground: #1F2937;
-  --muted: #F3F4F6;
-  --muted-foreground: #6B7280;
-  --border: #E5E7EB;
-  --input: #E5E7EB;
-  --focus-ring: rgba(11, 95, 255, 0.5);
+  --color-background: #FFFFFF;
+  --color-foreground: #1F2937;
+  --color-card: #F9FAFB;
+  --color-card-foreground: #1F2937;
+  --color-muted: #F3F4F6;
+  --color-muted-foreground: #6B7280;
+  --color-border: #E5E7EB;
+  --color-input: #E5E7EB;
+  --color-ring: rgba(37, 99, 235, 0.5);
 
   /* Status Colors */
-  --destructive: #DC2626;
-  --destructive-foreground: #FFFFFF;
-  --success: #16A34A;
-  --warning: #F59E0B;
-  --info: #0EA5E9;
+  --color-destructive: #DC2626;
+  --color-destructive-foreground: #FFFFFF;
+  --color-success: #16A34A;
+  --color-warning: #F59E0B;
+  --color-info: #0EA5E9;
 
   /* Interaction */
-  --hover-primary: color-mix(in srgb, var(--primary) 90%, white);
-  --active-primary: color-mix(in srgb, var(--primary) 80%, black);
-  --hover-accent: color-mix(in srgb, var(--accent) 90%, white);
-  --active-accent: color-mix(in srgb, var(--accent) 80%, black);
-  --disabled-text: #9CA3AF;
-  --disabled-bg: #F3F4F6;
+  --color-hover-primary: color-mix(in srgb, var(--color-primary) 90%, white);
+  --color-active-primary: color-mix(in srgb, var(--color-primary) 80%, black);
+  --color-hover-accent: color-mix(in srgb, var(--color-accent) 90%, white);
+  --color-active-accent: color-mix(in srgb, var(--color-accent) 80%, black);
+  --color-disabled-text: #9CA3AF;
+  --color-disabled-bg: #F3F4F6;
+
+  /* Shades for better harmony */
+  --color-primary-50: color-mix(in srgb, var(--color-primary) 5%, white);
+  --color-primary-100: color-mix(in srgb, var(--color-primary) 10%, white);
+  --color-accent-50: color-mix(in srgb, var(--color-accent) 5%, white);
+  --color-accent-100: color-mix(in srgb, var(--color-accent) 10%, white);
+
+  /* Typography */
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-size-base: 1rem;
+  --font-size-sm: 0.875rem;
+  --line-height-base: 1.5;
 }
 
 /* ===============================
    🌙 DARK MODE OVERRIDES
    =============================== */
 .dark {
-  --primary: #3B82F6;
-  --accent: #FB923C;
-  --secondary: #A78BFA;
+  --color-primary: #3B82F6;
+  --color-accent: #FB923C;
+  --color-secondary: #A78BFA;
 
-  --background: #0F172A;
-  --foreground: #F8FAFC;
-  --card: #1E293B;
-  --card-foreground: #F8FAFC;
-  --muted: #1E293B;
-  --muted-foreground: #94A3B8;
-  --border: #334155;
-  --input: #334155;
-  --focus-ring: rgba(59, 130, 246, 0.5);
+  --color-background: #0F172A;
+  --color-foreground: #E2E8F0;
+  --color-card: #1E293B;
+  --color-card-foreground: #F8FAFC;
+  --color-muted: #1E293B;
+  --color-muted-foreground: #94A3B8;
+  --color-border: #334155;
+  --color-input: #334155;
+  --color-ring: rgba(59, 130, 246, 0.5);
 
-  --destructive: #EF4444;
-  --success: #22C55E;
-  --warning: #FACC15;
-  --info: #38BDF8;
+  --color-destructive: #EF4444;
+  --color-success: #22C55E;
+  --color-warning: #FACC15;
+  --color-info: #38BDF8;
 }
 
 /* ===============================
@@ -77,7 +89,7 @@
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: var(--muted);
+  background: var(--color-muted);
 }
 
 .skeleton::after {
@@ -85,9 +97,10 @@
   position: absolute; 
   inset: 0;
   background: linear-gradient(90deg,
-    transparent, var(--card), transparent);
+    transparent, var(--color-card), transparent);
   background-size: 200% 100%;
   animation: skeleton-shine 1.2s infinite;
+  will-change: background-position;
 }
 
 /* ===============================
@@ -103,23 +116,30 @@
   }
 
   body {
-    background: var(--background);
-    color: var(--foreground);
-    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   /* Selection */
   ::selection {
-    background: color-mix(in srgb, var(--primary), transparent 85%);
-    color: var(--foreground);
+    background: color-mix(in srgb, var(--color-primary), transparent 85%);
+    color: var(--color-foreground);
   }
 
   /* Focus ring (a11y) */
   :where(button,a,input,select,textarea,[role="button"],[tabindex]):focus-visible {
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
+  }
+
+  /* Global transitions */
+  button, [role="button"], a {
+    transition: all 150ms ease-in-out;
   }
 }
 
@@ -155,5 +175,12 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  /* Glassmorphism */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 }

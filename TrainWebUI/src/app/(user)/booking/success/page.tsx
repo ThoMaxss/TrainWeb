@@ -1,28 +1,18 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Download,
-  Image as ImageIcon,
-  Wallet,
-  Share2,
-  Home,
-  Phone,
-  Mail,
-  CheckCircle,
-  Train,
-  Calendar,
-  Clock,
-  User,
-  Ticket,
-  CreditCard,
-  ChevronRight,
-  Star,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Download, ImageIcon, Wallet, Share2, Home, Phone, Mail, Train, CreditCard, ChevronRight, Star, Ticket, User, Calendar, Clock } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { getBookingById } from "@/lib/api/booking"
+import { BookingDto } from "@/types"
+import { SuccessHeader } from "./components/SuccessHeader"
+import { QRCodePlaceholder, Barcode } from "./components/QRCode"
+import { JourneyInfo } from "./components/JourneyInfo"
+import { PassengerList } from "./components/PassengerList"
+import { LoadingState } from "./components/LoadingState"
 
 interface SelectedSeat {
   id: string;
@@ -39,85 +29,64 @@ interface Passenger {
 }
 
 export default function BookingSuccessPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showCopied, setShowCopied] = useState(false);
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [booking, setBooking] = useState<BookingDto | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [showCopied, setShowCopied] = useState(false)
 
-  // Mock passengers and services
-  const passengers: Passenger[] = [
-    { fullName: "Nguyễn Văn A", seatNumber: "12A", coachNumber: 3 },
-    { fullName: "Trần Thị B", seatNumber: "12B", coachNumber: 3 },
-  ];
-  
-  const optionalServices = {
-    meal: true,
-    insurance: false,
-  };
-
-  // Get booking data from URL params or localStorage
+  // Fetch booking data from API
   useEffect(() => {
-    // In a real app, you'd fetch booking data from API using booking/payment ID
-    const bookingId = searchParams.get("bookingId");
-    const paymentId = searchParams.get("paymentId");
-    
-    // Mock data - in real app, fetch from API
-    const mockSeats: SelectedSeat[] = [
-      {
-        id: "seat1",
-        coachNumber: 3,
-        seatNumber: "12A",
-        seatType: "Ngồi mềm điều hòa",
-        price: 650000,
-      },
-      {
-        id: "seat2",
-        coachNumber: 3,
-        seatNumber: "12B",
-        seatType: "Ngồi mềm điều hòa", 
-        price: 650000,
-      },
-    ];
+    async function fetchBooking() {
+      try {
+        setLoading(true)
+        const bookingId = searchParams.get("bookingId")
+        
+        if (!bookingId) {
+          console.error("No booking ID provided")
+          setLoading(false)
+          return
+        }
 
-    setSelectedSeats(mockSeats);
-    setLoading(false);
+        const bookingData = await getBookingById(bookingId)
+        setBooking(bookingData)
+      } catch (error) {
+        console.error("Error fetching booking:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-    // Scroll to top when component mounts
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [searchParams]);
+    fetchBooking()
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }, [searchParams])
 
-  // Calculate prices
-  const totalPrice = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
-  const mealPrice = optionalServices.meal ? selectedSeats.length * 85000 : 0;
-  const insurancePrice = optionalServices.insurance ? selectedSeats.length * 50000 : 0;
-  const grandTotal = totalPrice + mealPrice + insurancePrice;
+  // Calculate prices and data from booking
+  const totalPrice = booking?.seat?.price || 0
+  const grandTotal = totalPrice
 
-  // Format price
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN").format(price) + "đ";
-  };
+    return new Intl.NumberFormat("vi-VN").format(price) + "đ"
+  }
 
-  // Generate ticket ID
-  const ticketId = `VN${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
-  const bookingDate = new Date().toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-  const bookingTime = new Date().toLocaleTimeString("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const ticketId = booking?.id ? `TK${booking.id.substring(0, 10).toUpperCase()}` : "N/A"
+  const bookingDate = booking?.createdAt ? new Date(booking.createdAt).toLocaleDateString("vi-VN") : "N/A"
+  const bookingTime = booking?.createdAt ? new Date(booking.createdAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "N/A"
 
-  // Generate passenger list from seats if no passengers provided
-  const passengerList = passengers.length > 0
-    ? passengers
-    : selectedSeats.map((seat, index) => ({
-        fullName: `Hành khách ${index + 1}`,
-        seatNumber: seat.seatNumber,
-        coachNumber: seat.coachNumber,
-      }));
+  const tripInfo = booking?.trip ? {
+    trainNumber: booking.trip.train?.name || "N/A",
+    trainName: "Tàu Thống Nhất",
+    route: `${booking.trip.originStation || "N/A"} → ${booking.trip.destinationStation || "N/A"}`,
+    departureDate: new Date(booking.trip.departure!).toLocaleDateString("vi-VN"),
+    departureTime: new Date(booking.trip.departure!).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+    arrivalTime: new Date(booking.trip.arrival!).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+  } : null
+
+  const passengerList = booking ? [{
+    fullName: booking.user?.name || "N/A",
+    seatNumber: booking.seat?.seatNumber || "N/A",
+    coachNumber: 1,
+  }] : []
 
   // Mock QR code (in production, this would be generated with booking data)
   const generateQRPlaceholder = () => {
@@ -198,36 +167,23 @@ export default function BookingSuccessPage() {
   };
 
   if (loading) {
+    return <LoadingState />
+  }
+
+  if (!booking || !tripInfo) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-card">
-        <div className="text-center">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto mb-3" />
-          <p className="text-muted-foreground">Đang tải thông tin vé...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="p-2 text-center">
+          <p className="text-muted-foreground">Không tìm thấy thông tin đặt vé</p>
+          <Button className="mt-3" onClick={handleGoHome}>Về trang chủ</Button>
+        </Card>
       </div>
-    );
+    )
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      {/* Success Header */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-primary-foreground">
-        <div className="container mx-auto px-2 lg:px-2 py-5 lg:py-12">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="mb-3 flex justify-center">
-              <div className="rounded-full bg-background/20 p-2 backdrop-blur-sm">
-                <CheckCircle className="h-16 w-16" />
-              </div>
-            </div>
-            <h1 className="mb-3 text-primary-foreground">
-              Thanh toán thành công 🎉
-            </h1>
-            <p className="text-lg text-emerald-50">
-              Vé điện tử đã được phát hành. Vui lòng xuất trình QR code khi lên tàu.
-            </p>
-          </div>
-        </div>
-      </div>
+      <SuccessHeader />
 
       {/* Main Content */}
       <div className="container mx-auto px-2 lg:px-2 py-5">
@@ -257,63 +213,11 @@ export default function BookingSuccessPage() {
             <div className="hidden lg:grid lg:grid-cols-[1fr_auto_300px]">
               {/* Left Section - Details */}
               <div className="p-2 space-y-3">
-                {/* Journey Info */}
-                <div>
-                  <p className="mb-3 text-sm text-muted-foreground">Thông tin chuyến đi</p>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <Train className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-mono">SE3 - Tàu Thống Nhất</p>
-                        <p className="text-sm text-muted-foreground">Hà Nội → Đà Nẵng</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-primary" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Ngày đi</p>
-                          <p className="text-sm">15/11/2025</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-primary" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Giờ khởi hành</p>
-                          <p className="text-sm">19:30 → 08:05</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <JourneyInfo tripInfo={tripInfo} />
 
                 <Separator />
 
-                {/* Passengers */}
-                <div>
-                  <p className="mb-3 text-sm text-muted-foreground">
-                    Hành khách ({passengerList.length})
-                  </p>
-                  <div className="space-y-2">
-                    {passengerList.map((passenger, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-3 rounded-lg bg-card p-2"
-                      >
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <div className="flex-1">
-                          <p className="text-sm">{passenger.fullName}</p>
-                          <p className="text-xs text-muted-foreground">
-                            Toa {passenger.coachNumber}, Ghế {passenger.seatNumber}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <PassengerList passengers={passengerList} />
 
                 <Separator />
 
@@ -347,7 +251,7 @@ export default function BookingSuccessPage() {
                   
                   {/* QR Code */}
                   <div className="rounded-xl bg-background p-2 shadow-md">
-                    {generateQRPlaceholder()}
+                    <QRCodePlaceholder ticketId={ticketId} />
                   </div>
 
                   <div className="text-center">
@@ -369,7 +273,7 @@ export default function BookingSuccessPage() {
 
                   {/* Barcode */}
                   <div className="rounded-lg bg-background p-2">
-                    {generateBarcode()}
+                    <Barcode />
                   </div>
                 </div>
               </div>
@@ -378,40 +282,7 @@ export default function BookingSuccessPage() {
             {/* Ticket Body - Mobile Layout */}
             <div className="lg:hidden">
               <div className="p-2 space-y-3">
-                {/* Journey Info */}
-                <div>
-                  <p className="mb-3 text-sm text-muted-foreground">Thông tin chuyến đi</p>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <Train className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-mono">SE3 - Tàu Thống Nhất</p>
-                        <p className="text-sm text-muted-foreground">Hà Nội → Đà Nẵng</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-primary" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Ngày đi</p>
-                          <p className="text-sm">15/11/2025</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-primary" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Giờ khởi hành</p>
-                          <p className="text-sm">19:30 → 08:05</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
+                <JourneyInfo tripInfo={tripInfo} />
 
                 {/* QR Code - Mobile */}
                 <div className="rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 p-2">
@@ -419,7 +290,7 @@ export default function BookingSuccessPage() {
                     Xuất trình mã QR khi lên tàu
                   </p>
                   <div className="mx-auto max-w-[250px] rounded-xl bg-background p-2 shadow-md">
-                    {generateQRPlaceholder()}
+                    <QRCodePlaceholder ticketId={ticketId} />
                   </div>
                   <div className="mt-3 text-center">
                     <p className="text-xs text-muted-foreground">Mã vé</p>
@@ -429,28 +300,7 @@ export default function BookingSuccessPage() {
 
                 <Separator />
 
-                {/* Passengers */}
-                <div>
-                  <p className="mb-3 text-sm text-muted-foreground">
-                    Hành khách ({passengerList.length})
-                  </p>
-                  <div className="space-y-2">
-                    {passengerList.map((passenger, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-3 rounded-lg bg-card p-2"
-                      >
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <div className="flex-1">
-                          <p className="text-sm">{passenger.fullName}</p>
-                          <p className="text-xs text-muted-foreground">
-                            Toa {passenger.coachNumber}, Ghế {passenger.seatNumber}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <PassengerList passengers={passengerList} />
 
                 <Separator />
 
@@ -531,32 +381,12 @@ export default function BookingSuccessPage() {
                 Chi tiết thanh toán
               </h3>
               <div className="space-y-3">
-                {selectedSeats.map((seat) => (
-                  <div key={seat.id} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {seat.seatType} – Ghế {seat.seatNumber}
-                    </span>
-                    <span>{formatPrice(seat.price)}</span>
-                  </div>
-                ))}
-
-                {optionalServices.meal && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Suất ăn (×{selectedSeats.length})
-                    </span>
-                    <span>{formatPrice(mealPrice)}</span>
-                  </div>
-                )}
-
-                {optionalServices.insurance && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Bảo hiểm (×{selectedSeats.length})
-                    </span>
-                    <span>{formatPrice(insurancePrice)}</span>
-                  </div>
-                )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    {booking.seat?.type === 0 ? "Ghế mềm" : "Ghế cứng"} – Ghế {booking.seat?.seatNumber}
+                  </span>
+                  <span>{formatPrice(totalPrice)}</span>
+                </div>
 
                 <Separator />
 

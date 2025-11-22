@@ -1,13 +1,18 @@
+import { BookingDto } from './booking';
+
 export interface TicketTemplateDto {
   id: string;
-  name: string;
-  code: string; // unique, e.g., ECON, VIP
-  defaultPrice: number;
-  description?: string;
-  isActive: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  booking: BookingDto;
+  templateUrl: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export type CreateTicketTemplateRequest = Omit<TicketTemplateDto, 'id' | 'createdAt' | 'updatedAt'>;
-export type UpdateTicketTemplateRequest = Partial<CreateTicketTemplateRequest> & { id: string };
+export interface CreateTicketTemplateRequest {
+  bookingId: string;
+  templateUrl: string;
+}
+
+export interface UpdateTicketTemplateRequest {
+  templateUrl?: string;
+}

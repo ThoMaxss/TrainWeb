@@ -1,32 +1,37 @@
 import { apiFetch } from './config';
-import { UserDto, User } from '@/types';
+import { UserDto } from '@/types';
 
 // User endpoints based on backend documentation
 
-// GET /api/user/{id} - Get user by ID
-export async function getUserById(id: string): Promise<User> {
-  return apiFetch<User>(`/user/${id}`);
+// GET /api/User - Get all users
+export async function getAllUsers(): Promise<UserDto[]> {
+  return apiFetch<UserDto[]>('/User');
 }
 
-// POST /api/user - Create user
+// GET /api/User/{id} - Get user by ID
+export async function getUserById(id: string): Promise<UserDto> {
+  return apiFetch<UserDto>(`/User/${id}`);
+}
+
+// POST /api/User - Create user
 export async function createUser(userData: UserDto): Promise<UserDto> {
-  return apiFetch<UserDto>('/user', {
+  return apiFetch<UserDto>('/User', {
     method: 'POST',
     body: JSON.stringify(userData),
   });
 }
 
-// PUT /api/user/{id} - Update user (returns User domain object, not DTO)
-export async function updateUser(id: string, userData: UserDto): Promise<User> {
-  return apiFetch<User>(`/user/${id}`, {
+// PUT /api/User/{id} - Update user (returns User domain object, not DTO)
+export async function updateUser(id: string, userData: UserDto): Promise<UserDto> {
+  return apiFetch<UserDto>(`/User/${id}`, {
     method: 'PUT',
     body: JSON.stringify(userData),
   });
 }
 
-// DELETE /api/user/{id} - Delete user
+// DELETE /api/User/{id} - Delete user
 export async function deleteUser(id: string): Promise<void> {
-  return apiFetch<void>(`/user/${id}`, {
+  return apiFetch<void>(`/User/${id}`, {
     method: 'DELETE',
   });
 }
