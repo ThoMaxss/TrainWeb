@@ -26,6 +26,12 @@ namespace TrainWeb.Infrastructure.Repositories
             return await GetAllAsync(CollectionName);
         }
 
+        public async Task<IEnumerable<SeatEntity>> GetByTripIdAsync(string tripId)
+        {
+            var allSeats = await GetAllAsync(CollectionName);
+            return allSeats.Where(s => s.TripId == tripId);
+        }
+
         public async Task AddAsync(SeatEntity seatEntity)
         {
             await AddAsync(CollectionName, seatEntity.Id, seatEntity);

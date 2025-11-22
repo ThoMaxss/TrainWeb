@@ -1,35 +1,47 @@
-import { PaymentStatus, PaymentMethod } from './common';
-import { BookingDto } from './booking';
+export enum PaymentMethod {
+  Visa = 0,
+  Momo = 1,
+  VnPay = 2
+}
 
-// Main Payment Entity
+export enum PaymentStatus {
+  Success = 0,
+  Pending = 1,
+  Failed = 2
+}
+
 export interface PaymentEntity {
   id: string;
   bookingId: string;
-  booking?: BookingDto;
   amount: number;
   method: PaymentMethod;
   status: PaymentStatus;
-  transactionId?: string;
-  paymentUrl?: string;
-  paidAt?: string;
   createdAt: string;
-  updatedAt: string;
 }
 
-// Create payment request
-export interface CreatePaymentRequest {
-  id?: string;
+export interface PaymentRequest {
   bookingId: string;
   amount: number;
-  method: PaymentMethod | 'Visa' | 'Momo' | 'VnPay'; // Support both enum and string
-  status?: PaymentStatus | 'Success' | 'Pending' | 'Failed';
-  createdAt?: string;
+  method: PaymentMethod;
+  status: PaymentStatus;
 }
 
-// Payment response
-export interface PaymentResponse {
-  id: string;
-  paymentUrl?: string;
-  status: PaymentStatus;
-  transactionId?: string;
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  [PaymentMethod.Visa]: 'Visa',
+  [PaymentMethod.Momo]: 'Momo',
+  [PaymentMethod.VnPay]: 'VnPay'
+};
+
+export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
+  [PaymentStatus.Success]: 'Thành công',
+  [PaymentStatus.Pending]: 'Đang xử lý',
+  [PaymentStatus.Failed]: 'Thất bại'
+};
+
+export function isPaymentMethod(value: number): value is PaymentMethod {
+  return value >= 0 && value <= 2;
+}
+
+export function isPaymentStatus(value: number): value is PaymentStatus {
+  return value >= 0 && value <= 2;
 }

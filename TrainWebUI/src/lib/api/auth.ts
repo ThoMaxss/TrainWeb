@@ -1,26 +1,36 @@
 import { apiFetch } from './config';
-import { UserEntity, UserDto, User, CheckRoleResponse } from '@/types';
+import { AuthResponse, RegisterRequest, LoginRequest } from '@/types';
+
+interface CheckRoleResponse {
+  hasRole: boolean;
+}
 
 // Auth endpoints based on backend documentation
 
-// POST /api/auth/login - Email-only login
-export async function login(email: string): Promise<UserEntity> {
-  return apiFetch<UserEntity>('/auth/login', {
+// POST /api/Auth/login - Login with email & password
+// Request: { email: string; password: string }
+// Response: { message: string; token: string; role: string }
+export async function login(payload: LoginRequest): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>('/Auth/login', {
     method: 'POST',
-    body: JSON.stringify(email), // Raw JSON string as per backend
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
 }
 
-// POST /api/auth/register - Register user
-export async function register(userData: UserEntity): Promise<string> {
-  return apiFetch<string>('/auth/register', {
+// POST /api/Auth/register - Register user
+// Request: { name, email, password, role? }
+// Response: { message, email, role }
+export async function register(payload: RegisterRequest): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>('/Auth/register', {
     method: 'POST',
-    body: JSON.stringify(userData),
+    body: JSON.stringify(payload),
   });
 }
 
-// GET /api/auth/check-role - Check if user has specific role
+// GET /api/Auth/check-role - Undocumented helper (if backend supports)
+// Note: This endpoint is not present in API_DOCUMENTATION.md
 export async function checkRole(userId: string, role: string): Promise<CheckRoleResponse> {
   const params = new URLSearchParams({ userId, role });
-  return apiFetch<CheckRoleResponse>(`/auth/check-role?${params}`);
+  return apiFetch<CheckRoleResponse>(`/Auth/check-role?${params}`);
 }

@@ -59,7 +59,7 @@ export function AdminOnly({
 }) {
   return (
     <ConditionalRender 
-      requiredRole={UserRole.ADMIN} 
+      requiredRole={UserRole.Admin} 
       fallback={fallback}
       className={className}
     >
@@ -79,7 +79,7 @@ export function StaffOnly({
 }) {
   return (
     <ConditionalRender 
-      requiredRole={[UserRole.STAFF, UserRole.ADMIN]} 
+      requiredRole={[UserRole.Staff, UserRole.Admin]} 
       fallback={fallback}
       className={className}
     >

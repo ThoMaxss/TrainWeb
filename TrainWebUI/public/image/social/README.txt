@@ -1,0 +1,1 @@
+Place your social media icon images here (facebook.png, instagram.png, twitter.png, youtube.png, etc.). Recommended size: 32x32 or 40x40 PNG with transparent background.

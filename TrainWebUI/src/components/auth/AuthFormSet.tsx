@@ -46,41 +46,31 @@ export default function AuthFormSet() {
       let userDto;
       
       try {
-        const userEntity = await apiLogin(loginData.email);
-        userDto = { ...userEntity, role: userEntity.role as UserRole };
+        const authResponse = await apiLogin({ email: loginData.email, password: loginData.password });
+        // Flexible role mapping: support string (case-insensitive) or number
+        let mappedRole: UserRole = UserRole.Passenger;
+        if (typeof authResponse.role === 'string') {
+          const roleStr = authResponse.role.toLowerCase();
+          if (roleStr === 'admin') mappedRole = UserRole.Admin;
+          else if (roleStr === 'staff') mappedRole = UserRole.Staff;
+          else if (roleStr === 'passenger' || roleStr === 'user') mappedRole = UserRole.Passenger;
+        } else if (typeof authResponse.role === 'number') {
+          if (authResponse.role === 0) mappedRole = UserRole.Admin;
+          else if (authResponse.role === 1) mappedRole = UserRole.Staff;
+          else mappedRole = UserRole.Passenger;
+        }
+        userDto = {
+          email: authResponse.email || loginData.email,
+          name: authResponse.email?.split('@')[0] || 'User',
+          role: mappedRole,
+          createdAt: new Date().toISOString(),
+        };
       } catch (apiError) {
         // Fallback demo accounts
         const demoUsers = {
-          'admin@demo.com': {
-            id: 'demo-admin-1',
-            name: 'Admin Demo',
-            email: 'admin@demo.com',
-            phone: '0123456789',
-            role: UserRole.ADMIN,
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          'staff@demo.com': {
-            id: 'demo-staff-1',
-            name: 'Staff Demo',
-            email: 'staff@demo.com',
-            phone: '0123456790',
-            role: UserRole.STAFF,
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          'user@demo.com': {
-            id: 'demo-user-1',
-            name: 'User Demo',
-            email: 'user@demo.com',
-            phone: '0123456791',
-            role: UserRole.PASSENGER,
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
+          'admin@demo.com': { id: 'demo-admin-1', name: 'Admin Demo', email: 'admin@demo.com', role: UserRole.Admin, createdAt: new Date().toISOString() },
+          'staff@demo.com': { id: 'demo-staff-1', name: 'Staff Demo', email: 'staff@demo.com', role: UserRole.Staff, createdAt: new Date().toISOString() },
+          'user@demo.com': { id: 'demo-user-1', name: 'User Demo', email: 'user@demo.com', role: UserRole.Passenger, createdAt: new Date().toISOString() },
         };
         
         userDto = demoUsers[loginData.email as keyof typeof demoUsers];
@@ -93,13 +83,13 @@ export default function AuthFormSet() {
       
       // Redirect based on role
       switch (userDto.role) {
-        case UserRole.ADMIN:
+        case UserRole.Admin:
           router.push('/admin-dashboard');
           break;
-        case UserRole.STAFF:
+        case UserRole.Staff:
           router.push('/staff-dashboard');
           break;
-        case UserRole.PASSENGER:
+        case UserRole.Passenger:
           router.push('/search');
           break;
         default:
@@ -130,22 +120,16 @@ export default function AuthFormSet() {
     setError('');
 
     try {
-      const newUser: UserEntity = {
-        id: '',
+      const registerPayload = {
         name: registerData.name,
         email: registerData.email,
-        phone: registerData.phone,
-        role: UserRole.PASSENGER,
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        password: registerData.password,
+        role: UserRole.Passenger,
       };
-
-      await apiRegister(newUser);
+      await apiRegister(registerPayload);
       setSuccess(true);
-      
       setTimeout(() => {
-        login({ ...newUser, id: Date.now().toString() });
+        login({ ...registerPayload, id: Date.now().toString(), createdAt: new Date().toISOString() });
         router.push('/search');
       }, 1500);
       
@@ -182,7 +166,7 @@ export default function AuthFormSet() {
                 onClick={() => setActiveTab('login')}
                 className={`flex-1 py-3 px-4 text-sm font-semibold rounded-lg transition-all duration-200 ${
                   activeTab === 'login'
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    ? 'bg-primary text-white shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
                 }`}
               >
@@ -192,7 +176,7 @@ export default function AuthFormSet() {
                 onClick={() => setActiveTab('register')}
                 className={`flex-1 py-3 px-4 text-sm font-semibold rounded-lg transition-all duration-200 ${
                   activeTab === 'register'
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    ? 'bg-primary text-white shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
                 }`}
               >
@@ -280,7 +264,7 @@ export default function AuthFormSet() {
                           : 'bg-background border-input'
                       }`}
                     >
-                      {rememberMe && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
+                      {rememberMe && <Check className="w-3.5 h-3.5 text-white" />}
                     </div>
                     <Small className="text-foreground">Ghi nhớ đăng nhập</Small>
                   </label>
@@ -293,7 +277,7 @@ export default function AuthFormSet() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-primary-foreground font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                 </button>
@@ -440,7 +424,7 @@ export default function AuthFormSet() {
                           : 'bg-background border-input'
                       }`}
                     >
-                      {agreeTerms && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
+                      {agreeTerms && <Check className="w-3.5 h-3.5 text-white" />}
                     </div>
                     <Small className="text-foreground">
                       Tôi đồng ý với{' '}
@@ -457,7 +441,7 @@ export default function AuthFormSet() {
                           : 'bg-background border-input'
                       }`}
                     >
-                      {subscribeNewsletter && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
+                      {subscribeNewsletter && <Check className="w-3.5 h-3.5 text-white" />}
                     </div>
                     <Small className="text-foreground">
                       Đăng ký nhận bản tin ưu đãi
@@ -469,7 +453,7 @@ export default function AuthFormSet() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-primary-foreground font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg mt-4"
+                  className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg mt-4"
                 >
                   {loading ? 'Đang đăng ký...' : 'Đăng ký'}
                 </button>

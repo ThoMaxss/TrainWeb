@@ -11,9 +11,9 @@ export default function UserLayout({
 }) {
   return (
     <UserGuard showFallback={true}>
-      <div className="min-h-screen bg-card" role="main" aria-label="User Area">
+      <div className="min-h-screen bg-card">
         <Header />
-        <main className="container mx-auto px-2 py-5" role="main">
+        <main className="container mx-auto px-2 py-5">
           {children}
         </main>
       </div>

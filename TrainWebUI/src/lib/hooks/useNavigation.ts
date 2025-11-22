@@ -132,6 +132,14 @@ export function useNavigation() {
     router.push(url);
   }, [router]);
 
+  const goToTrainSchedule = useCallback(() => {
+    router.push("/train-schedule");
+  }, [router]);
+
+  const goToSupport = useCallback(() => {
+    router.push("/support");
+  }, [router]);
+
   // ===== STAFF ROUTES =====
   const goToStaffDashboard = useCallback(() => {
     router.push("/staff-dashboard");
@@ -158,7 +166,7 @@ export function useNavigation() {
   }, [router]);
 
   const goToRefunds = useCallback(() => {
-    router.push("/refunds");
+    router.push("/feedback-management");
   }, [router]);
 
   const goToReports = useCallback((type?: "daily" | "revenue") => {
@@ -200,6 +208,10 @@ export function useNavigation() {
 
   const goToTicketTemplates = useCallback(() => {
     router.push("/tickets/templates");
+  }, [router]);
+
+  const goToAdminTrainSchedules = useCallback(() => {
+    router.push("/train-schedules");
   }, [router]);
 
   // ===== NAVIGATION UTILITIES =====
@@ -299,6 +311,8 @@ export function useNavigation() {
     goToTransactions,
     goToNotifications,
     goToFeedback,
+    goToTrainSchedule,
+    goToSupport,
     
     // Staff Routes
     goToStaffDashboard,
@@ -319,6 +333,7 @@ export function useNavigation() {
     goToTrainManagementDetail,
     goToNewTrain,
     goToTicketTemplates,
+    goToAdminTrainSchedules,
     
     // Navigation Utilities
     goBack,

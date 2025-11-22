@@ -51,6 +51,15 @@ namespace TrainWeb.Application.Services
             }).ToImmutableList();
         }
 
+        public async Task<ImmutableList<Seat>> GetByTripIdAsync(string tripId)
+        {
+            var seatEntities = await SeatRepository.GetByTripIdAsync(tripId);
+            var trip = await TripService.GetById(tripId);
+
+            return seatEntities.Select(seatEntity => seatEntity.ToDomain(trip))
+                .ToImmutableList();
+        }
+
         public async Task<Seat?> AddAsync(Seat seat)
         {
             var seatEntity = SeatEntity.FromDomain(seat);

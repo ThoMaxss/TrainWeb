@@ -1,30 +1,8 @@
-// Feedback types for trip reviews
-
-export interface FeedbackDto {
-  id?: string;
-  userId?: string;
-  tripId?: string;
-  rating: number;
-  categories: string[];
-  comment?: string;
-  createdAt?: string;
-}
-
-// Full Feedback entity (all required)
-export interface Feedback {
+export interface FeedbackEntity {
   id: string;
   userId: string;
   tripId: string;
+  content: string;
   rating: number;
-  categories: string[];
-  comment?: string;
   createdAt: string;
-}
-
-// Create feedback request
-export interface CreateFeedbackRequest {
-  tripId: string;
-  rating: number;
-  categories: string[];
-  comment?: string;
 }

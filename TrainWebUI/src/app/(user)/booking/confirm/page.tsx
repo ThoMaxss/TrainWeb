@@ -1,35 +1,23 @@
-"use client";
+"use client"
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
-import {
-  ArrowLeft,
-  Train,
-  Calendar,
-  Clock,
-  Copy,
-  User,
-  Phone,
-  Mail,
-  CreditCard,
-  UtensilsCrossed,
-  Shield,
-  DoorOpen,
-  Check,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { StepIndicator } from "../../components/StepIndicator";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
-import { getTripById } from "@/lib/api/trip";
-import { createBooking } from "@/lib/api/booking";
-import { UserRole, BookingStatus, SeatType } from "@/types/common";
-import type { TripDto, BookingDto, PassengerDto } from "@/types";
+import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react"
+import { ArrowLeft, Train, Calendar, Clock, CreditCard, UtensilsCrossed, Shield, DoorOpen, Check } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { StepIndicator } from "../../components/StepIndicator"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { getTripById, getSeatsByTripId } from "@/lib/api/trip"
+import { createBooking } from "@/lib/api/booking"
+import { SeatType, BookingStatus, type TripDto, type BookingDto } from "@/types"
+import { useAuth } from "@/components/auth/AuthContext"
+import { SEAT_TYPE_LABELS } from "@/types/seat"
+import { PassengerForm, type PassengerFormData } from "./components/PassengerForm"
+import { ContactForm, type ContactInfo } from "./components/ContactForm"
+import { LoadingState } from "./components/LoadingState"
 
 interface SelectedSeat {
   id: string;
@@ -39,13 +27,19 @@ interface SelectedSeat {
   price: number;
 }
 
-interface PassengerInfo extends PassengerDto {
-  // Extending PassengerDto with any local state if needed
+interface PassengerForm {
+  fullName: string;
+  dateOfBirth: string;
+  gender: "male" | "female" | "other";
+  idNumber: string;
+  phone: string;
+  email: string;
 }
 
 export default function BookingConfirmPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
   const [tripData, setTripData] = useState<TripDto | undefined>();
   const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,7 +48,7 @@ export default function BookingConfirmPage() {
   // Get URL params
   const tripId = searchParams.get("tripId");
   const seatIds = searchParams.get("seatIds")?.split(",") || [];
-  const userId = "current-user"; // TODO: get from auth context
+  const userId = user?.id || "";
 
   const steps = [
     { label: "Chi tiết tàu", status: "completed" as const },
@@ -65,7 +59,7 @@ export default function BookingConfirmPage() {
   ];
 
   // Initialize passenger info for each seat
-  const [passengers, setPassengers] = useState<PassengerInfo[]>([]);
+  const [passengers, setPassengers] = useState<PassengerForm[]>([]);
 
   const [contactInfo, setContactInfo] = useState({
     fullName: "",
@@ -87,31 +81,47 @@ export default function BookingConfirmPage() {
       try {
         setLoading(true);
         
-        // Load trip data
-        if (tripId) {
-          const trip = await getTripById(tripId);
-          if (mounted) {
-            setTripData(trip);
-          }
+        // Load trip data and seats in parallel
+        if (!tripId) {
+          throw new Error("Trip ID is required");
         }
 
-        // Mock selected seats - in real app, get from seat selection state
-        const mockSeats: SelectedSeat[] = seatIds.map((seatId, index) => ({
-          id: seatId,
-          coachNumber: 1,
-          seatNumber: `${12 + index}A`,
-          seatType: "Ngồi mềm điều hòa",
-          price: 650000,
-        }));
+        const [trip, allSeats] = await Promise.all([
+          getTripById(tripId),
+          getSeatsByTripId(tripId)
+        ]);
 
         if (mounted) {
-          setSelectedSeats(mockSeats);
+          setTripData(trip);
+
+          // Get actual seat data from backend
+          const seatsMap = new Map(allSeats?.map(s => [s.id, s]) || []);
+          const actualSeats: SelectedSeat[] = seatIds
+            .map(seatId => {
+              const seat = seatsMap.get(seatId);
+              if (!seat) return null;
+              
+              return {
+                id: seat.id!,
+                coachNumber: 1, // Default coach number
+                seatNumber: seat.seatNumber || "",
+                seatType: seat.type != null ? SEAT_TYPE_LABELS[seat.type] : "Ghế mềm",
+                price: seat.price || 0,
+              };
+            })
+            .filter((s): s is SelectedSeat => s !== null);
+
+          if (actualSeats.length === 0) {
+            throw new Error("No valid seats found");
+          }
+
+          setSelectedSeats(actualSeats);
           // Initialize passenger info for each seat
           setPassengers(
-            mockSeats.map((_, index) => ({
+            actualSeats.map(() => ({
               fullName: "",
               dateOfBirth: "",
-              gender: "male" as const,
+              gender: "male",
               idNumber: "",
               phone: "",
               email: "",
@@ -120,28 +130,9 @@ export default function BookingConfirmPage() {
         }
       } catch (error) {
         console.error("Failed to load booking data:", error);
-        // Continue with fallback data
         if (mounted) {
-          const fallbackSeats = [
-            {
-              id: "seat1",
-              coachNumber: 1,
-              seatNumber: "12A",
-              seatType: "Ngồi mềm điều hòa",
-              price: 650000,
-            }
-          ];
-          setSelectedSeats(fallbackSeats);
-          setPassengers([
-            {
-              fullName: "",
-              dateOfBirth: "",
-              gender: "male" as const,
-              idNumber: "",
-              phone: "",
-              email: "",
-            }
-          ]);
+          alert("Không thể tải thông tin ghế. Vui lòng thử lại.");
+          router.back();
         }
       } finally {
         if (mounted) setLoading(false);
@@ -150,15 +141,15 @@ export default function BookingConfirmPage() {
     
     loadData();
     return () => { mounted = false; };
-  }, [tripId, seatIds]);
+  }, [tripId, seatIds, router]);
 
   // Trip info with fallback
   const tripInfo = tripData ? {
     trainNumber: tripData.train?.name || "N/A",
-    route: `${tripData.departureStation || "N/A"} → ${tripData.arrivalStation || "N/A"}`,
-    departureDate: tripData.departureTime ? new Date(tripData.departureTime).toLocaleDateString("vi-VN") : "N/A",
-    departureTime: tripData.departureTime ? new Date(tripData.departureTime).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "N/A",
-    arrivalTime: tripData.arrivalTime ? new Date(tripData.arrivalTime).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "N/A",
+    route: `${tripData.originStation || "N/A"} → ${tripData.destinationStation || "N/A"}`,
+    departureDate: tripData.departure ? new Date(tripData.departure).toLocaleDateString("vi-VN") : "N/A",
+    departureTime: tripData.departure ? new Date(tripData.departure).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "N/A",
+    arrivalTime: tripData.arrival ? new Date(tripData.arrival).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "N/A",
   } : {
     trainNumber: "SE3",
     route: "Hà Nội → Đà Nẵng",
@@ -167,7 +158,7 @@ export default function BookingConfirmPage() {
     arrivalTime: "08:05",
   };
 
-  const updatePassenger = (index: number, field: keyof PassengerInfo, value: string) => {
+  const updatePassenger = (index: number, field: keyof PassengerForm, value: string) => {
     setPassengers((prev) =>
       prev.map((p, i) => (i === index ? { ...p, [field]: value } : p))
     );
@@ -245,6 +236,12 @@ export default function BookingConfirmPage() {
       return;
     }
 
+    if (!userId) {
+      alert("Bạn cần đăng nhập để tiếp tục đặt vé.");
+      router.push("/login");
+      return;
+    }
+
     try {
       setSubmitting(true);
       
@@ -252,53 +249,46 @@ export default function BookingConfirmPage() {
         throw new Error("Trip data is required");
       }
 
-      // Create proper BookingDto object
-      const bookingData: BookingDto = {
-        id: "", // Will be generated by backend
-        userId: userId,
-        tripId: tripData.id,
-        seatIds: selectedSeats.map(seat => seat.id),
-        user: {
-          id: userId,
-          name: contactInfo.fullName.trim(),
-          email: contactInfo.email.trim(),
-          phone: contactInfo.phone.trim(),
-          role: UserRole.PASSENGER,
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        trip: tripData,
-        seats: selectedSeats.map(seat => ({
-          id: seat.id,
-          trainId: tripData.trainId || "",
-          coach: seat.coachNumber,
-          seatNumber: seat.seatNumber,
-          type: SeatType.SOFT, // Default to Soft seat type
-          price: seat.price,
-          isAvailable: false, // Now booked
-        })),
-        totalAmount: grandTotal,
-        status: BookingStatus.RESERVED,
-        bookingCode: "", // Will be generated by backend
-        passengerInfo: passengers.map((passenger, index) => ({
-          name: passenger.fullName.trim(),
-          idNumber: passenger.idNumber.trim(),
-          phone: passenger.phone.trim(),
-          seatId: selectedSeats[index]?.id || "",
-        })),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+      if (selectedSeats.length === 0) {
+        throw new Error("No seats selected");
+      }
 
-      // Create booking with backend API
-      const booking = await createBooking(bookingData);
+      // Backend only supports one seat per booking, so create multiple bookings
+      const bookingPromises = selectedSeats.map((seat, index) => {
+        const passengerInfo = passengers[index];
+        
+        const bookingData: BookingDto = {
+          user: {
+            id: userId,
+            name: passengerInfo.fullName.trim(),
+            email: passengerInfo.email.trim(),
+          },
+          trip: tripData,
+          seat: {
+            id: seat.id,
+            trip: tripData,
+            seatNumber: seat.seatNumber,
+            type: seat.seatType === SEAT_TYPE_LABELS[SeatType.Soft] ? SeatType.Soft : SeatType.Hard,
+            isAvailable: false,
+            price: seat.price,
+          },
+          status: BookingStatus.Reserved,
+          createdAt: new Date().toISOString(),
+        };
+
+        return createBooking(bookingData);
+      });
+
+      // Create all bookings in parallel
+      const bookings = await Promise.all(bookingPromises);
       
-      // Navigate to payment with booking ID
-      router.push(`/booking/payment?bookingId=${booking.id}`);
+      // Navigate to payment with first booking ID (or comma-separated IDs for multi-booking)
+      const bookingIds = bookings.map(b => b.id).join(",");
+      router.push(`/booking/payment?bookingId=${bookingIds}`);
     } catch (error) {
       console.error("Failed to create booking:", error);
-      alert("Không thể tạo đơn đặt vé. Vui lòng thử lại.");
+      const errorMsg = error instanceof Error ? error.message : "Không thể tạo đơn đặt vé";
+      alert(`${errorMsg}. Vui lòng thử lại.`);
     } finally {
       setSubmitting(false);
     }
@@ -315,18 +305,14 @@ export default function BookingConfirmPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    );
+    return <LoadingState />
   }
 
   return (
     <div className="min-h-screen bg-card">
-      {/* Header */}
-      <div className="sticky top-0 z-50 border-b bg-background shadow-sm">
-        <div className="container mx-auto px-2 lg:px-2 py-2">
+      {/* Journey Info Section - Converted from sticky header */}
+      <div className="border-b bg-background shadow-sm">
+        <div className="container mx-auto px-2 lg:px-2 py-4">
           <div className="mb-3 flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={handleBack} className="h-10 w-10">
               <ArrowLeft className="h-5 w-5" />
@@ -414,220 +400,24 @@ export default function BookingConfirmPage() {
 
             {/* Passenger Forms */}
             {selectedSeats.map((seat, index) => (
-              <Card key={seat.id} className="border-0 shadow-md">
-                <div className="p-2">
-                  <div className="mb-3 flex items-center justify-between">
-                    <h3 className="flex items-center gap-2 text-lg font-semibold">
-                      <User className="h-5 w-5 text-primary" />
-                      Hành khách {index + 1} - Toa {seat.coachNumber}, Ghế {seat.seatNumber}
-                    </h3>
-                    {index > 0 && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => copyFromPrevious(index)}
-                        className="gap-2"
-                      >
-                        <Copy className="h-4 w-4" />
-                        Sao chép từ HK trước
-                      </Button>
-                    )}
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {/* Full Name */}
-                    <div className="sm:col-span-2">
-                      <Label htmlFor={`fullname-${index}`}>
-                        Họ và tên <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id={`fullname-${index}`}
-                        placeholder="Nhập họ và tên"
-                        value={passengers[index]?.fullName || ""}
-                        onChange={(e) => updatePassenger(index, "fullName", e.target.value)}
-                        className="mt-1.5"
-                        data-error={!!errors[`passenger-${index}-fullName`]}
-                      />
-                      {errors[`passenger-${index}-fullName`] && (
-                        <p className="text-sm text-destructive mt-1">{errors[`passenger-${index}-fullName`]}</p>
-                      )}
-                    </div>
-
-                    {/* Date of Birth */}
-                    <div>
-                      <Label htmlFor={`dob-${index}`}>
-                        Ngày sinh <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id={`dob-${index}`}
-                        type="text"
-                        placeholder="DD/MM/YYYY"
-                        value={passengers[index]?.dateOfBirth || ""}
-                        onChange={(e) => updatePassenger(index, "dateOfBirth", e.target.value)}
-                        className="mt-1.5"
-                        data-error={!!errors[`passenger-${index}-dateOfBirth`]}
-                      />
-                      {errors[`passenger-${index}-dateOfBirth`] && (
-                        <p className="text-sm text-destructive mt-1">{errors[`passenger-${index}-dateOfBirth`]}</p>
-                      )}
-                    </div>
-
-                    {/* Gender */}
-                    <div>
-                      <Label>
-                        Giới tính <span className="text-destructive">*</span>
-                      </Label>
-                      <RadioGroup
-                        value={passengers[index]?.gender || "male"}
-                        onValueChange={(value: any) => updatePassenger(index, "gender", value)}
-                        className="mt-1.5 flex gap-3"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="male" id={`male-${index}`} />
-                          <Label htmlFor={`male-${index}`} className="!font-normal cursor-pointer">
-                            Nam
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="female" id={`female-${index}`} />
-                          <Label htmlFor={`female-${index}`} className="!font-normal cursor-pointer">
-                            Nữ
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="other" id={`other-${index}`} />
-                          <Label htmlFor={`other-${index}`} className="!font-normal cursor-pointer">
-                            Khác
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    {/* ID Number */}
-                    <div>
-                      <Label htmlFor={`id-${index}`}>
-                        CCCD/Hộ chiếu <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id={`id-${index}`}
-                        placeholder="Nhập số CCCD hoặc hộ chiếu"
-                        value={passengers[index]?.idNumber || ""}
-                        onChange={(e) => updatePassenger(index, "idNumber", e.target.value)}
-                        className="mt-1.5"
-                        data-error={!!errors[`passenger-${index}-idNumber`]}
-                      />
-                      {errors[`passenger-${index}-idNumber`] && (
-                        <p className="text-sm text-destructive mt-1">{errors[`passenger-${index}-idNumber`]}</p>
-                      )}
-                    </div>
-
-                    {/* Phone */}
-                    <div>
-                      <Label htmlFor={`phone-${index}`}>
-                        Điện thoại <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id={`phone-${index}`}
-                        type="tel"
-                        placeholder="Nhập số điện thoại"
-                        value={passengers[index]?.phone || ""}
-                        onChange={(e) => updatePassenger(index, "phone", e.target.value)}
-                        className="mt-1.5"
-                        data-error={!!errors[`passenger-${index}-phone`]}
-                      />
-                      {errors[`passenger-${index}-phone`] && (
-                        <p className="text-sm text-destructive mt-1">{errors[`passenger-${index}-phone`]}</p>
-                      )}
-                    </div>
-
-                    {/* Email */}
-                    <div className="sm:col-span-2">
-                      <Label htmlFor={`email-${index}`}>
-                        Email <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id={`email-${index}`}
-                        type="email"
-                        placeholder="Nhập địa chỉ email"
-                        value={passengers[index]?.email || ""}
-                        onChange={(e) => updatePassenger(index, "email", e.target.value)}
-                        className="mt-1.5"
-                        data-error={!!errors[`passenger-${index}-email`]}
-                      />
-                      {errors[`passenger-${index}-email`] && (
-                        <p className="text-sm text-destructive mt-1">{errors[`passenger-${index}-email`]}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Card>
+              <PassengerForm
+                key={seat.id}
+                index={index}
+                seatNumber={seat.seatNumber}
+                coachNumber={seat.coachNumber}
+                passenger={passengers[index]}
+                onUpdate={(field, value) => updatePassenger(index, field, value)}
+                onCopyFromPrevious={index > 0 ? () => copyFromPrevious(index) : undefined}
+                errors={errors}
+              />
             ))}
 
             {/* Contact Information */}
-            <Card className="border-0 shadow-md">
-              <div className="p-2">
-                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold">
-                  <Mail className="h-5 w-5 text-primary" />
-                  Thông tin liên hệ (nhận vé QR)
-                </h3>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="sm:col-span-2">
-                    <Label htmlFor="contact-name">
-                      Họ và tên liên hệ <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="contact-name"
-                      placeholder="Nhập họ và tên"
-                      value={contactInfo.fullName}
-                      onChange={(e) =>
-                        setContactInfo({ ...contactInfo, fullName: e.target.value })
-                      }
-                      className="mt-1.5"
-                      data-error={!!errors["contact-fullName"]}
-                    />
-                    {errors["contact-fullName"] && (
-                      <p className="text-sm text-destructive mt-1">{errors["contact-fullName"]}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="contact-phone">
-                      Số điện thoại <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="contact-phone"
-                      type="tel"
-                      placeholder="Nhập số điện thoại"
-                      value={contactInfo.phone}
-                      onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
-                      className="mt-1.5"
-                      data-error={!!errors["contact-phone"]}
-                    />
-                    {errors["contact-phone"] && (
-                      <p className="text-sm text-destructive mt-1">{errors["contact-phone"]}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="contact-email">
-                      Email <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="contact-email"
-                      type="email"
-                      placeholder="Nhập địa chỉ email"
-                      value={contactInfo.email}
-                      onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
-                      className="mt-1.5"
-                      data-error={!!errors["contact-email"]}
-                    />
-                    {errors["contact-email"] && (
-                      <p className="text-sm text-destructive mt-1">{errors["contact-email"]}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </Card>
+            <ContactForm
+              contactInfo={contactInfo}
+              onChange={(field, value) => setContactInfo({ ...contactInfo, [field]: value })}
+              errors={errors}
+            />
 
             {/* Optional Services */}
             <Card className="border-0 shadow-md">
@@ -721,7 +511,7 @@ export default function BookingConfirmPage() {
 
           {/* Price Summary Sidebar - Desktop */}
           <div className="hidden lg:block">
-            <div className="sticky top-24">
+            <div className="sticky top-16">
               <Card className="border-0 shadow-lg">
                 <div className="p-2">
                   <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold">

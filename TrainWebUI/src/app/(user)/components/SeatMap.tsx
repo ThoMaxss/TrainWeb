@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
 import { getSeatsByTripId } from "@/lib/api/trip";
-import { SeatDto } from "@/types";
+import { SeatDto, SeatType } from "@/types";
+import { SEAT_TYPE_LABELS } from "@/types/seat";
 
 interface SeatMapProps {
   tripId: string;
   coachNumber: number;
-  seatType: string;
+  seatType: SeatType | null;
   layout: "2+2" | "3+3" | "2+1" | "4-berth" | "6-berth";
   onSeatSelect: (seat: SeatDto) => void;
   selectedSeats: string[];
@@ -31,7 +32,14 @@ const getLayoutConfig = (layout: SeatMapProps['layout']) => {
   }
 };
 
-const renderSeatRow = (rowSeats: SeatDto[], config: ReturnType<typeof getLayoutConfig>, onSeatSelect: (seat: SeatDto) => void, selectedSeats: string[], seatType: string, coachNumber: number) => {
+const renderSeatRow = (
+  rowSeats: SeatDto[],
+  config: ReturnType<typeof getLayoutConfig>,
+  onSeatSelect: (seat: SeatDto) => void,
+  selectedSeats: string[],
+  seatTypeLabel: string,
+  coachNumber: number
+) => {
   const leftSeats = rowSeats.slice(0, config.leftSeats);
   const rightSeats = rowSeats.slice(config.leftSeats);
 
@@ -45,7 +53,7 @@ const renderSeatRow = (rowSeats: SeatDto[], config: ReturnType<typeof getLayoutC
             seat={seat} 
             onSeatSelect={onSeatSelect} 
             selectedSeats={selectedSeats}
-            seatType={seatType}
+            seatTypeLabel={seatTypeLabel}
             coachNumber={coachNumber}
           />
         ))}
@@ -64,7 +72,7 @@ const renderSeatRow = (rowSeats: SeatDto[], config: ReturnType<typeof getLayoutC
             seat={seat} 
             onSeatSelect={onSeatSelect} 
             selectedSeats={selectedSeats}
-            seatType={seatType}
+            seatTypeLabel={seatTypeLabel}
             coachNumber={coachNumber}
           />
         ))}
@@ -73,11 +81,11 @@ const renderSeatRow = (rowSeats: SeatDto[], config: ReturnType<typeof getLayoutC
   );
 };
 
-const SeatButton = ({ seat, onSeatSelect, selectedSeats, seatType, coachNumber }: {
+const SeatButton = ({ seat, onSeatSelect, selectedSeats, seatTypeLabel, coachNumber }: {
   seat: SeatDto;
   onSeatSelect: (seat: SeatDto) => void;
   selectedSeats: string[];
-  seatType: string;
+  seatTypeLabel: string;
   coachNumber: number;
 }) => (
   <TooltipProvider>
@@ -107,7 +115,7 @@ const SeatButton = ({ seat, onSeatSelect, selectedSeats, seatType, coachNumber }
             {seat.isAvailable ? "Có thể đặt" : "Đã có khách"}
           </div>
           <div className="text-xs">
-            Loại: {seatType} • Toa: {coachNumber}
+            Loại: {seatTypeLabel} • Toa: {coachNumber}
           </div>
           {seat.price && (
             <div className="text-xs font-medium text-primary">
@@ -204,11 +212,16 @@ export function SeatMap({
   }
 
   const config = getLayoutConfig(layout);
-  
+  // Filter seats by selected type when provided
+  // Include seats with undefined type when showing "All"
+  const filteredSeats = seatType == null 
+    ? seats 
+    : seats.filter(s => s.type === seatType || s.type == null);
+
   // Group seats into rows based on layout
   const seatRows: SeatDto[][] = [];
-  for (let i = 0; i < seats.length; i += config.seatsPerRow) {
-    seatRows.push(seats.slice(i, i + config.seatsPerRow));
+  for (let i = 0; i < filteredSeats.length; i += config.seatsPerRow) {
+    seatRows.push(filteredSeats.slice(i, i + config.seatsPerRow));
   }
 
   return (
@@ -219,7 +232,7 @@ export function SeatMap({
           Sơ đồ ghế tàu {tripId} - Toa {coachNumber}
         </div>
         <div className="text-sm text-muted-foreground mt-1">
-          Layout: {layout} • Loại ghế: {seatType}
+      Layout: {layout} • Loại ghế: {seatType != null ? SEAT_TYPE_LABELS[seatType] : "Tất cả"}
         </div>
       </div>
 
@@ -243,7 +256,14 @@ export function SeatMap({
       <div className="space-y-1">
         {seatRows.map((rowSeats, rowIndex) => (
           <div key={rowIndex}>
-            {renderSeatRow(rowSeats, config, onSeatSelect, selectedSeats, seatType, coachNumber)}
+            {renderSeatRow(
+              rowSeats,
+              config,
+              onSeatSelect,
+              selectedSeats,
+              seatType != null ? SEAT_TYPE_LABELS[seatType] : "",
+              coachNumber
+            )}
           </div>
         ))}
       </div>
@@ -251,7 +271,7 @@ export function SeatMap({
       {/* Footer info */}
       <div className="mt-3 pt-3 border-t border-border/50">
         <div className="text-sm text-muted-foreground">
-          Tổng số ghế: {seats.length} • Còn trống: {seats.filter(s => s.isAvailable).length}
+          Tổng số ghế: {filteredSeats.length} • Còn trống: {filteredSeats.filter(s => s.isAvailable).length}
         </div>
       </div>
     </div>

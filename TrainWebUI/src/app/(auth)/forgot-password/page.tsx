@@ -42,20 +42,22 @@ export default function ForgotPasswordPage() {
                 
                 {/* Email Field */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-foreground">
+                  <label htmlFor="forgot-email" className="block text-sm font-semibold text-foreground">
                     Email của bạn
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                      <Mail className="w-5 h-5 text-muted-foreground" />
+                      <Mail className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
                     </div>
                     <input
+                      id="forgot-email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="john.doe@example.com"
                       className="w-full bg-background border border-input rounded-xl py-3 pl-12 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-primary transition-all"
                       required
+                      aria-required="true"
                     />
                   </div>
                 </div>
@@ -68,7 +70,8 @@ export default function ForgotPasswordPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-primary-foreground font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
+                  aria-label="Gửi link khôi phục mật khẩu"
                 >
                   {loading ? 'Đang gửi...' : 'Gửi link khôi phục'}
                 </button>
@@ -79,7 +82,7 @@ export default function ForgotPasswordPage() {
                     href="/login" 
                     className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
                   >
-                    <ArrowLeft className="w-4 h-4" />
+                    <ArrowLeft className="w-4 h-4" aria-hidden="true" />
                     Quay lại đăng nhập
                   </Link>
                 </div>
@@ -89,7 +92,7 @@ export default function ForgotPasswordPage() {
               // Success State
               <div className="text-center space-y-6">
                 <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto">
-                  <Mail className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                  <Mail className="w-8 h-8 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                 </div>
                 
                 <div>
@@ -104,7 +107,7 @@ export default function ForgotPasswordPage() {
                   href="/login" 
                   className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <ArrowLeft className="w-4 h-4" aria-hidden="true" />
                   Quay lại đăng nhập
                 </Link>
               </div>

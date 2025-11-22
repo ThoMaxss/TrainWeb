@@ -80,7 +80,7 @@ export function SeatSummaryPanel({
 
   // Desktop sidebar view
   return (
-    <Card className="sticky top-24 border-0 shadow-lg">
+    <Card className="sticky top-16 border-0 shadow-lg">
       <div className="border-b bg-card p-2">
         <h3>Ghế đã chọn</h3>
         <p className="mt-1 text-sm text-muted-foreground">

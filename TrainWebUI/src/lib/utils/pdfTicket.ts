@@ -24,8 +24,11 @@ export async function generateGroupPdfTicket(
 
   passengers.forEach((p, i) => {
     const seat = seats[i];
+    const passengerName = (p as any).fullName || p.name || "";
+    const seatType = (seat as any).seatType || seat.type || "";
+    const coach = (seat as any).coachNumber ? `Toa ${(seat as any).coachNumber}, ` : "";
     doc.text(
-      `${i + 1}. ${p.fullName} - Toa ${seat.coachNumber}, Ghế ${seat.seatNumber} (${seat.seatType})`,
+      `${i + 1}. ${passengerName} - ${coach}Ghế ${seat.seatNumber} (${seatType})`,
       20,
       90 + i * 8
     );
@@ -58,8 +61,11 @@ export async function generateIndividualTickets(
     doc.setFontSize(18).text("VÉ TÀU ĐIỆN TỬ", 105, 20, { align: "center" });
     doc.setFontSize(12).text(`Mã vé: ${ticketId}-${i + 1}`, 105, 28, { align: "center" });
 
-    doc.setFontSize(14).text(`${p.fullName}`, 20, 50);
-    doc.setFontSize(12).text(`Toa ${seat.coachNumber}, Ghế ${seat.seatNumber} (${seat.seatType})`, 20, 60);
+    const passengerName = (p as any).fullName || p.name || "";
+    const seatType = (seat as any).seatType || seat.type || "";
+    const coach = (seat as any).coachNumber ? `Toa ${(seat as any).coachNumber}, ` : "";
+    doc.setFontSize(14).text(`${passengerName}`, 20, 50);
+    doc.setFontSize(12).text(`${coach}Ghế ${seat.seatNumber} (${seatType})`, 20, 60);
     doc.text(`Tàu: ${trainId}`, 20, 70);
     doc.text(`${from} → ${to}`, 20, 80);
     doc.text(`Ngày: ${date} | Giờ: ${time}`, 20, 90);
