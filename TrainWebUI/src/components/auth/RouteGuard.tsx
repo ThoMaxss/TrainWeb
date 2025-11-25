@@ -57,11 +57,11 @@ function AccessDenied({ message, icon: Icon = Lock }: { message: string; icon?: 
         {message}
       </Body>
       <button 
-        onClick={() => window.history.back()}
+        onClick={() => window.location.href = '/'}
         className="mt-6 px-6 py-3 bg-destructive text-destructive-foreground rounded-xl hover:bg-destructive/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-semibold"
-        aria-label="Quay lại trang trước"
+        aria-label="Về trang chủ"
       >
-        Quay lại
+        Về trang chủ
       </button>
     </div>
   );
@@ -126,7 +126,7 @@ export function RouteGuard({
 export function AdminGuard({ children, showFallback = true }: { children: React.ReactNode; showFallback?: boolean }) {
   return (
     <RouteGuard 
-      requiredRole={UserRole.ADMIN} 
+      requiredRole={UserRole.Admin} 
       showFallback={showFallback}
     >
       {children}
@@ -137,7 +137,7 @@ export function AdminGuard({ children, showFallback = true }: { children: React.
 export function StaffGuard({ children, showFallback = true }: { children: React.ReactNode; showFallback?: boolean }) {
   return (
     <RouteGuard 
-      requiredRole={[UserRole.STAFF, UserRole.ADMIN]} 
+      requiredRole={[UserRole.Staff, UserRole.Admin]} 
       showFallback={showFallback}
     >
       {children}
@@ -148,7 +148,7 @@ export function StaffGuard({ children, showFallback = true }: { children: React.
 export function UserGuard({ children, showFallback = true }: { children: React.ReactNode; showFallback?: boolean }) {
   return (
     <RouteGuard 
-      requiredRole={[UserRole.PASSENGER, UserRole.STAFF, UserRole.ADMIN]} 
+      requiredRole={[UserRole.Passenger, UserRole.Staff, UserRole.Admin]} 
       showFallback={showFallback}
     >
       {children}

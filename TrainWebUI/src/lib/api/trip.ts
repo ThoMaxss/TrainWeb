@@ -3,42 +3,48 @@ import { TripDto, SeatDto } from '@/types';
 
 // Trip endpoints based on backend documentation
 
-// GET /api/trip - Get all trips
+// GET /api/Trip - Get all trips
 export async function getAllTrips(): Promise<TripDto[]> {
-  return apiFetch<TripDto[]>('/trip');
+  return apiFetch<TripDto[]>('/Trip');
 }
 
-// GET /api/trip/{id} - Get trip by ID
+// GET /api/Trip/{id} - Get trip by ID
 export async function getTripById(id: string): Promise<TripDto> {
-  return apiFetch<TripDto>(`/trip/${id}`);
+  return apiFetch<TripDto>(`/Trip/${id}`);
 }
 
-// POST /api/trip - Create trip
+// POST /api/Trip - Create trip
 export async function createTrip(tripData: TripDto): Promise<TripDto> {
-  return apiFetch<TripDto>('/trip', {
+  return apiFetch<TripDto>('/Trip', {
     method: 'POST',
     body: JSON.stringify(tripData),
   });
 }
 
-// PUT /api/trip/{id} - Update trip
+// PUT /api/Trip/{id} - Update trip
 export async function updateTrip(id: string, tripData: TripDto): Promise<TripDto> {
-  return apiFetch<TripDto>(`/trip/${id}`, {
+  return apiFetch<TripDto>(`/Trip/${id}`, {
     method: 'PUT',
     body: JSON.stringify(tripData),
   });
 }
 
-// DELETE /api/trip/{id} - Delete trip
+// DELETE /api/Trip/{id} - Delete trip
 export async function deleteTrip(id: string): Promise<void> {
-  return apiFetch<void>(`/trip/${id}`, {
+  return apiFetch<void>(`/Trip/${id}`, {
     method: 'DELETE',
   });
 }
 
-// GET /api/trip/{id}/seats - Get seats by trip ID
+// GET /api/Seat/trip/{tripId} - Get seats by trip ID
 export async function getSeatsByTripId(tripId: string): Promise<SeatDto[] | null> {
-  return apiFetch<SeatDto[]>(`/trip/${tripId}/seats`);
+  try {
+    const seats = await apiFetch<SeatDto[]>(`/Seat/trip/${tripId}`);
+    return seats;
+  } catch (error) {
+    console.error(`Failed to fetch seats for trip ${tripId}:`, error);
+    return null;
+  }
 }
 
 // Custom search functions (you may need to implement these on backend)
@@ -51,10 +57,10 @@ export async function searchTrips(params: {
   const allTrips = await getAllTrips();
   
   return allTrips.filter(trip => {
-    if (params.originStation && trip.departureStation !== params.originStation) return false;
-    if (params.destinationStation && trip.arrivalStation !== params.destinationStation) return false;
-    if (params.departure) {
-      const tripDate = new Date(trip.departureTime).toDateString();
+    if (params.originStation && trip.originStation !== params.originStation) return false;
+    if (params.destinationStation && trip.destinationStation !== params.destinationStation) return false;
+    if (params.departure && trip.departure) {
+      const tripDate = new Date(trip.departure).toDateString();
       const searchDate = new Date(params.departure).toDateString();
       if (tripDate !== searchDate) return false;
     }

@@ -1,7 +1,11 @@
 // 🎨 Enhanced ticket management with unified design system and dark mode
-"use client";
+"use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react"
+import { getBookingsByUserId } from "@/lib/api/booking"
+import { BookingDto, BookingStatus } from "@/types"
+import { LoadingState } from "./components/LoadingState"
+import { EmptyState, ErrorState } from "./components/States"
 import {
   Search,
   Train,
@@ -62,71 +66,81 @@ export function TicketManagementScreen({
   onGoHome,
   onViewTicket,
 }: TicketManagementScreenProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"upcoming" | "completed" | "cancelled">("upcoming");
-  const [expandedTickets, setExpandedTickets] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeTab, setActiveTab] = useState<"upcoming" | "completed" | "cancelled">("upcoming")
+  const [expandedTickets, setExpandedTickets] = useState<Set<string>>(new Set())
+  const [tickets, setTickets] = useState<BookedTicket[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Mock data - in production, this would come from API/database
-  const mockTickets: BookedTicket[] = [
-    {
-      id: "1",
-      ticketId: "VNAB12CD34",
-      trainNumber: "SE3",
-      trainName: "Tàu Thống Nhất",
-      origin: "Hà Nội",
-      destination: "Đà Nẵng",
-      departureDate: "15/11/2025",
-      departureTime: "19:30",
-      arrivalTime: "08:05",
-      passengers: [
-        { fullName: "Nguyễn Văn A", seatNumber: "1A", coachNumber: 1 },
-        { fullName: "Trần Thị B", seatNumber: "1B", coachNumber: 1 },
-      ],
-      totalPrice: 1900000,
-      status: "upcoming",
-      bookingDate: "30/09/2025",
-      seatType: "Giường nằm khoang 6",
-    },
-    {
-      id: "2",
-      ticketId: "VN56EF78GH",
-      trainNumber: "SE2",
-      trainName: "Tàu Thống Nhất",
-      origin: "TP. Hồ Chí Minh",
-      destination: "Nha Trang",
-      departureDate: "20/10/2025",
-      departureTime: "06:00",
-      arrivalTime: "14:30",
-      passengers: [
-        { fullName: "Lê Minh C", seatNumber: "3C", coachNumber: 2 },
-      ],
-      totalPrice: 750000,
-      status: "completed",
-      bookingDate: "15/09/2025",
-      seatType: "Ngồi mềm điều hòa",
-    },
-    {
-      id: "3",
-      ticketId: "VNIJ90KL12",
-      trainNumber: "SE7",
-      trainName: "Tàu Thống Nhất",
-      origin: "Đà Nẵng",
-      destination: "Hà Nội",
-      departureDate: "05/09/2025",
-      departureTime: "14:00",
-      arrivalTime: "02:45",
-      passengers: [
-        { fullName: "Phạm Thị D", seatNumber: "2D", coachNumber: 1 },
-      ],
-      totalPrice: 950000,
-      status: "cancelled",
-      bookingDate: "25/08/2025",
-      seatType: "Giường nằm khoang 6",
-    },
-  ];
+  // Fetch bookings from API
+  const fetchBookings = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const userId = localStorage.getItem("userId")
+      if (!userId) {
+        setError("Vui lòng đăng nhập để xem vé của bạn")
+        setLoading(false)
+        return
+      }
+
+      const bookings = await getBookingsByUserId(userId)
+      
+      // Transform BookingDto to BookedTicket
+      const transformedTickets: BookedTicket[] = bookings.map((booking) => {
+        const departureDate = booking.trip?.departure ? new Date(booking.trip.departure) : new Date()
+        const arrivalDate = booking.trip?.arrival ? new Date(booking.trip.arrival) : new Date()
+        const bookingDate = booking.createdAt ? new Date(booking.createdAt) : new Date()
+        
+        // Determine status based on booking status and departure date
+        let status: "upcoming" | "completed" | "cancelled" = "upcoming"
+        if (booking.status === BookingStatus.Cancelled) {
+          status = "cancelled"
+        } else if (departureDate < new Date()) {
+          status = "completed"
+        }
+        
+        return {
+          id: booking.id || "",
+          ticketId: `TK${booking.id?.substring(0, 10).toUpperCase()}`,
+          trainNumber: booking.trip?.train?.name || "N/A",
+          trainName: "Tàu Thống Nhất",
+          origin: booking.trip?.originStation || "N/A",
+          destination: booking.trip?.destinationStation || "N/A",
+          departureDate: departureDate.toLocaleDateString("vi-VN"),
+          departureTime: departureDate.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+          arrivalTime: arrivalDate.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+          passengers: [
+            {
+              fullName: booking.user?.name || "N/A",
+              seatNumber: booking.seat?.seatNumber || "N/A",
+              coachNumber: 1,
+            },
+          ],
+          totalPrice: booking.seat?.price || 0,
+          status,
+          bookingDate: bookingDate.toLocaleDateString("vi-VN"),
+          seatType: booking.seat?.type === 0 ? "Ghế mềm" : "Ghế cứng",
+        }
+      })
+      
+      setTickets(transformedTickets)
+    } catch (err) {
+      console.error("Error fetching bookings:", err)
+      setError("Không thể tải danh sách vé. Vui lòng thử lại.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchBookings()
+  }, [])
 
   // Filter tickets based on active tab and search query
-  const filteredTickets = mockTickets.filter((ticket) => {
+  const filteredTickets = tickets.filter((ticket) => {
     const matchesTab = ticket.status === activeTab;
     const matchesSearch =
       searchQuery === "" ||
@@ -173,7 +187,7 @@ export function TicketManagementScreen({
         return {
           label: "Đã hủy",
           variant: "destructive" as const,
-          className: "bg-error/10 text-error hover:bg-error/10",
+          className: "bg-destructive/10 text-destructive hover:bg-destructive/10",
         };
     }
   };
@@ -183,15 +197,15 @@ export function TicketManagementScreen({
     return (
       <div className="relative aspect-square w-full max-w-[120px]">
         <svg viewBox="0 0 200 200" className="h-full w-full">
-          <rect width="200" height="200" fill="white" />
-          <g fill="black">
+          <rect width="200" height="200" className="fill-background" />
+          <g className="fill-foreground">
             {/* Corner markers */}
             <rect x="10" y="10" width="50" height="50" />
-            <rect x="20" y="20" width="30" height="30" fill="white" />
+            <rect x="20" y="20" width="30" height="30" className="fill-background" />
             <rect x="140" y="10" width="50" height="50" />
-            <rect x="150" y="20" width="30" height="30" fill="white" />
+            <rect x="150" y="20" width="30" height="30" className="fill-background" />
             <rect x="10" y="140" width="50" height="50" />
-            <rect x="20" y="150" width="30" height="30" fill="white" />
+            <rect x="20" y="150" width="30" height="30" className="fill-background" />
             
             {/* Random pattern blocks */}
             {Array.from({ length: 100 }).map((_, i) => {
@@ -217,7 +231,7 @@ export function TicketManagementScreen({
       <PageHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-sm">
               <Ticket className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
@@ -249,7 +263,7 @@ export function TicketManagementScreen({
             onValueChange={(value) => setActiveTab(value as typeof activeTab)}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-3 bg-background">
+            <TabsList className="grid w-full grid-cols-3 bg-muted/50">
               <TabsTrigger value="upcoming" className="gap-2">
                 <Calendar className="h-4 w-4" />
                 Sắp tới
@@ -272,13 +286,17 @@ export function TicketManagementScreen({
                 placeholder="Nhập mã vé hoặc tuyến (VD: Hà Nội – Đà Nẵng)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-12 border-primary bg-background pl-11 shadow-sm focus:border-primary focus:ring-blue-400"
+                className="h-12 border-primary bg-background pl-11 shadow-sm focus:border-primary focus:ring-ring"
               />
             </div>
 
             {/* Tab Contents */}
             <TabsContent value="upcoming" className="mt-3 space-y-3">
-              {filteredTickets.length === 0 ? (
+              {loading ? (
+                <LoadingState />
+              ) : error ? (
+                <ErrorState error={error} onRetry={fetchBookings} />
+              ) : filteredTickets.length === 0 ? (
                 <EmptyState onGoHome={onGoHome} tab="upcoming" />
               ) : (
                 <div className="grid gap-3 md:grid-cols-2">
@@ -299,7 +317,11 @@ export function TicketManagementScreen({
             </TabsContent>
 
             <TabsContent value="completed" className="mt-3 space-y-3">
-              {filteredTickets.length === 0 ? (
+              {loading ? (
+                <LoadingState />
+              ) : error ? (
+                <ErrorState error={error} onRetry={fetchBookings} />
+              ) : filteredTickets.length === 0 ? (
                 <EmptyState onGoHome={onGoHome} tab="completed" />
               ) : (
                 <div className="grid gap-3 md:grid-cols-2">
@@ -320,7 +342,11 @@ export function TicketManagementScreen({
             </TabsContent>
 
             <TabsContent value="cancelled" className="mt-3 space-y-3">
-              {filteredTickets.length === 0 ? (
+              {loading ? (
+                <LoadingState />
+              ) : error ? (
+                <ErrorState error={error} onRetry={fetchBookings} />
+              ) : filteredTickets.length === 0 ? (
                 <EmptyState onGoHome={onGoHome} tab="cancelled" />
               ) : (
                 <div className="grid gap-3 md:grid-cols-2">
@@ -430,7 +456,7 @@ function TicketCard({
   return (
     <Card className="overflow-hidden border-0 shadow-md transition-all hover:shadow-lg">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-2 py-2 text-primary-foreground">
+      <div className="bg-gradient-to-r from-primary to-primary/90 px-2 py-2 text-primary-foreground">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Train className="h-5 w-5" />
@@ -457,7 +483,7 @@ function TicketCard({
           </div>
           <ArrowRight className="h-4 w-4 text-muted-foreground" />
           <div className="flex flex-1 items-center gap-2">
-            <MapPin className="h-4 w-4 text-error" />
+            <MapPin className="h-4 w-4 text-destructive" />
             <div className="flex-1">
               <p className="text-sm">{ticket.destination}</p>
             </div>
@@ -479,7 +505,7 @@ function TicketCard({
             <Clock className="h-4 w-4 text-primary" />
             <div>
               <p className="text-xs text-muted-foreground">Giờ khởi hành</p>
-              <p className="text-sm">{ticket.departureTime}</p>
+              <p className="text-sm">{ticket.departureTime ?? ''}</p>
             </div>
           </div>
         </div>
@@ -550,7 +576,7 @@ function TicketCard({
               </div>
               <div>
                 <p className="text-muted-foreground">Tổng tiền</p>
-                <p className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+                <p className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent font-bold">
                   {formatPrice(ticket.totalPrice)}
                 </p>
               </div>
@@ -558,7 +584,7 @@ function TicketCard({
 
             {/* QR Code */}
             {ticket.status === "upcoming" && (
-              <div className="rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 p-2">
+              <div className="rounded-lg bg-muted/50 p-2">
                 <p className="mb-3 text-center text-sm text-muted-foreground">
                   Mã QR để lên tàu
                 </p>
@@ -635,54 +661,7 @@ function TicketCard({
   );
 }
 
-// Empty State Component
-interface EmptyStateProps {
-  onGoHome: () => void;
-  tab: "upcoming" | "completed" | "cancelled";
-}
-
-function EmptyState({ onGoHome, tab }: EmptyStateProps) {
-  const messages = {
-    upcoming: {
-      title: "Bạn chưa có vé nào sắp tới",
-      description: "Hãy tìm chuyến tàu và đặt vé ngay để bắt đầu hành trình!",
-    },
-    completed: {
-      title: "Chưa có vé nào đã hoàn thành",
-      description: "Các chuyến tàu đã đi sẽ được hiển thị tại đây.",
-    },
-    cancelled: {
-      title: "Bạn chưa hủy vé nào",
-      description: "Các vé đã hủy sẽ được lưu lại tại đây.",
-    },
-  };
-
-  const message = messages[tab];
-
-  return (
-    <Card className="border-0 bg-background shadow-md">
-      <div className="flex flex-col items-center justify-center py-16 px-2 text-center">
-        <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-blue-200">
-          <Ticket className="h-10 w-10 text-primary" />
-        </div>
-        <h3 className="mb-2 text-foreground">{message.title}</h3>
-        <p className="mb-3 max-w-md text-muted-foreground">
-          {message.description}
-        </p>
-        {tab === "upcoming" && (
-          <Button
-            size="lg"
-            onClick={onGoHome}
-            className="gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-          >
-            <Train className="h-5 w-5" />
-            Tìm vé tàu
-          </Button>
-        )}
-      </div>
-    </Card>
-  );
-}
+// EmptyState component now imported from ./components/States
 
 // Default export for the page
 export default function MyTicketsPage() {

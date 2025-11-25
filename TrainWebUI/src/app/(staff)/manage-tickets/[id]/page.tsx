@@ -257,7 +257,7 @@ export default function ManageTicketPage() {
         );
       case "cancelled":
         return (
-          <Badge className="bg-error/10 text-error hover:bg-error/10">
+          <Badge className="bg-destructive/10 text-destructive hover:bg-destructive/10">
             Đã hủy
           </Badge>
         );
@@ -297,9 +297,9 @@ export default function ManageTicketPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-sm">
+    <div className="min-h-screen bg-gradient-to-br from-muted to-primary/5">
+      {/* Ticket Management Info Section - Converted from sticky header */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-sm">
         <div className="container mx-auto px-2 lg:px-2">
           <div className="flex h-16 items-center justify-between">
             {/* Back Button + Title */}
@@ -313,7 +313,7 @@ export default function ManageTicketPage() {
                 <ChevronLeft className="h-5 w-5" />
               </Button>
               <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80">
                   <Train className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <h1 className="text-primary">Quản lý vé</h1>
@@ -323,14 +323,14 @@ export default function ManageTicketPage() {
             {/* Export Button */}
             <Button
               onClick={handleExportExcel}
-              className="gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+              className="gap-2 bg-gradient-to-r from-success to-success/80 hover:from-success/80 hover:to-success/90"
             >
               <FileDown className="h-4 w-4" />
               <span className="hidden sm:inline">Xuất Excel</span>
             </Button>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-2 lg:px-2 py-5">
@@ -367,7 +367,7 @@ export default function ManageTicketPage() {
                 onClick={() => setActiveFilter("upcoming")}
                 className={cn(
                   activeFilter === "upcoming" &&
-                    "bg-success hover:bg-emerald-700"
+                    "bg-success hover:bg-success/80"
                 )}
               >
                 Sắp đi ({ticketCounts.upcoming})
@@ -389,7 +389,7 @@ export default function ManageTicketPage() {
                 onClick={() => setActiveFilter("cancelled")}
                 className={cn(
                   activeFilter === "cancelled" &&
-                    "bg-error hover:bg-destructive/90"
+                    "bg-destructive hover:bg-destructive/90"
                 )}
               >
                 Đã hủy ({ticketCounts.cancelled})
@@ -421,7 +421,7 @@ export default function ManageTicketPage() {
                   {filteredTickets.map((ticket) => (
                     <TableRow
                       key={ticket.id}
-                      className="group hover:bg-primary/10/50 transition-colors cursor-pointer"
+                      className="group hover:bg-primary/10 transition-colors cursor-pointer"
                     >
                       <TableCell>
                         <div className="font-medium text-primary">
@@ -483,7 +483,7 @@ export default function ManageTicketPage() {
                                 onClick={() =>
                                   handleRefundExchange(ticket.id)
                                 }
-                                className="h-8 w-8 hover:bg-orange-100"
+                                className="h-8 w-8 hover:bg-accent/10"
                               >
                                 <RefreshCw className="h-4 w-4" />
                               </Button>
@@ -549,7 +549,7 @@ export default function ManageTicketPage() {
               {/* QR Code */}
               <div className="mb-3 flex justify-center">
                 <div className="rounded-xl border-2 border-dashed border-border bg-background p-2">
-                  <div className="h-48 w-48 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
+                  <div className="h-48 w-48 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg flex items-center justify-center">
                     <div className="text-center">
                       <Train className="h-12 w-12 mx-auto mb-2 text-primary" />
                       <p className="text-xs text-primary">QR Code</p>
@@ -567,7 +567,7 @@ export default function ManageTicketPage() {
               </div>
 
               {/* Train Info */}
-              <Card className="mb-3 border-2 border-primary/50 bg-primary/10/50">
+              <Card className="mb-3 border-2 border-primary/50 bg-primary/10">
                 <div className="p-2">
                   <div className="mb-3 flex items-center gap-2">
                     <Train className="h-5 w-5 text-primary" />
@@ -621,10 +621,10 @@ export default function ManageTicketPage() {
               </Card>
 
               {/* Passenger Info */}
-              <Card className="mb-3 border-2 border-violet-100 bg-violet-50/50">
+              <Card className="mb-3 border-2 border-secondary/20 bg-secondary/10">
                 <div className="p-2">
                   <div className="mb-3 flex items-center gap-2">
-                    <User className="h-5 w-5 text-violet-600" />
+                    <User className="h-5 w-5 text-secondary" />
                     <h3 className="text-foreground">Thông tin hành khách</h3>
                   </div>
                   <div className="space-y-2">
@@ -657,7 +657,7 @@ export default function ManageTicketPage() {
               </Card>
 
               {/* Ticket Info */}
-              <Card className="mb-3 border-2 border-emerald-100 bg-success/10/50">
+              <Card className="mb-3 border-2 border-success/20 bg-success/10">
                 <div className="p-2">
                   <div className="mb-3 flex items-center gap-2">
                     <MapPin className="h-5 w-5 text-success" />
@@ -691,10 +691,10 @@ export default function ManageTicketPage() {
               </Card>
 
               {/* Payment Info */}
-              <Card className="mb-3 border-2 border-orange-100 bg-orange-50/50">
+              <Card className="mb-3 border-2 border-accent/20 bg-accent/10">
                 <div className="p-2">
                   <div className="mb-3 flex items-center gap-2">
-                    <CreditCard className="h-5 w-5 text-orange-600" />
+                    <CreditCard className="h-5 w-5 text-accent" />
                     <h3 className="text-foreground">Thông tin thanh toán</h3>
                   </div>
                   <div className="space-y-2">
@@ -770,7 +770,7 @@ export default function ManageTicketPage() {
                   <>
                     <Button
                       variant="outline"
-                      className="w-full gap-2 border-orange-200 text-orange-700 hover:bg-orange-50"
+                      className="w-full gap-2 border-accent/20 text-accent hover:bg-accent/10"
                       onClick={() => handleRefundExchange(selectedTicket.id)}
                     >
                       <RefreshCw className="h-4 w-4" />
@@ -778,7 +778,7 @@ export default function ManageTicketPage() {
                     </Button>
                     <Button
                       variant="outline"
-                      className="w-full gap-2 border-emerald-200 text-success hover:bg-success/10"
+                      className="w-full gap-2 border-success/20 text-success hover:bg-success/10"
                       onClick={() => handleCheckIn(selectedTicket.id)}
                     >
                       <CheckCircle className="h-4 w-4" />

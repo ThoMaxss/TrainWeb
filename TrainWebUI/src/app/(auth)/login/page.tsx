@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthContext';
 import { login as apiLogin } from '@/lib/api/auth';
-import { UserRole } from '@/types';
+import { UserRole, LoginRequest, UserDto } from '@/types';
 import { H1, Body, Small } from '@/components/ui/typography';
 
 export default function LoginPage() {
@@ -22,24 +22,40 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
-      let userDto;
+      let userDto: UserDto;
       try {
-        const userEntity = await apiLogin(formData.email);
-        userDto = { ...userEntity, role: userEntity.role as UserRole };
+        // Call backend login API with email and password
+        const loginPayload: LoginRequest = {
+          email: formData.email,
+          password: formData.password,
+        };
+        const authResponse = await apiLogin(loginPayload);
+        
+        // Convert AuthResponse to UserDto
+        // Note: Backend should return user details, for now using demo data structure
+        userDto = { 
+          id: 'backend-user-id', // Backend should provide this
+          name: authResponse.email?.split('@')[0] || 'User', // Temporary: extract from email
+          email: authResponse.email || formData.email, 
+          role: authResponse.role === 'Admin' ? UserRole.Admin : 
+                authResponse.role === 'Staff' ? UserRole.Staff : UserRole.Passenger,
+          createdAt: new Date().toISOString() 
+        };
       } catch {
+        // Fallback to demo users if backend fails
         const demoUsers = {
-          'admin@demo.com': { id:'demo-admin-1', name:'Admin Demo', email:'admin@demo.com', phone:'0123456789', role:UserRole.ADMIN, isActive:true, createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() },
-          'staff@demo.com': { id:'demo-staff-1', name:'Staff Demo', email:'staff@demo.com', phone:'0123456790', role:UserRole.STAFF, isActive:true, createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() },
-          'user@demo.com' : { id:'demo-user-1',  name:'User Demo',  email:'user@demo.com',  phone:'0123456791', role:UserRole.PASSENGER, isActive:true, createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() },
+          'admin@demo.com': { id:'demo-admin-1', name:'Admin Demo', email:'admin@demo.com', role:UserRole.Admin, createdAt:new Date().toISOString() },
+          'staff@demo.com': { id:'demo-staff-1', name:'Staff Demo', email:'staff@demo.com', role:UserRole.Staff, createdAt:new Date().toISOString() },
+          'user@demo.com' : { id:'demo-user-1',  name:'User Demo',  email:'user@demo.com',  role:UserRole.Passenger, createdAt:new Date().toISOString() },
         } as const;
         userDto = demoUsers[formData.email as keyof typeof demoUsers];
         if (!userDto) throw new Error('Email không hợp lệ. Vui lòng dùng tài khoản demo.');
       }
       login(userDto);
       switch (userDto.role) {
-        case UserRole.ADMIN: router.push('/admin-dashboard'); break;
-        case UserRole.STAFF: router.push('/staff-dashboard'); break;
-        case UserRole.PASSENGER: router.push('/search'); break;
+        case UserRole.Admin: router.push('/admin-dashboard'); break;
+        case UserRole.Staff: router.push('/staff-dashboard'); break;
+        case UserRole.Passenger: router.push('/search'); break;
         default: router.push('/');
       }
     } catch (err) {
@@ -76,47 +92,52 @@ export default function LoginPage() {
               
               {/* Email Field */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-foreground">
+                <label htmlFor="login-email" className="block text-sm font-semibold text-foreground">
                   Email
                 </label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                    <Mail className="w-5 h-5 text-muted-foreground" />
+                    <Mail className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
                   </div>
                   <input
+                    id="login-email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
                     placeholder="john.doe@example.com"
                     className="w-full bg-background border border-input rounded-xl py-3 pl-12 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-primary transition-all"
                     required
+                    aria-required="true"
                   />
                 </div>
               </div>
 
               {/* Password Field */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-foreground">
+                <label htmlFor="login-password" className="block text-sm font-semibold text-foreground">
                   Mật khẩu
                 </label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                    <Lock className="w-5 h-5 text-muted-foreground" />
+                    <Lock className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
                   </div>
                   <input
+                    id="login-password"
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) => setFormData((p) => ({ ...p, password: e.target.value }))}
                     placeholder="••••••••"
                     className="w-full bg-background border border-input rounded-xl py-3 pl-12 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-primary transition-all"
                     required
+                    aria-required="true"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
                   </button>
                 </div>
               </div>
@@ -125,7 +146,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-primary-foreground font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
+                className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </button>

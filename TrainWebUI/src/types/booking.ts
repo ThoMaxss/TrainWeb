@@ -1,58 +1,57 @@
-import { BookingStatus, SeatType } from './common';
 import { UserDto } from './user';
 import { TripDto } from './trip';
+import { SeatDto } from './seat';
 
-// Seat DTO
-export interface SeatDto {
-  id: string;
-  trainId: string;
-  coach: number;
-  seatNumber: string;
-  type: SeatType;
-  price: number;
-  isAvailable: boolean;
-  trip?: TripDto; // Optional trip relation for backward compatibility
+export enum BookingStatus {
+  Reserved = 0,
+  Paid = 1,
+  Cancelled = 2
 }
 
-// Passenger information for booking
-export interface PassengerInfo {
-  name: string;
-  idNumber: string;
-  phone?: string;
-  seatId: string;
-}
-
-// Full passenger DTO (for detailed passenger data)
-export interface PassengerDto {
-  id?: string;
-  fullName: string;
-  dateOfBirth: string;
-  gender: 'male' | 'female' | 'other';
-  idNumber: string;
-  phone: string;
-  email: string;
-}
-
-// Main Booking DTO
-export interface BookingDto {
+export interface BookingEntity {
   id: string;
   userId: string;
   tripId: string;
-  seatIds: string[];
-  user: UserDto;
-  trip: TripDto;
-  seats: SeatDto[];
-  totalAmount: number;
+  seatId: string;
   status: BookingStatus;
-  bookingCode: string;
-  passengerInfo: PassengerInfo[];
   createdAt: string;
-  updatedAt: string;
 }
 
-// Create booking request
-export interface CreateBookingRequest {
-  tripId: string;
-  seatIds: string[];
-  passengerInfo: PassengerInfo[];
+export interface BookingDto {
+  id?: string;
+  user?: UserDto;
+  trip?: TripDto;
+  seat?: SeatDto;
+  status?: BookingStatus;
+  createdAt?: string;
+}
+
+export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
+  [BookingStatus.Reserved]: 'Đã đặt',
+  [BookingStatus.Paid]: 'Đã thanh toán',
+  [BookingStatus.Cancelled]: 'Đã hủy'
+};
+
+export function isBookingStatus(value: number): value is BookingStatus {
+  return value >= 0 && value <= 2;
+}
+
+// Additional types for booking workflow
+export interface Passenger {
+  name: string;
+  idNumber: string;
+  phone: string;
+}
+
+export interface PassengerDto {
+  name: string;
+  idNumber: string;
+  phone: string;
+}
+
+export interface SelectedSeat {
+  seatId: string;
+  seatNumber: string;
+  type: string;
+  price: number;
 }

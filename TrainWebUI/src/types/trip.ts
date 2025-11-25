@@ -1,25 +1,35 @@
 import { TrainDto } from './train';
 
-export interface TripDto {
+export interface TripEntity {
   id: string;
   trainId: string;
-  train: TrainDto;
-  departureStation: string;
-  arrivalStation: string;
-  departureTime: string;
-  arrivalTime: string;
-  basePrice: number;
-  availableSeats: number;
-  totalSeats: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  departure: string;
+  arrival: string;
+  originStation: string;
+  destinationStation: string;
+  seatsAvailable: number;
 }
 
-// Params cho search chuyến tàu
+export interface TripDto {
+  id?: string;
+  train?: TrainDto;
+  departure?: string;
+  arrival?: string;
+  originStation?: string;
+  destinationStation?: string;
+  seatsAvailable?: number;
+}
+
+export interface TripSearchFilters {
+  originStation?: string;
+  destinationStation?: string;
+  departureDate?: string;
+  trainType?: string;
+}
+
 export interface TripSearchParams {
-  departureStation: string;
-  arrivalStation: string;
+  originStation: string;
+  destinationStation: string;
   departureDate: string;
   returnDate?: string;
 }

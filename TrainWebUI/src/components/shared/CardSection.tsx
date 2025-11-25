@@ -22,13 +22,13 @@ export function CardSection({
 }: CardSectionProps) {
   return (
     <Card className={cn(
-      "rounded-xl border border-border bg-background p-2 shadow-sm",
+      "rounded-xl border border-border bg-background p-6 shadow-sm",
       "dark:border-gray-800 dark:bg-gray-900",
       className
     )}>
       {title && (
         <div className={cn(
-          "mb-3 flex items-center gap-2",
+          "mb-4 flex items-center gap-2",
           headerClassName
         )}>
           {Icon && (

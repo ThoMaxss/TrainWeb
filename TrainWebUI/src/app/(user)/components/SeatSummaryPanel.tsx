@@ -59,7 +59,7 @@ export function SeatSummaryPanel({
                 {selectedSeats.length > 0 ? `${selectedSeats.length} ghế đã chọn` : "Chưa chọn ghế"}
               </div>
               {selectedSeats.length > 0 && (
-                <div className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+                <div className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent font-bold text-lg">
                   {formatPrice(totalPrice)}
                 </div>
               )}
@@ -68,7 +68,7 @@ export function SeatSummaryPanel({
               size="lg"
               disabled={selectedSeats.length === 0}
               onClick={onContinue}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+              className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
             >
               Tiếp tục thanh toán
             </Button>
@@ -80,7 +80,7 @@ export function SeatSummaryPanel({
 
   // Desktop sidebar view
   return (
-    <Card className="sticky top-24 border-0 shadow-lg">
+    <Card className="sticky top-16 border-0 shadow-lg">
       <div className="border-b bg-card p-2">
         <h3>Ghế đã chọn</h3>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -137,7 +137,7 @@ export function SeatSummaryPanel({
                           variant="ghost"
                           size="icon"
                           onClick={() => onRemoveSeat(seat.id)}
-                          className="h-8 w-8 text-muted-foreground hover:text-error"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
                         >
                           <X className="h-4 w-4" />
                         </Button>
@@ -165,9 +165,9 @@ export function SeatSummaryPanel({
             <Separator />
 
             {/* Total */}
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center font-medium">
               <span>Tổng cộng:</span>
-              <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent font-bold text-xl">
                 {formatPrice(totalPrice)}
               </span>
             </div>
@@ -175,7 +175,7 @@ export function SeatSummaryPanel({
             <Button
               size="lg"
               onClick={onContinue}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+              className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
             >
               Tiếp tục thanh toán
             </Button>

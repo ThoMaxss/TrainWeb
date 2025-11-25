@@ -10,9 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { CreditCard, Smartphone, Building, Check } from "lucide-react";
-import { getBookingById } from "@/lib/api/booking";
-import { processPayment } from "@/lib/api/payment";
+import { getBookingById, successBooking } from "@/lib/api/booking";
+import { createPayment, successPayment } from "@/lib/api/payment";
 import type { BookingDto } from "@/types";
+import { PaymentMethod, PaymentStatus, SeatType, BookingStatus } from "@/types";
 
 interface SelectedSeat {
   id: string;
@@ -27,12 +28,12 @@ interface OptionalServices {
   insurance: boolean;
 }
 
-type PaymentMethod = "bank_card" | "e_wallet" | "bank_transfer";
+type UIPaymentMethod = "bank_card" | "e_wallet" | "bank_transfer";
 
 export default function PaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [booking, setBooking] = useState<BookingDto | null>(null);
+  const [bookings, setBookings] = useState<BookingDto[]>([]);
   const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
   const [optionalServices, setOptionalServices] = useState<OptionalServices>({ 
     meal: false, 
@@ -41,41 +42,52 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("bank_card");
+  const [paymentMethod, setPaymentMethod] = useState<UIPaymentMethod>("bank_card");
   const [cardNumber, setCardNumber] = useState("");
   const [cardHolder, setCardHolder] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [cvv, setCvv] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
 
-  const bookingId = searchParams.get("bookingId");
+  const bookingIdsParam = searchParams.get("bookingId");
+  const bookingIds = bookingIdsParam?.split(",") || [];
 
   useEffect(() => {
     let mounted = true;
     async function loadBookingData() {
       try {
-        if (!bookingId) {
-          throw new Error("No booking ID provided");
+        if (bookingIds.length === 0) {
+          throw new Error("No booking IDs provided");
         }
 
         setLoading(true);
-        const bookingData = await getBookingById(bookingId);
+        
+        // Load all bookings in parallel
+        const bookingPromises = bookingIds.map(id => getBookingById(id));
+        const loadedBookings = await Promise.all(bookingPromises);
         
         if (mounted) {
-          setBooking(bookingData);
-          
-          // Transform booking seats to SelectedSeat format
-          if (bookingData.seats && bookingData.seats.length > 0) {
-            const transformedSeats: SelectedSeat[] = bookingData.seats.map(seat => ({
-              id: seat.id,
-              coachNumber: seat.coach,
-              seatNumber: seat.seatNumber,
-              seatType: seat.type === "Soft" ? "Ngồi mềm điều hòa" : "Ngồi cứng",
-              price: seat.price,
-            }));
-            setSelectedSeats(transformedSeats);
-          }
+          setBookings(loadedBookings);
+
+          // Transform all booking seats to SelectedSeat format
+          const allSeats: SelectedSeat[] = loadedBookings
+            .map(bookingData => {
+              if (bookingData.seat && bookingData.seat.id) {
+                const seat = bookingData.seat;
+                const seatLabel = seat.type === SeatType.Soft ? "Ngồi mềm điều hòa" : "Ngồi cứng";
+                return {
+                  id: seat.id!,
+                  coachNumber: 1,
+                  seatNumber: seat.seatNumber || "",
+                  seatType: seatLabel,
+                  price: seat.price || 0,
+                };
+              }
+              return null;
+            })
+            .filter((s): s is SelectedSeat => s !== null);
+
+          setSelectedSeats(allSeats);
           
           // Initialize optional services (can be extended based on backend support)
           setOptionalServices({
@@ -86,8 +98,8 @@ export default function PaymentPage() {
       } catch (error) {
         console.error("Failed to load booking data:", error);
         if (mounted) {
-          setBooking(null);
-          // Don't automatically redirect, let user choose
+          alert("Không thể tải thông tin đặt vé. Vui lòng thử lại.");
+          router.back();
         }
       } finally {
         if (mounted) setLoading(false);
@@ -96,7 +108,7 @@ export default function PaymentPage() {
 
     loadBookingData();
     return () => { mounted = false; };
-  }, [bookingId, router]);
+  }, [bookingIds, router]);
 
   // Calculate prices
   const ticketTotal = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
@@ -110,46 +122,67 @@ export default function PaymentPage() {
   };
 
   const handlePayment = async () => {
-    if (!booking) return;
+    if (bookings.length === 0) return;
 
-    setIsProcessing(true);
+    setProcessing(true);
 
     // Validate form based on payment method
     if (paymentMethod === "bank_card") {
       if (!cardNumber || !cardHolder || !expiryDate || !cvv) {
         alert("Vui lòng điền đầy đủ thông tin thẻ");
-        setIsProcessing(false);
+        setProcessing(false);
         return;
       }
     } else if (paymentMethod === "e_wallet") {
       if (!phoneNumber) {
         alert("Vui lòng nhập số điện thoại");
-        setIsProcessing(false);
+        setProcessing(false);
         return;
       }
     }
 
     try {
-      setProcessing(true);
-
       // Process payment through API
-      const paymentResult = await processPayment({
-        bookingId: booking.id!,
-        method: paymentMethod === "bank_card" ? "Visa" : 
-                paymentMethod === "e_wallet" ? "Momo" : 
-                "VnPay",
+      const methodEnum =
+        paymentMethod === "bank_card"
+          ? PaymentMethod.Visa
+          : paymentMethod === "e_wallet"
+          ? PaymentMethod.Momo
+          : PaymentMethod.VnPay;
+
+      // Create payment for first booking (or combine amounts)
+      const paymentResult = await createPayment({
+        bookingId: bookings[0].id!,
+        method: methodEnum,
         amount: grandTotal,
+        status: PaymentStatus.Pending,
       });
+
+      // Handle Momo redirect (if payment returns URL string)
+      if (typeof paymentResult === 'string') {
+        // Momo payment - redirect to payment URL
+        window.location.href = paymentResult;
+        return;
+      }
+
+      // Mark payment as successful
+      await successPayment(paymentResult.id!);
       
-      // Navigate to success page with payment result
-      router.push(`/booking/success?bookingId=${booking.id}&paymentId=${paymentResult.id}`);
+      // Mark all bookings as successful (paid)
+      const updatePromises = bookings.map(booking =>
+        successBooking(booking.id!)
+      );
+      await Promise.all(updatePromises);
+      
+      // Navigate to success page with booking IDs and payment result
+      const bookingIdsString = bookings.map(b => b.id).join(",");
+      router.push(`/booking/success?bookingId=${bookingIdsString}&paymentId=${paymentResult.id}`);
     } catch (error) {
       console.error("Payment failed:", error);
       const errorMessage = error instanceof Error ? error.message : "Thanh toán thất bại";
       alert(`Lỗi thanh toán: ${errorMessage}. Vui lòng thử lại hoặc chọn phương thức khác.`);
     } finally {
       setProcessing(false);
-      setIsProcessing(false);
     }
   };
 
@@ -161,7 +194,7 @@ export default function PaymentPage() {
     );
   }
 
-  if (!booking) {
+  if (bookings.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -198,7 +231,7 @@ export default function PaymentPage() {
                 <CardTitle>Phương thức thanh toán</CardTitle>
               </CardHeader>
               <CardContent>
-                <RadioGroup value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}>
+                <RadioGroup value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as UIPaymentMethod)}>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="bank_card" id="bank_card" />
                     <Label htmlFor="bank_card" className="flex items-center space-x-2 cursor-pointer">
@@ -380,10 +413,10 @@ export default function PaymentPage() {
                 {/* Payment Button */}
                 <Button 
                   onClick={handlePayment} 
-                  disabled={isProcessing}
+                  disabled={processing}
                   className="w-full"
                 >
-                  {isProcessing ? (
+                  {processing ? (
                     <div className="flex items-center space-x-2">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                       <span>Đang xử lý...</span>

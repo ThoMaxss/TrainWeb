@@ -5,19 +5,41 @@ import { BookingDto, BookingStatus } from '@/types';
 
 // GET /api/booking - Get all bookings
 export async function getAllBookings(): Promise<BookingDto[]> {
-  return apiFetch<BookingDto[]>('/booking');
+  return apiFetch<BookingDto[]>('/Booking');
 }
 
 // GET /api/booking/{id} - Get booking by ID
 export async function getBookingById(id: string): Promise<BookingDto> {
-  return apiFetch<BookingDto>(`/booking/${id}`);
+  return apiFetch<BookingDto>(`/Booking/${id}`);
 }
 
 // POST /api/booking - Create booking
 export async function createBooking(bookingData: BookingDto): Promise<BookingDto> {
-  return apiFetch<BookingDto>('/booking', {
+  return apiFetch<BookingDto>('/Booking', {
     method: 'POST',
     body: JSON.stringify(bookingData),
+  });
+}
+
+// POST /api/Booking/{id}/success-booking - Mark booking as paid
+export async function successBooking(id: string): Promise<void> {
+  return apiFetch<void>(`/Booking/${id}/success-booking`, {
+    method: 'POST',
+  });
+}
+
+// POST /api/Booking/{id}/cancel-booking - Cancel booking
+export async function cancelBooking(id: string): Promise<void> {
+  return apiFetch<void>(`/Booking/${id}/cancel-booking`, {
+    method: 'POST',
+  });
+}
+
+// PUT /api/booking/{id} - Update booking (generic, use success/cancel for status changes)
+export async function updateBooking(id: string, updates: Partial<BookingDto>): Promise<BookingDto> {
+  return apiFetch<BookingDto>(`/Booking/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates),
   });
 }
 
@@ -28,7 +50,7 @@ export async function getBookingsByUserId(userId: string): Promise<BookingDto[]>
 }
 
 // Helper function to get bookings by status
-export async function getBookingsByStatus(status: BookingStatus | 'Reserved' | 'Paid' | 'Cancelled'): Promise<BookingDto[]> {
+export async function getBookingsByStatus(status: BookingStatus): Promise<BookingDto[]> {
   const allBookings = await getAllBookings();
-  return allBookings.filter(booking => booking.status === status || booking.status === BookingStatus[status.toUpperCase() as keyof typeof BookingStatus]);
+  return allBookings.filter(booking => booking.status === status);
 }
