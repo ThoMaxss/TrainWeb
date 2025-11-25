@@ -1,46 +1,51 @@
-import { UserRole } from './common';
+export enum UserRole {
+  Passenger = 0,
+  Staff = 1,
+  Admin = 2
+}
 
-// Main User DTO matching backend
-export interface UserDto {
+export interface UserEntity {
   id: string;
   name: string;
   email: string;
-  phone: string;
   role: UserRole;
-  address?: string;
-  dateOfBirth?: string;
-  isActive: boolean;
   createdAt: string;
-  updatedAt: string;
+  passwordHash?: string;
 }
 
-// Simplified User type (for backward compatibility with old API code)
-export interface User {
-  id: string;
+export interface UserDto {
+  id?: string;
+  name?: string;
+  email?: string;
+  role?: UserRole;
+  createdAt?: string;
+}
+
+export interface RegisterRequest {
   name: string;
   email: string;
-  role: 'Passenger' | 'Staff' | 'Admin';
-  createdAt: string;
+  password: string;
+  role?: UserRole;
 }
 
-// Alias for UserDto (for backward compatibility)
-export interface UserEntity extends UserDto {}
-
-// Auth related types
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
-export interface LoginResponse {
-  user: UserDto;
-  accessToken: string;
-  refreshToken: string;
+export interface AuthResponse {
+  message: string;
+  token?: string;
+  role: string;
+  email?: string;
 }
 
-// Role check response
-export interface CheckRoleResponse {
-  userId: string;
-  role: string;
-  hasRole: boolean;
+export const USER_ROLE_LABELS: Record<UserRole, string> = {
+  [UserRole.Passenger]: 'Resident',
+  [UserRole.Staff]: 'Manager',
+  [UserRole.Admin]: 'Admin'
+};
+
+export function isUserRole(value: number): value is UserRole {
+  return value >= 0 && value <= 2;
 }

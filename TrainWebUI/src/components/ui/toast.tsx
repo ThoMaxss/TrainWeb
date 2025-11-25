@@ -1,52 +1,26 @@
-"use client";
+// Simple Toast Context for shadcn/ui usage
+import { createContext, useContext, useCallback } from "react"
 
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
-
-export type ToastKind = "success" | "error" | "info";
-
-type ToastItem = { id: number; message: string; kind: ToastKind };
-
-const ToastCtx = createContext<{
-  show: (message: string, kind?: ToastKind) => void;
-} | null>(null);
-
-export function ToastProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<ToastItem[]>([]);
-  const idRef = useRef(1);
-
-  const show = useCallback((message: string, kind: ToastKind = "info") => {
-    const id = idRef.current++;
-    setItems((prev) => [...prev, { id, message, kind }]);
-    setTimeout(() => setItems((prev) => prev.filter((i) => i.id !== id)), 3000);
-  }, []);
-
-  const value = useMemo(() => ({ show }), [show]);
-
-  return (
-    <ToastCtx.Provider value={value}>
-      {children}
-      <div className="fixed bottom-4 right-4 z-50 space-y-2">
-        {items.map((i) => (
-          <div
-            key={i.id}
-            className={`rounded-lg px-4 py-2 shadow-sm border text-sm ${
-              i.kind === "success"
-                ? "bg-success text-primary-foreground border-emerald-200"
-                : i.kind === "error"
-                ? "bg-error text-primary-foreground border-destructive/20"
-                : "bg-card text-foreground border-border"
-            }`}
-          >
-            {i.message}
-          </div>
-        ))}
-      </div>
-    </ToastCtx.Provider>
-  );
+type ToastContextType = {
+	show: (message: string) => void
 }
 
+const ToastContext = createContext<ToastContextType>({ show: () => {} })
+
 export function useToast() {
-  const ctx = useContext(ToastCtx);
-  if (!ctx) throw new Error("useToast must be used within ToastProvider");
-  return ctx;
+	return useContext(ToastContext)
+}
+
+// You should wrap your app with <ToastProvider> and provide a real implementation for show().
+// ToastProvider for shadcn/ui (Radix UI Toast)
+import * as React from "react"
+import { ToastProvider as RadixToastProvider, ToastViewport } from "@radix-ui/react-toast"
+
+export function ToastProvider({ children }: { children: React.ReactNode }) {
+	return (
+		<RadixToastProvider swipeDirection="right">
+			{children}
+			<ToastViewport className="fixed bottom-4 right-4 z-50 outline-none" />
+		</RadixToastProvider>
+	)
 }

@@ -12,19 +12,14 @@ export * from './ticket';
 // Re-export commonly used types for convenience from centralized types
 export type {
   UserDto,
-  User,
   UserEntity,
   TrainDto,
   TripDto,
   SeatDto,
   BookingDto,
   PaymentEntity,
-  CreatePaymentRequest,
-  CheckRoleResponse,
-  FeedbackDto,
-  Feedback,
+  PaymentRequest,
   PassengerDto,
-  TicketDto,
 } from '@/types';
 
 // Re-export enums

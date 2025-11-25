@@ -1,88 +1,307 @@
+// 🎨 Role-aware Header component with unified navigation across roles
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { H3 } from "@/components/ui/typography";
-import Image from "next/image";
-import { Globe } from "lucide-react";
+import { Train, Menu, X, Search, LogOut } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils/utils";
+import { useAuth } from "@/components/auth/AuthContext";
+import { UserRole, USER_ROLE_LABELS } from "@/types";
+import { navAdmin, navCommon, navStaff, navUser, accountMenu } from "@/config/nav";
 
 export function Header() {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const { user, role, isAuthenticated, logout } = useAuth();
 
-  const navItems = [
-    { href: "/search", label: "Tìm vé" },
-    { href: "/schedule", label: "Lịch trình" },
-    { href: "/promotions", label: "Ưu đãi" },
-    { href: "/support", label: "Hỗ trợ" },
-    { href: "/my-tickets", label: "Vé của tôi" },
-  ];
+  const roleNav = useMemo(() => {
+    if (role === UserRole.Admin) return navAdmin;
+    if (role === UserRole.Staff) return navStaff;
+    return navUser;
+  }, [role]);
+
+  const navItems = useMemo(() => {
+    // Admin và Staff không dùng navCommon (Trang chủ, Tìm kiếm, Vé của tôi)
+    if (role === UserRole.Admin || role === UserRole.Staff) {
+      return roleNav;
+    }
+    // User thường vẫn dùng navCommon
+    return [...navCommon, ...roleNav];
+  }, [roleNav, role]);
+
+  const getProfileUrl = useMemo(() => {
+    if (role === UserRole.Admin) return '/profile/admin';
+    if (role === UserRole.Staff) return '/profile/staff';
+    return '/profile';
+  }, [role]);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setUserMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMobileMenuOpen(false);
+        setUserMenuOpen(false);
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
+  }, [mobileMenuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#E5E6EB] bg-[#F5F6FA]">
-      <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-12">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-          <Image
-            src="/image/1213-Photoroom.png"
-            alt="TrainBook Logo"
-            width={150}
-            height={36}
-            className="object-contain"
-          />
+    <header className="sticky top-0 z-[30] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto flex h-14 lg:h-16 items-center justify-between px-4 gap-4">
+        <Link
+          href="/"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0"
+          aria-label="TrainBook - Home"
+        >
+          <div className="flex h-9 w-9 lg:h-10 lg:w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary">
+            <Train className="h-5 w-5 lg:h-6 lg:w-6 text-primary-foreground" />
+          </div>
+          <H3 className="hidden sm:block text-base lg:text-lg">TrainBook</H3>
         </Link>
 
-        {/* Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center justify-center gap-2 flex-1 max-w-2xl mx-auto" role="navigation">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
+              aria-current={pathname === item.href ? "page" : undefined}
               className={cn(
-                "relative text-sm font-medium transition-colors duration-200 after:absolute after:left-0 after:-bottom-[4px] after:h-[2px] after:w-0 after:bg-[#6396f5] after:transition-all after:duration-300 hover:after:w-full",
+                "relative px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted/50",
                 pathname === item.href
-                  ? "text-[#1A1F2C] after:w-full"
-                  : "text-[#1A1F2C] hover:text-[#1A1F2C]"
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               {item.label}
+              {item.badge && (
+                <span className="ml-1.5 px-1.5 py-0.5 text-[10px] font-semibold bg-accent text-accent-foreground rounded">
+                  {item.badge}
+                </span>
+              )}
+              {pathname === item.href && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
+              )}
             </Link>
           ))}
         </nav>
 
+        <div className="flex items-center gap-1 lg:gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden md:flex h-9 w-9"
+            onClick={() => setSearchOpen(!searchOpen)}
+            aria-label="Quick search"
+          >
+            <Search className="h-4 w-4" />
+          </Button>
 
-        {/* Actions */}
-        <div className="flex items-center gap-4">
-          {/* Auth buttons */}
-          <div className="flex items-center gap-2">
-            <Link href="/login">
+          <ThemeToggle variant="simple" />
+
+          {isAuthenticated && user ? (
+            <div className="hidden lg:block relative">
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-[#1A1F2C] hover:bg-[#E9EAEC] font-medium"
+                className="gap-2"
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                aria-expanded={userMenuOpen}
+                aria-haspopup="true"
               >
-                Đăng nhập
+                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground text-xs font-medium">
+                  {(user.name ?? user.email ?? "U").charAt(0).toUpperCase()}
+                </div>
+                <span className="text-sm">{user.name ?? user.email}</span>
               </Button>
-            </Link>
-            <Link href="/register">
-              <Button
-                size="sm"
-                className="bg-[#6396f5] text-white hover:bg-[#5288ef] font-medium"
-              >
-                Đăng ký
-              </Button>
-            </Link>
-          </div>
 
-          {/* Language icon */}
-          <button
-            aria-label="language"
-            className="p-2 hover:opacity-80 transition-opacity"
+              {userMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setUserMenuOpen(false)}
+                    aria-hidden="true"
+                  />
+                  <div className="absolute right-0 top-full mt-2 w-64 rounded-lg border bg-card shadow-lg z-50 py-1">
+                    <div className="px-3 py-2 border-b">
+                      <p className="text-sm font-medium">{user.name ?? user.email}</p>
+                      <p className="text-xs text-muted-foreground">{USER_ROLE_LABELS[role ?? UserRole.Passenger]}</p>
+                    </div>
+                    {accountMenu.map((item) => {
+                      // Điều chỉnh href cho profile dựa trên role
+                      let href = item.href;
+                      if (item.href === '/profile') {
+                        if (role === UserRole.Admin) href = '/profile/admin';
+                        else if (role === UserRole.Staff) href = '/profile/staff';
+                      }
+                      return (
+                        <Link
+                          key={item.href}
+                          href={href}
+                          className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                        >
+                          {item.icon && <item.icon className="h-4 w-4" />}
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                    <button
+                      onClick={() => {
+                        logout();
+                        setUserMenuOpen(false);
+                      }}
+                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors w-full text-left text-destructive"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="hidden lg:flex items-center gap-3">
+              <Link href="/login">
+                <Button variant="ghost" size="sm" className="px-6">
+                  Sign in
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button size="sm" className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-6">
+                  Sign up
+                </Button>
+              </Link>
+            </div>
+          )}
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden h-9 w-9"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
           >
-            <Globe className="h-5 w-5 text-[#1A1F2C]" />
-          </button>
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
         </div>
+      </div>
+
+      {searchOpen && (
+        <div className="border-t bg-background/95 backdrop-blur">
+          <div className="container mx-auto p-4">
+            <div className="max-w-2xl mx-auto">
+              <input
+                type="search"
+                placeholder="Search trains, stations..."
+                className="w-full px-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                autoFocus
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <div
+        className={cn(
+          "fixed top-[3.5rem] right-0 bottom-0 w-[80%] max-w-sm bg-background border-l z-50 lg:hidden transition-transform duration-300 ease-in-out overflow-y-auto",
+          mobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        )}
+        aria-hidden={!mobileMenuOpen}
+      >
+        <nav className="flex flex-col p-4 gap-1">
+          {isAuthenticated && user ? (
+            <div className="mb-4 p-4 rounded-lg bg-muted">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-medium">
+                  {(user.name ?? user.email ?? "U").charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="font-medium text-sm">{user.name ?? user.email}</p>
+                  <p className="text-xs text-muted-foreground">{USER_ROLE_LABELS[role ?? UserRole.Passenger]}</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Link href={getProfileUrl} className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="outline" size="sm" className="w-full">
+                    Profile
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="mb-4 flex flex-col gap-2">
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="outline" size="sm" className="w-full justify-start">
+                  Sign in
+                </Button>
+              </Link>
+              <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                <Button size="sm" className="w-full justify-start bg-gradient-to-r from-primary to-secondary">
+                  Sign up
+                </Button>
+              </Link>
+            </div>
+          )}
+
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
+              aria-current={pathname === item.href ? "page" : undefined}
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                pathname === item.href
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              {item.icon && <item.icon className="h-4 w-4" />}
+              {item.label}
+              {item.badge && (
+                <span className="ml-auto px-1.5 py-0.5 text-[10px] font-semibold bg-accent text-accent-foreground rounded">
+                  {item.badge}
+                </span>
+              )}
+            </Link>
+          ))}
+        </nav>
       </div>
     </header>
   );

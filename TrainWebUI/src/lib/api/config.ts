@@ -1,6 +1,6 @@
 // API Configuration based on backend documentation
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'https://localhost:7128',
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5191',
   API_ROOT: '/api',
   TIMEOUT: 10000,
   HEADERS: {
@@ -8,35 +8,9 @@ export const API_CONFIG = {
   },
 };
 
-// Enums matching backend
-export enum UserRole {
-  Passenger = 'Passenger',
-  Staff = 'Staff',
-  Admin = 'Admin'
-}
-
-export enum SeatType {
-  Hard = 'Hard',
-  Soft = 'Soft'
-}
-
-export enum BookingStatus {
-  Reserved = 'Reserved',
-  Paid = 'Paid',
-  Cancelled = 'Cancelled'
-}
-
-export enum PaymentMethod {
-  Visa = 'Visa',
-  Momo = 'Momo',
-  VnPay = 'VnPay'
-}
-
-export enum PaymentStatus {
-  Success = 'Success',
-  Pending = 'Pending',
-  Failed = 'Failed'
-}
+// Import enums from types instead of redefining them
+// This ensures we use the correct numeric enums from backend
+export { UserRole, SeatType, BookingStatus, PaymentMethod, PaymentStatus } from '@/types';
 
 // Health check function
 export async function checkApiHealth(): Promise<boolean> {
@@ -60,11 +34,26 @@ export async function apiFetch<T>(
   const url = `${API_CONFIG.BASE_URL}${API_CONFIG.API_ROOT}${endpoint}`;
   console.log(`🔗 API Call: ${options.method || 'GET'} ${url}`);
   
+  // Get auth token from localStorage
+  let token: string | null = null;
+  if (typeof window !== 'undefined') {
+    const storedUser = localStorage.getItem('train_booking_user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        token = userData.token || null;
+      } catch {
+        // Ignore parse errors
+      }
+    }
+  }
+  
   try {
       const response = await fetch(url, {
         ...options,
         headers: {
           ...API_CONFIG.HEADERS,
+          ...(token && { Authorization: `Bearer ${token}` }),
           ...options.headers,
         },
         // Add timeout and credentials
@@ -100,7 +89,7 @@ export async function apiFetch<T>(
       // Check if it's a network error (backend not running)
       if (error instanceof TypeError && error.message === 'Failed to fetch') {
         console.error('❌ Backend server is not running at:', API_CONFIG.BASE_URL);
-        console.error('💡 Please start your backend server on https://localhost:7128');
+        console.error('💡 Please start your backend server on http://localhost:5191');
         throw new Error('Backend server is not accessible. Please check if the server is running.');
       }
       

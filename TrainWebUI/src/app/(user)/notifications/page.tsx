@@ -289,7 +289,7 @@ export default function NotificationsPage() {
           icon: CreditCard,
           color: "text-success",
           bgColor: "bg-success/10",
-          borderColor: "border-emerald-200",
+          borderColor: "border-success/20",
         };
       case "promotion":
         return {
@@ -386,25 +386,25 @@ export default function NotificationsPage() {
   const groups = groupedNotifications();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <div className="border-b bg-background/80 backdrop-blur-sm shadow-sm sticky top-0 z-40">
-        <div className="container mx-auto px-2 lg:px-2 py-2">
+    <div className="min-h-screen bg-gradient-to-br from-muted via-primary/10 to-primary/20">
+      {/* Notification Header Section - Converted from sticky header */}
+      <div className="border-b bg-background/80 backdrop-blur-sm shadow-sm">
+        <div className="container mx-auto px-2 lg:px-2 py-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 shadow-lg">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg">
                 <Bell className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl font-bold text-primary">Thông báo</h1>
                   {unreadCount > 0 && (
-                    <Badge className="bg-error hover:bg-error animate-pulse">
+                    <Badge className="bg-destructive hover:bg-destructive animate-pulse">
                       {unreadCount}
                     </Badge>
                   )}
                   {criticalCount > 0 && (
-                    <Badge variant="outline" className="border-destructive text-error">
+                    <Badge variant="outline" className="border-destructive text-destructive">
                       {criticalCount} quan trọng
                     </Badge>
                   )}
@@ -447,7 +447,7 @@ export default function NotificationsPage() {
                         variant="outline"
                         size="sm"
                         onClick={deleteSelected}
-                        className="gap-2 border-destructive/20 hover:bg-error/10"
+                        className="gap-2 border-destructive/20 hover:bg-destructive/10"
                       >
                         <Trash2 className="h-4 w-4" />
                         <span className="hidden sm:inline">Xóa ({selectedIds.size})</span>
@@ -531,14 +531,14 @@ export default function NotificationsPage() {
             }
             className="w-full"
           >
-            <div className="sticky top-20 z-30 bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 pb-3">
+            <div className="sticky top-4 z-[25] bg-gradient-to-br from-muted via-primary/10 to-primary/20 pb-3">
               <TabsList className="grid w-full grid-cols-5 bg-background/90 backdrop-blur-sm shadow-sm">
                 <TabsTrigger value="all" className="gap-2 data-[state=active]:bg-primary/10">
                   <Bell className="h-4 w-4" />
                   <span className="hidden sm:inline">Tất cả</span>
                   <span className="sm:hidden">Tất cả</span>
                   {activeTab === "all" && unreadCount > 0 && (
-                    <Badge className="ml-1 h-5 w-5 p-0 text-xs bg-error">
+                    <Badge className="ml-1 h-5 w-5 p-0 text-xs bg-destructive">
                       {unreadCount > 99 ? "99+" : unreadCount}
                     </Badge>
                   )}
@@ -682,8 +682,8 @@ function NotificationCard({
     <Card
       className={cn(
         "group relative overflow-hidden border-0 shadow-sm transition-all duration-300 hover:shadow-md",
-        notification.isCritical && "border-2 border-destructive shadow-md bg-error/10/50",
-        !notification.isRead && !notification.isCritical && "bg-primary/10/50 border-l-4 border-l-blue-500",
+        notification.isCritical && "border-2 border-destructive shadow-md bg-destructive/10",
+        !notification.isRead && !notification.isCritical && "bg-primary/10 border-l-4 border-l-blue-500",
         isHovered && "shadow-lg transform scale-[1.02]",
         isSelected && "ring-2 ring-blue-500 shadow-lg"
       )}
@@ -715,7 +715,7 @@ function NotificationCard({
           className={cn(
             "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-sm",
             categoryConfig.bgColor,
-            notification.isCritical && "bg-error/10 animate-pulse"
+            notification.isCritical && "bg-destructive/10 animate-pulse"
           )}
         >
           <CategoryIcon className={cn("h-6 w-6", categoryConfig.color)} />
@@ -737,7 +737,7 @@ function NotificationCard({
                 <div className="h-2 w-2 shrink-0 rounded-full bg-primary animate-pulse" />
               )}
               {notification.isCritical && (
-                <Badge className="bg-error text-xs hover:bg-error animate-pulse">
+                <Badge className="bg-destructive text-xs hover:bg-destructive animate-pulse">
                   Quan trọng
                 </Badge>
               )}
@@ -779,7 +779,7 @@ function NotificationCard({
             </div>
           )}
           {swipeX < 0 && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-error">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-destructive">
               <Trash2 className="h-6 w-6" />
             </div>
           )}
@@ -809,9 +809,9 @@ function NotificationCard({
               e.stopPropagation();
               onDelete();
             }}
-            className="h-8 w-8 p-0 hover:bg-error/10"
+            className="h-8 w-8 p-0 hover:bg-destructive/10"
           >
-            <Trash2 className="h-4 w-4 text-error" />
+            <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
         </div>
       )}
@@ -862,7 +862,7 @@ function EmptyState({
   return (
     <Card className="border-0 bg-background/90 backdrop-blur-sm shadow-md">
       <div className="flex flex-col items-center justify-center py-16 px-2 text-center">
-        <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-blue-200 shadow-lg">
+        <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary/5 to-primary/10 shadow-lg">
           <Icon className="h-10 w-10 text-primary" />
         </div>
         <h3 className="mb-2 text-xl font-semibold text-foreground">{getMessage()}</h3>
@@ -874,7 +874,7 @@ function EmptyState({
           <Button
             size="lg"
             onClick={onGoHome}
-            className="gap-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 shadow-lg"
+            className="gap-2 bg-gradient-to-r from-warning/5 to-warning/10 hover:from-warning hover:to-warning/90 shadow-lg"
           >
             <Sparkles className="h-5 w-5" />
             Khám phá khuyến mãi ngay
@@ -883,7 +883,7 @@ function EmptyState({
           <Button
             size="lg"
             onClick={onGoHome}
-            className="gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
+            className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/80 hover:to-primary/90 shadow-lg"
           >
             <Train className="h-5 w-5" />
             Tìm chuyến tàu

@@ -1,28 +1,41 @@
-import type { BookingDto } from './booking';
+import { SeatDto } from './seat';
 
-// Ticket status values based on provided schema
 export enum TicketStatus {
-  ACTIVE = 'active',
-  USED = 'used',
-  CANCELLED = 'cancelled',
+  Active = 0,
+  Used = 1,
+  Cancelled = 2
 }
 
-// Ticket DTO matching backend data shape
-export interface TicketDto {
+export interface TicketTypeDto {
+  id?: string;
+  name?: string | null;
+  discount?: number;
+}
+
+export interface TicketEntity {
   id: string;
-  bookingId: string;
-  qrCode: string;
-  status: TicketStatus; // active | used | cancelled
-  // Optional relation for convenience in some responses
-  booking?: BookingDto;
-  createdAt?: string;
-  updatedAt?: string;
+  bookingId?: string; // Optional vì response từ backend không có
+  seat?: SeatDto; // Backend trả về nested seat object
+  ticketType?: TicketTypeDto; // Backend trả về nested ticketType
+  qrCode?: string;
+  status: TicketStatus | string; // Backend trả về string "Active" thay vì số
 }
 
-export interface CreateTicketRequest {
-  bookingId: string;
-  qrCode: string;
-  status: TicketStatus;
+export const TICKET_STATUS_LABELS: Record<TicketStatus, string> = {
+  [TicketStatus.Active]: 'Đang hoạt động',
+  [TicketStatus.Used]: 'Đã sử dụng',
+  [TicketStatus.Cancelled]: 'Đã hủy'
+};
+
+// Helper to convert string status to enum
+export function parseTicketStatus(status: string | TicketStatus): TicketStatus {
+  if (typeof status === 'number') return status;
+  
+  switch (status.toLowerCase()) {
+    case 'active': return TicketStatus.Active;
+    case 'used': return TicketStatus.Used;
+    case 'cancelled': return TicketStatus.Cancelled;
+    default: return TicketStatus.Active;
+  }
 }
 
-export type UpdateTicketRequest = Partial<CreateTicketRequest> & { id: string };

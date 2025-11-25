@@ -12,6 +12,7 @@ namespace TrainWeb.Application.Interfaces
     {
         Task<SeatEntity?> GetByIdAsync(string id);
         Task<IEnumerable<SeatEntity>> GetAllAsync();
+        Task<IEnumerable<SeatEntity>> GetByTripIdAsync(string tripId);
         Task AddAsync(SeatEntity seatEntity);
         Task UpdateAsync(string id, SeatEntity seatEntity);
         Task DeleteAsync(string id);
