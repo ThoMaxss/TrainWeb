@@ -1,22 +1,15 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Train, Sparkles, Filter, Clock, Calendar } from "lucide-react";
+import { ArrowLeft, Train, Sparkles, Filter, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { StepIndicator } from "./StepIndicator";
 import { SeatMap } from "./SeatMap";
 import { SeatSummaryPanel } from "./SeatSummaryPanel";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getTripById, getSeatsByTripId } from "@/lib/api/trip";
-import { TripDto, SeatDto, SeatType } from "@/types";
-import { SEAT_TYPE_LABELS } from "@/types/seat";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getTripById } from "@/lib/api/trip";
+import { getSeatsByTripId } from "@/lib/api/seat";
+import { SEAT_TYPE_LABELS, SeatType, SeatDto } from "@/types/seat";
+import { TripDto } from "@/types/trip";
 
 interface SelectedSeat {
   id: string;
@@ -52,55 +45,77 @@ export function SeatSelectionScreen({ tripId, onBack, onContinue, preSelectedSea
   useEffect(() => {
     setLoading(true);
     setError(null);
-    Promise.all([
-      getTripById(tripId),
-      getSeatsByTripId(tripId)
-    ])
+    let mounted = true;
+    
+    console.log(`🔄 Loading seat selection screen for trip: ${tripId}`);
+    
+    Promise.all([getTripById(tripId), getSeatsByTripId(tripId)])
       .then(([tripData, seatsData]) => {
+        if (!mounted) return;
+        console.log(`✅ Trip data:`, tripData);
+        console.log(`✅ Seats data:`, seatsData);
+        
         setTrip(tripData);
-        if (!seatsData) {
-          console.warn(`⚠️ No seats found for trip ID: ${tripId}`);
-          setSeats([]);
-          setError("Không tìm thấy ghế cho chuyến tàu này.");
-        } else {
-          setSeats(seatsData);
-          // Determine available seat types from data
-          const types = Array.from(
-            new Set(
-              seatsData
-                .map(s => s.type)
-                .filter((t): t is SeatType => typeof t === 'number')
-            )
-          );
-          setAvailableSeatTypes(types);
-          // Initialize selected seat type: from preSelectedSeatType label or first available
-          if (types.length > 0) {
-            let initial: SeatType | null = null;
-            if (preSelectedSeatType) {
-              const matchEntry = Object.entries(SEAT_TYPE_LABELS).find(([, label]) => label === preSelectedSeatType);
-              if (matchEntry) initial = Number(matchEntry[0]) as SeatType;
-            }
-            setSelectedSeatType(initial ?? types[0]);
-          } else {
-            setSelectedSeatType(null);
+        setSeats(seatsData);
+        
+        if (!seatsData || seatsData.length === 0) {
+          console.warn(`⚠️ No seats returned for trip ${tripId}`);
+          setError("Không có ghế nào cho chuyến tàu này.");
+          setSelectedSeatType(null);
+          setAvailableSeatTypes([]);
+          return;
+        }
+        
+        // Normalize type to SeatType enum
+        const types = Array.from(
+          new Set(
+            seatsData
+              .map(s => {
+                if (typeof s.type === 'string') {
+                  return s.type === 'Hard' ? SeatType.Hard : SeatType.Soft;
+                }
+                return s.type;
+              })
+              .filter((t): t is SeatType => t === SeatType.Hard || t === SeatType.Soft)
+          )
+        );
+        console.log(`📊 Available seat types:`, types);
+        setAvailableSeatTypes(types);
+        
+        // Initialize selected seat type: from preSelectedSeatType label or first available
+        if (types.length > 0) {
+          let initial: SeatType | null = null;
+          if (preSelectedSeatType) {
+            const matchEntry = Object.entries(SEAT_TYPE_LABELS).find(([, label]) => label === preSelectedSeatType);
+            if (matchEntry) initial = Number(matchEntry[0]) as SeatType;
           }
+          setSelectedSeatType(initial ?? types[0]);
+        } else {
+          setSelectedSeatType(null);
         }
       })
       .catch((error) => {
-        console.error('API Error:', error);
+        if (!mounted) return;
+        console.error(`❌ Error loading seat selection:`, error);
         setError("Không thể tải dữ liệu từ server. Kiểm tra backend đang chạy.");
         setSeats([]);
       })
-      .finally(() => setLoading(false));
-  }, [tripId]);
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    
+    return () => { mounted = false; };
+  }, [tripId, preSelectedSeatType]);
 
   const handleSeatSelect = (seat: SeatDto) => {
     if (!seat.id) return;
-    setSelectedSeats((prevSelected) =>
-      prevSelected.includes(seat.id!)
-        ? prevSelected.filter((id) => id !== seat.id)
-        : [...prevSelected, seat.id!]
-    );
+    setSelectedSeats((prevSelected) => {
+      if (prevSelected.includes(seat.id!)) {
+        return prevSelected.filter((id) => id !== seat.id);
+      } else {
+        return [...prevSelected, seat.id!];
+      }
+    });
   };
 
   const handleContinue = () => {
@@ -111,13 +126,24 @@ export function SeatSelectionScreen({ tripId, onBack, onContinue, preSelectedSea
     // Chuyển đổi seats thành SelectedSeat format
     const selectedSeatDetails: SelectedSeat[] = seats
       .filter(seat => seat.id && selectedSeats.includes(seat.id))
-      .map(seat => ({
-        id: seat.id!,
-        coachNumber: 1,
-        seatNumber: seat.seatNumber || '',
-        seatType: selectedSeatType != null ? SEAT_TYPE_LABELS[selectedSeatType] : "",
-        price: seat.price || 0
-      }));
+      .map(seat => {
+        // Get seat type label from actual seat data
+        let seatTypeLabel = "";
+        if (seat.type !== undefined) {
+          if (typeof seat.type === 'string') {
+            seatTypeLabel = SEAT_TYPE_LABELS[seat.type === 'Hard' ? 0 : 1];
+          } else {
+            seatTypeLabel = SEAT_TYPE_LABELS[seat.type];
+          }
+        }
+        return {
+          id: seat.id!,
+          coachNumber: 1,
+          seatNumber: seat.seatNumber || '',
+          seatType: seatTypeLabel,
+          price: seat.price || 0
+        };
+      });
     onContinue(selectedSeatDetails);
   };
 
@@ -209,12 +235,12 @@ export function SeatSelectionScreen({ tripId, onBack, onContinue, preSelectedSea
         </Card>
 
         <SeatMap
-          tripId={tripId}
-          coachNumber={1}
-          seatType={selectedSeatType}
-          layout="2+2"
-          onSeatSelect={handleSeatSelect}
-          selectedSeats={selectedSeats}
+          seats={seats}
+          loading={loading}
+          error={error}
+          selectedSeatIds={selectedSeats}
+          selectedSeatType={selectedSeatType}
+          onSelectSeat={handleSeatSelect}
         />
         <SeatSummaryPanel
           selectedSeats={seats

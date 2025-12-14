@@ -37,6 +37,12 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
   const [page, setPage] = useState(1);
   const [seatInfo, setSeatInfo] = useState<Record<string, { priceFrom?: string; seatClasses: Array<{ name: string; price: string }> }>>({});
 
+  // Memoize search params to create stable dependency
+  const searchParamsKey = useMemo(() => {
+    if (!searchParams) return "";
+    return `${searchParams.originStation || ""}|${searchParams.destinationStation || ""}|${searchParams.departure || ""}`;
+  }, [searchParams?.originStation, searchParams?.destinationStation, searchParams?.departure]);
+
   useEffect(() => {
     let mounted = true;
     async function load() {
@@ -62,7 +68,7 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
     }
     load();
     return () => { mounted = false; };
-  }, [JSON.stringify(searchParams)]);
+  }, [searchParamsKey]);
 
   const totalPages = Math.max(1, Math.ceil(trips.length / pageSize));
   const pageTrips = useMemo(() => {
@@ -116,7 +122,7 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
     return () => {
       active = false;
     };
-  }, [pageTrips.map((t) => t.id).join(",")]);
+  }, [pageTrips]);
 
   if (loading) {
     return (
