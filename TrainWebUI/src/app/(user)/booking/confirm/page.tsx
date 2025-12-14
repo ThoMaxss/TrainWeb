@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { ArrowLeft, Train, Calendar, Clock, CreditCard, UtensilsCrossed, Shield, DoorOpen, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -10,9 +10,12 @@ import { StepIndicator } from "../../components/StepIndicator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { getTripById, getSeatsByTripId } from "@/lib/api/trip"
+import { getTripById } from "@/lib/api/trip"
+import { getSeatsByTripId } from "@/lib/api/seat"
 import { createBooking } from "@/lib/api/booking"
-import { SeatType, BookingStatus, type TripDto, type BookingDto } from "@/types"
+import { createTicket } from "@/lib/api/ticket"
+import { getAllTicketTypes } from "@/lib/api/ticketType"
+import { SeatType, BookingStatus, TicketStatus, type TripDto, type BookingDto, type TicketEntity } from "@/types"
 import { useAuth } from "@/components/auth/AuthContext"
 import { SEAT_TYPE_LABELS } from "@/types/seat"
 import { PassengerForm, type PassengerFormData } from "./components/PassengerForm"
@@ -27,19 +30,15 @@ interface SelectedSeat {
   price: number;
 }
 
-interface PassengerForm {
-  fullName: string;
-  dateOfBirth: string;
-  gender: "male" | "female" | "other";
-  idNumber: string;
-  phone: string;
-  email: string;
-}
-
 export default function BookingConfirmPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  
+  console.log(`🔄 BookingConfirmPage mounted`);
+  console.log(`📍 SearchParams:`, Object.fromEntries(searchParams));
+  console.log(`👤 Auth state - user:`, user, `authLoading:`, authLoading);
+  
   const [tripData, setTripData] = useState<TripDto | undefined>();
   const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,8 +46,12 @@ export default function BookingConfirmPage() {
 
   // Get URL params
   const tripId = searchParams.get("tripId");
-  const seatIds = searchParams.get("seatIds")?.split(",") || [];
+  const seatIdsParam = searchParams.get("seatIds");
+  const seatIds = seatIdsParam ? seatIdsParam.split(",").filter(Boolean) : [];
   const userId = user?.id || "";
+
+  console.log(`🔍 Parsed URL - tripId: "${tripId}", seatIdsParam: "${seatIdsParam}", seatIds:`, seatIds);
+  console.log(`👤 Current userId:`, userId);
 
   const steps = [
     { label: "Chi tiết tàu", status: "completed" as const },
@@ -59,7 +62,7 @@ export default function BookingConfirmPage() {
   ];
 
   // Initialize passenger info for each seat
-  const [passengers, setPassengers] = useState<PassengerForm[]>([]);
+  const [passengers, setPassengers] = useState<PassengerFormData[]>([]);
 
   const [contactInfo, setContactInfo] = useState({
     fullName: "",
@@ -75,6 +78,9 @@ export default function BookingConfirmPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Memoize seatIds string to prevent dependency array issues
+  const seatIdsKey = useMemo(() => seatIds.join(","), [seatIds.join(",")]);
+
   useEffect(() => {
     let mounted = true;
     async function loadData() {
@@ -86,10 +92,15 @@ export default function BookingConfirmPage() {
           throw new Error("Trip ID is required");
         }
 
+        console.log(`🔄 Confirm page: Loading trip ${tripId} with seats ${seatIds}`);
+
         const [trip, allSeats] = await Promise.all([
           getTripById(tripId),
           getSeatsByTripId(tripId)
         ]);
+
+        console.log(`✅ Trip loaded:`, trip);
+        console.log(`✅ All seats loaded:`, allSeats);
 
         if (mounted) {
           setTripData(trip);
@@ -99,13 +110,26 @@ export default function BookingConfirmPage() {
           const actualSeats: SelectedSeat[] = seatIds
             .map(seatId => {
               const seat = seatsMap.get(seatId);
-              if (!seat) return null;
+              if (!seat) {
+                console.warn(`⚠️ Seat ${seatId} not found in seat list`);
+                return null;
+              }
+              
+              // Convert type to string label - handle both string and enum
+              let seatTypeLabel = "Ghế mềm";
+              if (seat.type !== undefined) {
+                if (typeof seat.type === 'string') {
+                  seatTypeLabel = SEAT_TYPE_LABELS[seat.type === 'Hard' ? 0 : 1];
+                } else {
+                  seatTypeLabel = SEAT_TYPE_LABELS[seat.type];
+                }
+              }
               
               return {
                 id: seat.id!,
                 coachNumber: 1, // Default coach number
                 seatNumber: seat.seatNumber || "",
-                seatType: seat.type != null ? SEAT_TYPE_LABELS[seat.type] : "Ghế mềm",
+                seatType: seatTypeLabel,
                 price: seat.price || 0,
               };
             })
@@ -114,6 +138,8 @@ export default function BookingConfirmPage() {
           if (actualSeats.length === 0) {
             throw new Error("No valid seats found");
           }
+
+          console.log(`✅ Selected seats processed:`, actualSeats);
 
           setSelectedSeats(actualSeats);
           // Initialize passenger info for each seat
@@ -129,7 +155,7 @@ export default function BookingConfirmPage() {
           );
         }
       } catch (error) {
-        console.error("Failed to load booking data:", error);
+        console.error("❌ Failed to load booking data:", error);
         if (mounted) {
           alert("Không thể tải thông tin ghế. Vui lòng thử lại.");
           router.back();
@@ -141,7 +167,7 @@ export default function BookingConfirmPage() {
     
     loadData();
     return () => { mounted = false; };
-  }, [tripId, seatIds, router]);
+  }, [tripId, seatIdsKey, router]);
 
   // Trip info with fallback
   const tripInfo = tripData ? {
@@ -158,12 +184,12 @@ export default function BookingConfirmPage() {
     arrivalTime: "08:05",
   };
 
-  const updatePassenger = (index: number, field: keyof PassengerForm, value: string) => {
+  const updatePassenger = (index: number, field: keyof PassengerFormData, value: string) => {
     setPassengers((prev) =>
       prev.map((p, i) => (i === index ? { ...p, [field]: value } : p))
     );
     // Clear error for this field
-    const errorKey = `passenger-${index}-${field}`;
+    const errorKey = `passenger-${index}-${String(field)}`;
     if (errors[errorKey]) {
       setErrors(prev => {
         const { [errorKey]: _, ...rest } = prev;
@@ -236,11 +262,28 @@ export default function BookingConfirmPage() {
       return;
     }
 
-    if (!userId) {
-      alert("Bạn cần đăng nhập để tiếp tục đặt vé.");
-      router.push("/login");
+    // Check auth state - wait for auth to load
+    if (authLoading) {
+      console.log("⏳ Waiting for auth to load...");
+      alert("Đang kiểm tra phiên đăng nhập, vui lòng thử lại.");
       return;
     }
+
+    if (!user || !userId) {
+      console.warn("❌ User not authenticated:", { user, userId, authLoading });
+      alert("Bạn cần đăng nhập để tiếp tục đặt vé.");
+      // Save current state to return after login
+      sessionStorage.setItem('pendingBooking', JSON.stringify({
+        tripId,
+        seatIds,
+        passengers,
+        optionalServices,
+      }));
+      router.push("/login?returnUrl=" + encodeURIComponent(window.location.pathname + window.location.search));
+      return;
+    }
+
+    console.log("✅ Auth check passed, userId:", userId);
 
     try {
       setSubmitting(true);
@@ -253,38 +296,119 @@ export default function BookingConfirmPage() {
         throw new Error("No seats selected");
       }
 
-      // Backend only supports one seat per booking, so create multiple bookings
+      // Step 1: Get available ticket types from backend
+      let ticketTypes = [];
+      try {
+        ticketTypes = await getAllTicketTypes();
+        console.log("✅ Available ticket types:", ticketTypes);
+      } catch (err) {
+        console.warn("⚠️ Could not fetch ticket types, will use default:", err);
+        // Use a default ticket type if fetch fails
+        ticketTypes = [{ id: 'default', name: 'Standard', discount: 0 }];
+      }
+
+      // Use first ticket type as default
+      const defaultTicketType = ticketTypes[0] || { id: 'default', name: 'Standard', discount: 0 };
+      console.log("📍 Using ticket type:", defaultTicketType);
+
+      // Step 2: Create Tickets first (one ticket per seat)
+      const ticketPromises = selectedSeats.map((seat) => {
+        const ticketData: TicketEntity = {
+          id: undefined, // Let backend generate ID
+          seat: {
+            id: seat.id,
+            seatNumber: seat.seatNumber,
+            type: seat.seatType === SEAT_TYPE_LABELS[SeatType.Soft] ? SeatType.Soft : SeatType.Hard,
+            price: seat.price,
+          },
+          ticketType: {
+            id: defaultTicketType.id,
+            name: defaultTicketType.name,
+            discount: defaultTicketType.discount,
+          },
+          status: TicketStatus.Active,
+        };
+
+        console.log(`📤 Creating ticket for seat ${seat.seatNumber}:`, ticketData);
+        
+        return createTicket(ticketData).catch(err => {
+          console.error(`❌ Failed to create ticket for seat ${seat.seatNumber}:`, err);
+          throw new Error(`Không thể tạo vé cho ghế ${seat.seatNumber}: ${err.message}`);
+        });
+      });
+
+      const createdTickets = await Promise.all(ticketPromises);
+      console.log(`✅ Created ${createdTickets.length} tickets:`, createdTickets);
+
+      // Step 3: Create Bookings with the ticket IDs
       const bookingPromises = selectedSeats.map((seat, index) => {
         const passengerInfo = passengers[index];
-        
+        const ticket = createdTickets[index];
+
+        if (!ticket || !ticket.id) {
+          throw new Error(`Ticket for seat ${seat.seatNumber} was not created properly`);
+        }
+
+        // Create booking with the ticket ID
         const bookingData: BookingDto = {
           user: {
             id: userId,
             name: passengerInfo.fullName.trim(),
             email: passengerInfo.email.trim(),
           },
-          trip: tripData,
-          seat: {
-            id: seat.id,
-            trip: tripData,
-            seatNumber: seat.seatNumber,
-            type: seat.seatType === SEAT_TYPE_LABELS[SeatType.Soft] ? SeatType.Soft : SeatType.Hard,
-            isAvailable: false,
-            price: seat.price,
+          ticket: {
+            id: ticket.id, // This is the key - reference the ticket ID
+            status: ticket.status || TicketStatus.Active,
           },
           status: BookingStatus.Reserved,
           createdAt: new Date().toISOString(),
         };
 
-        return createBooking(bookingData);
+        console.log(`📤 Creating booking for ticket ${ticket.id}:`, bookingData);
+        
+        return createBooking(bookingData).catch(err => {
+          console.error(`❌ Failed to create booking for seat ${seat.seatNumber}:`, err);
+          throw new Error(`Không thể đặt vé cho ghế ${seat.seatNumber}: ${err.message}`);
+        });
       });
 
       // Create all bookings in parallel
       const bookings = await Promise.all(bookingPromises);
       
-      // Navigate to payment with first booking ID (or comma-separated IDs for multi-booking)
-      const bookingIds = bookings.map(b => b.id).join(",");
-      router.push(`/booking/payment?bookingId=${bookingIds}`);
+      console.log(`✅ Created bookings:`, bookings);
+      
+      // Validate that all bookings have IDs
+      const validBookingIds = bookings
+        .filter(b => b && b.id)
+        .map(b => b.id!);
+      
+      if (validBookingIds.length === 0) {
+        console.warn("⚠️ Backend không trả về booking IDs. Chuyển sang demo mode.");
+        // Save booking data to session storage as fallback
+        sessionStorage.setItem('pendingBooking', JSON.stringify({
+          seats: selectedSeats,
+          tripId: tripData.id,
+          passengers,
+          optionalServices,
+        }));
+        // Generate demo IDs for testing
+        const demoBookingIds = selectedSeats.map(() => `demo-${Date.now()}-${Math.random().toString(36).substring(7)}`);
+        alert("⚠️ Đang ở chế độ demo - backend chưa cấu hình đầy đủ. Booking IDs được tạo tạm thời.");
+        router.push(`/booking/payment?bookingId=${demoBookingIds.join(",")}`);
+        return;
+      }
+      
+      console.log(`📍 Valid booking IDs:`, validBookingIds);
+      
+      // Save to session storage as backup
+      sessionStorage.setItem('pendingBooking', JSON.stringify({
+        bookingIds: validBookingIds,
+        seats: selectedSeats,
+        tripId: tripData.id,
+      }));
+      
+      // Navigate to payment with booking IDs
+      router.push(`/booking/payment?bookingId=${validBookingIds.join(",")}`);
     } catch (error) {
       console.error("Failed to create booking:", error);
       const errorMsg = error instanceof Error ? error.message : "Không thể tạo đơn đặt vé";
@@ -304,8 +428,21 @@ export default function BookingConfirmPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  if (loading) {
+  if (loading || authLoading) {
     return <LoadingState />
+  }
+
+  if (!tripData || selectedSeats.length === 0) {
+    console.error(`❌ Invalid page state - tripData:`, tripData, `selectedSeats:`, selectedSeats);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Card className="p-6 text-center max-w-md">
+          <p className="text-red-500 font-medium text-lg mb-2">Không có dữ liệu đơn hàng</p>
+          <p className="text-muted-foreground text-sm mb-4">Vui lòng quay lại và chọn ghế lại</p>
+          <Button onClick={() => router.back()} className="w-full">Quay lại chọn ghế</Button>
+        </Card>
+      </div>
+    );
   }
 
   return (

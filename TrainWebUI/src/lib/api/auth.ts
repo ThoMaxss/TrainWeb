@@ -18,9 +18,7 @@ export async function login(payload: LoginRequest): Promise<AuthResponse> {
   });
 }
 
-// POST /api/Auth/register - Register user
-// Request: { name, email, password, role? }
-// Response: { message, email, role }
+
 export async function register(payload: RegisterRequest): Promise<AuthResponse> {
   return apiFetch<AuthResponse>('/Auth/register', {
     method: 'POST',

@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthContext';
-import { register as apiRegister } from '@/lib/api/auth';
+import { register as apiRegister, login as apiLogin } from '@/lib/api/auth';
 import { UserRole, UserEntity, UserDto, RegisterRequest } from '@/types';
 import { H1, Body, Small } from '@/components/ui/typography';
 
@@ -15,7 +15,6 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    phone: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -51,7 +50,13 @@ export default function RegisterPage() {
       
       setSuccess(true);
       
-      // Auto-login after successful registration
+      // Auto-login after successful registration (try to fetch token from backend)
+      let authResponseAfterReg = null;
+      try {
+        authResponseAfterReg = await apiLogin({ email: registerPayload.email, password: registerPayload.password });
+      } catch (err) {
+        // ignore if login fails; user can login manually
+      }
       setTimeout(() => {
         const loggedIn: UserDto = {
           id: Date.now().toString(),
@@ -59,6 +64,7 @@ export default function RegisterPage() {
           email: registerPayload.email,
           role: registerPayload.role,
           createdAt: new Date().toISOString(),
+          token: authResponseAfterReg?.token,
         };
         login(loggedIn);
         router.push('/search'); // Redirect to search page for new users
@@ -142,28 +148,6 @@ export default function RegisterPage() {
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                     placeholder="john.doe@example.com"
-                    className="w-full bg-background border border-input rounded-xl py-3 pl-12 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-primary transition-all"
-                    required
-                    aria-required="true"
-                  />
-                </div>
-              </div>
-
-              {/* Phone Field */}
-              <div className="space-y-2">
-                <label htmlFor="register-phone" className="block text-sm font-semibold text-foreground">
-                  Số điện thoại
-                </label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                    <Phone className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
-                  </div>
-                  <input
-                    id="register-phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="0901234567"
                     className="w-full bg-background border border-input rounded-xl py-3 pl-12 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-primary transition-all"
                     required
                     aria-required="true"

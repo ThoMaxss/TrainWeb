@@ -1,6 +1,8 @@
-import { LogOut } from "lucide-react";
+"use client";
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LogOut, AlertTriangle } from "lucide-react";
 
 interface LogoutCardProps {
   onLogout: () => void;
@@ -8,20 +10,26 @@ interface LogoutCardProps {
 
 export function LogoutCard({ onLogout }: LogoutCardProps) {
   return (
-    <Card className="border-0 border-destructive/20 bg-destructive/10 shadow-md">
-      <div className="p-2">
+    <Card className="bg-background/70 backdrop-blur-sm border-0 shadow-sm">
+      <div className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <AlertTriangle className="h-5 w-5 text-destructive" />
+          <h3 className="text-lg font-semibold">Khu vực nguy hiểm</h3>
+        </div>
+
+        <p className="text-sm text-muted-foreground mb-4">
+          Đăng xuất khỏi tài khoản của bạn. Bạn sẽ cần đăng nhập lại để tiếp tục.
+        </p>
+
         <Button
-          variant="destructive"
-          size="lg"
           onClick={onLogout}
-          className="w-full gap-2 bg-gradient-to-r from-destructive to-destructive/80 hover:from-destructive/80 hover:to-destructive/90"
+          variant="destructive"
+          className="w-full"
+          size="lg"
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-4 w-4 mr-2" />
           Đăng xuất
         </Button>
-        <p className="mt-2 text-center text-xs text-destructive">
-          Bạn sẽ cần đăng nhập lại để sử dụng dịch vụ
-        </p>
       </div>
     </Card>
   );

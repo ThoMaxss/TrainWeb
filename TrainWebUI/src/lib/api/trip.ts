@@ -1,16 +1,17 @@
 import { apiFetch } from './config';
+import { withRequestCache } from './request-cache';
 import { TripDto, SeatDto } from '@/types';
 
 // Trip endpoints based on backend documentation
 
 // GET /api/Trip - Get all trips
 export async function getAllTrips(): Promise<TripDto[]> {
-  return apiFetch<TripDto[]>('/Trip');
+  return withRequestCache('getAllTrips', () => apiFetch<TripDto[]>('/Trip'));
 }
 
 // GET /api/Trip/{id} - Get trip by ID
 export async function getTripById(id: string): Promise<TripDto> {
-  return apiFetch<TripDto>(`/Trip/${id}`);
+  return withRequestCache(`getTripById:${id}`, () => apiFetch<TripDto>(`/Trip/${id}`));
 }
 
 // POST /api/Trip - Create trip
@@ -39,7 +40,9 @@ export async function deleteTrip(id: string): Promise<void> {
 // GET /api/Seat/trip/{tripId} - Get seats by trip ID
 export async function getSeatsByTripId(tripId: string): Promise<SeatDto[] | null> {
   try {
-    const seats = await apiFetch<SeatDto[]>(`/Seat/trip/${tripId}`);
+    const seats = await withRequestCache(`getSeatsByTripId:${tripId}`, () => 
+      apiFetch<SeatDto[]>(`/Seat/trip/${tripId}`)
+    );
     return seats;
   } catch (error) {
     console.error(`Failed to fetch seats for trip ${tripId}:`, error);

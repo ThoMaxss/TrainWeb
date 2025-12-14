@@ -50,24 +50,49 @@ export default function PaymentPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const bookingIdsParam = searchParams.get("bookingId");
-  const bookingIds = bookingIdsParam?.split(",") || [];
+  const bookingIds = bookingIdsParam?.split(",").filter(Boolean) || [];
+
+  console.log(`🔍 Payment page - bookingIdsParam: "${bookingIdsParam}", parsed IDs:`, bookingIds);
 
   useEffect(() => {
     let mounted = true;
     async function loadBookingData() {
       try {
         if (bookingIds.length === 0) {
-          throw new Error("No booking IDs provided");
+          throw new Error("No booking IDs provided in URL");
         }
 
         setLoading(true);
         
+        console.log(`🔄 Loading ${bookingIds.length} bookings:`, bookingIds);
+        
         // Load all bookings in parallel
-        const bookingPromises = bookingIds.map(id => getBookingById(id));
-        const loadedBookings = await Promise.all(bookingPromises);
+        const bookingPromises = bookingIds.map(id => {
+          console.log(`📥 Fetching booking: ${id}`);
+          return getBookingById(id).catch(err => {
+            console.error(`❌ Failed to fetch booking ${id}:`, err);
+            return null; // Return null on error instead of throwing
+          });
+        });
+        const loadedBookings = (await Promise.all(bookingPromises)).filter(Boolean);
         
         if (mounted) {
-          setBookings(loadedBookings);
+          if (loadedBookings.length === 0) {
+            console.warn("⚠️ Không thể load bookings từ backend. Thử fallback sang session storage.");
+            // Try to get booking data from session storage (set by confirm page)
+            const fallbackData = sessionStorage.getItem('pendingBooking');
+            if (fallbackData) {
+              const { seats, tripId } = JSON.parse(fallbackData);
+              console.log("📦 Using fallback booking data:", { seats, tripId });
+              setSelectedSeats(seats || []);
+              // Don't navigate away, let user proceed
+            } else {
+              throw new Error("Không thể tải thông tin đặt vé từ server và không có dữ liệu dự phòng.");
+            }
+          } else {
+            setBookings(loadedBookings);
+          }
+
 
           // Transform all booking seats to SelectedSeat format
           const allSeats: SelectedSeat[] = loadedBookings
@@ -98,12 +123,18 @@ export default function PaymentPage() {
       } catch (error) {
         console.error("Failed to load booking data:", error);
         if (mounted) {
-          alert("Không thể tải thông tin đặt vé. Vui lòng thử lại.");
+          const errorMsg = error instanceof Error ? error.message : String(error);
+          alert(`Không thể tải thông tin đặt vé: ${errorMsg}\n\nVui lòng quay lại và thử lại.`);
           router.back();
         }
       } finally {
         if (mounted) setLoading(false);
       }
+    }
+
+    if (bookingIds.length === 0) {
+      console.error("❌ No booking IDs provided");
+      return;
     }
 
     loadBookingData();
@@ -160,8 +191,14 @@ export default function PaymentPage() {
 
       // Handle Momo redirect (if payment returns URL string)
       if (typeof paymentResult === 'string') {
-        // Momo payment - redirect to payment URL
-        window.location.href = paymentResult;
+        // For demo: redirect to mock MoMo page instead of real MoMo
+        const mockMomoUrl = `/booking/momo-mock?amount=${grandTotal}&orderId=${bookings[0].id}&orderInfo=Thanh%20toan%20ve%20tau&returnUrl=${encodeURIComponent(window.location.origin + '/booking/success')}`;
+        
+        console.log("💳 Redirecting to mock MoMo payment page");
+        window.location.href = mockMomoUrl;
+        
+        // Uncomment below to use real MoMo payment
+        // window.location.href = paymentResult;
         return;
       }
 

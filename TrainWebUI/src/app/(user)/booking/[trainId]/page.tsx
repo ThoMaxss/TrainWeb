@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { useRouter } from "next/navigation";
 import { SeatSelectionScreen } from "../../components/SeatSelectionScreen";
 
@@ -11,11 +12,16 @@ interface SelectedSeat {
   price: number;
 }
 
+interface BookingPageProps {
+  params: Promise<{ trainId: string }>;
+}
+
 /**
  * Trang chọn ghế cho chuyến tàu
  * URL: /booking/[trainId]
  */
-export default function BookingPage({ params }: { params: { trainId: string } }) {
+export default function BookingPage({ params }: BookingPageProps) {
+  const { trainId } = use(params);
   const router = useRouter();
 
   // Xử lý khi quay lại
@@ -29,12 +35,12 @@ export default function BookingPage({ params }: { params: { trainId: string } })
 
     // Create URL params with selected seats
     const seatIds = selectedSeats.map(seat => seat.id).join(",");
-    router.push(`/booking/confirm?tripId=${params.trainId}&seatIds=${seatIds}`);
+    router.push(`/booking/confirm?tripId=${trainId}&seatIds=${seatIds}`);
   };
 
   return (
     <SeatSelectionScreen
-      tripId={params.trainId}
+      tripId={trainId}
       onBack={handleBack}
       onContinue={handleContinue}
       preSelectedSeatType={null}

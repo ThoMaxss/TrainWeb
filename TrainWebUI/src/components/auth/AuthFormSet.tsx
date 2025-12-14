@@ -43,41 +43,27 @@ export default function AuthFormSet() {
     setError('');
 
     try {
-      let userDto;
-      
-      try {
-        const authResponse = await apiLogin({ email: loginData.email, password: loginData.password });
-        // Flexible role mapping: support string (case-insensitive) or number
-        let mappedRole: UserRole = UserRole.Passenger;
-        if (typeof authResponse.role === 'string') {
-          const roleStr = authResponse.role.toLowerCase();
-          if (roleStr === 'admin') mappedRole = UserRole.Admin;
-          else if (roleStr === 'staff') mappedRole = UserRole.Staff;
-          else if (roleStr === 'passenger' || roleStr === 'user') mappedRole = UserRole.Passenger;
-        } else if (typeof authResponse.role === 'number') {
-          if (authResponse.role === 0) mappedRole = UserRole.Admin;
-          else if (authResponse.role === 1) mappedRole = UserRole.Staff;
-          else mappedRole = UserRole.Passenger;
-        }
-        userDto = {
-          email: authResponse.email || loginData.email,
-          name: authResponse.email?.split('@')[0] || 'User',
-          role: mappedRole,
-          createdAt: new Date().toISOString(),
-        };
-      } catch (apiError) {
-        // Fallback demo accounts
-        const demoUsers = {
-          'admin@demo.com': { id: 'demo-admin-1', name: 'Admin Demo', email: 'admin@demo.com', role: UserRole.Admin, createdAt: new Date().toISOString() },
-          'staff@demo.com': { id: 'demo-staff-1', name: 'Staff Demo', email: 'staff@demo.com', role: UserRole.Staff, createdAt: new Date().toISOString() },
-          'user@demo.com': { id: 'demo-user-1', name: 'User Demo', email: 'user@demo.com', role: UserRole.Passenger, createdAt: new Date().toISOString() },
-        };
-        
-        userDto = demoUsers[loginData.email as keyof typeof demoUsers];
-        if (!userDto) {
-          throw new Error('Email không hợp lệ. Vui lòng sử dụng tài khoản demo.');
-        }
+      const authResponse = await apiLogin({ email: loginData.email, password: loginData.password });
+      // Flexible role mapping: support string (case-insensitive) or number
+      let mappedRole: UserRole = UserRole.Passenger;
+      if (typeof authResponse.role === 'string') {
+        const roleStr = authResponse.role.toLowerCase();
+        if (roleStr === 'admin') mappedRole = UserRole.Admin;
+        else if (roleStr === 'staff') mappedRole = UserRole.Staff;
+        else if (roleStr === 'passenger' || roleStr === 'user') mappedRole = UserRole.Passenger;
+      } else if (typeof authResponse.role === 'number') {
+        if (authResponse.role === 0) mappedRole = UserRole.Admin;
+        else if (authResponse.role === 1) mappedRole = UserRole.Staff;
+        else mappedRole = UserRole.Passenger;
       }
+      const userDto = {
+        id: authResponse.id || loginData.email,
+        email: authResponse.email || loginData.email,
+        name: authResponse.name || authResponse.email?.split('@')[0] || 'User',
+        role: mappedRole,
+        createdAt: new Date().toISOString(),
+        token: authResponse.token,
+      };
 
       login(userDto);
       
@@ -127,9 +113,17 @@ export default function AuthFormSet() {
         role: UserRole.Passenger,
       };
       await apiRegister(registerPayload);
+      // Attempt to login after registration to fetch token
+      let authResponseAfterReg = null;
+      try {
+        authResponseAfterReg = await apiLogin({ email: registerPayload.email, password: registerPayload.password });
+      } catch (err) {
+        // ignore login failure after registration; user will need to login manually
+      }
       setSuccess(true);
       setTimeout(() => {
-        login({ ...registerPayload, id: Date.now().toString(), createdAt: new Date().toISOString() });
+        const userWithToken = { ...registerPayload, id: Date.now().toString(), createdAt: new Date().toISOString(), token: authResponseAfterReg?.token } as any;
+        login(userWithToken);
         router.push('/search');
       }, 1500);
       
