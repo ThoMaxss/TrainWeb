@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Download, ImageIcon, Wallet, Share2, Home, Phone, Mail, Train, CreditCard, ChevronRight, Star, Ticket, User, Calendar, Clock } from "lucide-react"
+import { Download, ImageIcon, Wallet, Share2, Home, Phone, Mail, Train, CreditCard, ChevronRight, Star, Ticket, User, Calendar, Clock, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -33,25 +33,76 @@ export default function BookingSuccessPage() {
   const searchParams = useSearchParams()
   const [booking, setBooking] = useState<BookingDto | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showCopied, setShowCopied] = useState(false)
+  const [retryCount, setRetryCount] = useState(0)
 
-  // Fetch booking data from API
+  // Fetch booking data from API with retry logic
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+    
     async function fetchBooking() {
       try {
         setLoading(true)
-        const bookingId = searchParams.get("bookingId")
+        setError(null)
+        const bookingId = searchParams.get("bookingId") || searchParams.get("orderId")
         
         if (!bookingId) {
-          console.error("No booking ID provided")
+          setError("Không có mã đơn đặt vé. Vui lòng kiểm tra URL.")
           setLoading(false)
           return
         }
 
+        console.log(`[Attempt ${retryCount + 1}] Fetching booking: ${bookingId}`)
         const bookingData = await getBookingById(bookingId)
+        
+        if (!bookingData) {
+          console.warn(`Booking ${bookingId} not found in API`)
+          const fallback = sessionStorage.getItem('pendingBooking')
+          if (fallback) {
+            try {
+              JSON.parse(fallback)
+              console.log(`Fallback data found`)
+              setError("Đơn hàng của bạn đang được xử lý. Thông tin đầy đủ sẽ được gửi qua email trong vòng 5 phút.")
+              setLoading(false)
+              return
+            } catch (e) {
+              console.error(`Failed to parse fallback:`, e)
+            }
+          }
+          
+          // Retry with exponential backoff (max 3 retries: 2s, 4s, 8s)
+          if (retryCount < 3) {
+            const delay = Math.pow(2, retryCount + 1) * 1000
+            console.log(`Retrying in ${delay}ms...`)
+            timeoutId = setTimeout(() => {
+              setRetryCount(retryCount + 1)
+            }, delay)
+            return
+          }
+          
+          setError("Không tìm thấy thông tin đặt vé. Đơn hàng của bạn đang được xử lý, vui lòng kiểm tra email hoặc liên hệ support.")
+          setLoading(false)
+          return
+        }
+        
+        console.log(`✅ Booking fetched successfully:`, bookingData)
         setBooking(bookingData)
-      } catch (error) {
-        console.error("Error fetching booking:", error)
+        setRetryCount(0)
+      } catch (err) {
+        console.error("Error fetching booking:", err)
+        
+        // Retry on error (max 3 attempts)
+        if (retryCount < 3) {
+          const delay = Math.pow(2, retryCount + 1) * 1000
+          console.log(`Error fetching, retrying in ${delay}ms...`)
+          timeoutId = setTimeout(() => {
+            setRetryCount(retryCount + 1)
+          }, delay)
+          return
+        }
+        
+        setError("Không thể tải thông tin vé. Vui lòng liên hệ với bộ phận hỗ trợ hoặc kiểm tra email của bạn.")
       } finally {
         setLoading(false)
       }
@@ -59,7 +110,11 @@ export default function BookingSuccessPage() {
 
     fetchBooking()
     window.scrollTo({ top: 0, behavior: "smooth" })
-  }, [searchParams])
+    
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [searchParams, retryCount])
 
   // Calculate prices and data from booking
   const totalPrice = booking?.seat?.price || 0
@@ -73,13 +128,14 @@ export default function BookingSuccessPage() {
   const bookingDate = booking?.createdAt ? new Date(booking.createdAt).toLocaleDateString("vi-VN") : "N/A"
   const bookingTime = booking?.createdAt ? new Date(booking.createdAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "N/A"
 
-  const tripInfo = booking?.trip ? {
+  // Ensure trip data exists and has required fields
+  const tripInfo = booking?.trip && booking.trip.departure && booking.trip.arrival ? {
     trainNumber: booking.trip.train?.name || "N/A",
     trainName: "Tàu Thống Nhất",
     route: `${booking.trip.originStation || "N/A"} → ${booking.trip.destinationStation || "N/A"}`,
-    departureDate: new Date(booking.trip.departure!).toLocaleDateString("vi-VN"),
-    departureTime: new Date(booking.trip.departure!).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
-    arrivalTime: new Date(booking.trip.arrival!).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+    departureDate: new Date(booking.trip.departure).toLocaleDateString("vi-VN"),
+    departureTime: new Date(booking.trip.departure).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+    arrivalTime: new Date(booking.trip.arrival).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
   } : null
 
   const passengerList = booking ? [{
@@ -87,6 +143,9 @@ export default function BookingSuccessPage() {
     seatNumber: booking.seat?.seatNumber || "N/A",
     coachNumber: 1,
   }] : []
+
+  // Validate we have minimum required data
+  const hasBookingData = booking && booking.id && booking.seat && tripInfo
 
   // Mock QR code (in production, this would be generated with booking data)
   const generateQRPlaceholder = () => {
@@ -170,12 +229,48 @@ export default function BookingSuccessPage() {
     return <LoadingState />
   }
 
-  if (!booking || !tripInfo) {
+  if (error) {
+    const handleRetry = () => {
+      window.location.reload()
+    }
+    
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <Card className="p-8 max-w-md text-center rounded-2xl border">
+          <div className="mb-4 flex justify-center">
+            <div className="p-3 rounded-full" style={{ backgroundColor: "color-mix(in srgb, var(--color-warning), transparent 85%)" }}>
+              <AlertCircle className="w-8 h-8" style={{ color: "var(--color-warning)" }} />
+            </div>
+          </div>
+          <h2 className="text-lg font-semibold mb-2">Thành công!</h2>
+          <p className="text-muted-foreground text-sm mb-6">{error}</p>
+          <div className="space-y-2">
+            <Button className="w-full" onClick={handleRetry} variant="default">Tải lại trang</Button>
+            <Button className="w-full" onClick={handleGoHome}>Về trang chủ</Button>
+            <Button variant="outline" className="w-full" onClick={() => router.push("/my-tickets")}>Xem vé của tôi</Button>
+            <Button variant="outline" className="w-full" onClick={() => router.push("/support")}>Liên hệ support</Button>
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
+  if (!hasBookingData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Card className="p-2 text-center">
-          <p className="text-muted-foreground">Không tìm thấy thông tin đặt vé</p>
-          <Button className="mt-3" onClick={handleGoHome}>Về trang chủ</Button>
+        <Card className="p-8 max-w-md text-center rounded-2xl border">
+          <AlertCircle className="w-8 h-8 mx-auto mb-4" style={{ color: "var(--color-warning)" }} />
+          <p className="text-muted-foreground mb-4 font-semibold">Đơn hàng được xử lý</p>
+          <p className="text-xs text-muted-foreground mb-6">
+            Thông tin vé đầy đủ sẽ được gửi qua email của bạn trong vòng 5 phút. Bạn cũng có thể xem vé tại mục "Vé của tôi".
+          </p>
+          <div className="space-y-2">
+            <Button className="w-full" onClick={handleGoHome}>Về trang chủ</Button>
+            <Button variant="outline" className="w-full" onClick={() => router.push("/my-tickets")}>Xem vé của tôi</Button>
+            <Button variant="outline" className="w-full" onClick={() => {
+              window.location.reload()
+            }}>Tải lại trang</Button>
+          </div>
         </Card>
       </div>
     )

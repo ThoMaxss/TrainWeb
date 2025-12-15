@@ -43,6 +43,9 @@ export default function LoginPage() {
         token: authResponse.token,
       };
       
+      // Save userId separately for backward compatibility
+      localStorage.setItem("userId", userDto.id);
+      
       login(userDto);
       
       // Redirect to returnUrl if provided, otherwise use role-based routing
