@@ -1,33 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Bell,
-  Check,
-  CheckCheck,
-  Train,
-  CreditCard,
-  Gift,
-  AlertCircle,
-  Clock,
-  ChevronRight,
-  Trash2,
-  X,
-  Sparkles,
-  Home,
-  Filter,
-  Search,
-} from "lucide-react";
+import { Bell, Check, Trash2, AlertCircle, Train, CreditCard, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils/utils";
 
 type NotificationCategory = "all" | "trip" | "payment" | "promotion" | "system";
 
@@ -43,6 +22,8 @@ interface Notification {
   actionId?: string;
 }
 
+const CACHE_KEY = "notifications_cache";
+
 export default function NotificationsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<NotificationCategory>("all");
@@ -51,33 +32,47 @@ export default function NotificationsPage() {
   const [selectionMode, setSelectionMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showOnlyUnread, setShowOnlyUnread] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Initialize mock notifications
-  useEffect(() => {
-    const mockNotifications: Notification[] = [
-      // Critical alert
-      {
-        id: "notif-1",
-        category: "trip",
-        title: "Chuyến tàu SE3 bị hoãn 30 phút",
-        message: "Chuyến tàu SE3 từ Hà Nội đi Đà Nẵng ngày 30/09/2025 sẽ xuất phát muộn 30 phút do sự cố kỹ thuật.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-        isRead: false,
-        isCritical: true,
-        actionType: "ticket",
-        actionId: "VNAB12CD34",
-      },
-      // Today
-      {
-        id: "notif-2",
-        category: "payment",
-        title: "Thanh toán thành công",
-        message: "Giao dịch 1.900.000đ cho vé SE3 đã được xử lý thành công qua VISA.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 120), // 2 hours ago
-        isRead: false,
-        isCritical: false,
-        actionType: "transaction",
-        actionId: "TXN2025093001234",
+  // Load notifications with caching
+  const loadNotifications = useCallback(() => {
+    try {
+      setLoading(true);
+      const userId = getCurrentUserId() || "guest";
+      const cached = localStorage.getItem(`${CACHE_KEY}_${userId}`);
+
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        const notifications = parsed.map((n: any) => ({
+          ...n,
+          timestamp: new Date(n.timestamp),
+        }));
+        setNotifications(notifications);
+      } else {
+        // Mock data - replace with API call
+        const mockNotifications: Notification[] = [
+          {
+            id: "notif-1",
+            category: "trip",
+            title: "Chuyến tàu SE3 bị hoãn 30 phút",
+            message: "Chuyến tàu SE3 từ Hà Nội đi Đà Nẵng ngày 30/09/2025 sẽ xuất phát muộn 30 phút.",
+            timestamp: new Date(Date.now() - 1000 * 60 * 30),
+            isRead: false,
+            isCritical: true,
+            actionType: "ticket",
+            actionId: "VNAB12CD34",
+          },
+          {
+            id: "notif-2",
+            category: "payment",
+            title: "Thanh toán thành công",
+            message: "Giao dịch 1.900.000đ cho vé SE3 đã được xử lý thành công.",
+            timestamp: new Date(Date.now() - 1000 * 60 * 120),
+            isRead: false,
+            isCritical: false,
+            actionType: "transaction",
+            actionId: "TXN2025093001234",
+          },
       },
       {
         id: "notif-3",

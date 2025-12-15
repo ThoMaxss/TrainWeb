@@ -2,7 +2,7 @@
 export const API_CONFIG = {
   BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'https://localhost:7128',
   API_ROOT: '/api',
-  TIMEOUT: 10000,
+  TIMEOUT: 30000, // Increased to 30s for complex nested queries (getAllBookings)
   HEADERS: {
     'Content-Type': 'application/json',
   },
@@ -32,7 +32,7 @@ export async function apiFetch<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_CONFIG.BASE_URL}${API_CONFIG.API_ROOT}${endpoint}`;
-  console.log(`🔗 API Call: ${options.method || 'GET'} ${url}`);
+  console.log(`🔗 API Call: ${options.method || 'GET'} ${url} at ${new Date().toISOString()}`);
   
   // Get auth token from localStorage
   let token: string | null = null;
@@ -42,13 +42,18 @@ export async function apiFetch<T>(
       try {
         const userData = JSON.parse(storedUser);
         token = userData.token || null;
+        console.log(`🔐 Using auth token: ${token ? 'YES' : 'NO'}`);
       } catch {
         // Ignore parse errors
+        console.log(`🔐 No auth token found`);
       }
+    } else {
+      console.log(`🔐 No stored user found`);
     }
   }
   
   try {
+      console.log(`⏱️ Starting fetch with ${API_CONFIG.TIMEOUT}ms timeout...`);
       const response = await fetch(url, {
         ...options,
         headers: {
@@ -60,7 +65,7 @@ export async function apiFetch<T>(
         signal: AbortSignal.timeout(API_CONFIG.TIMEOUT),
       });
 
-      console.log(`📡 Response: ${response.status} ${response.statusText}`);
+      console.log(`📡 Response received: ${response.status} ${response.statusText} at ${new Date().toISOString()}`);
 
       // Handle different response types based on backend documentation
       if (response.status === 404) {
@@ -81,6 +86,13 @@ export async function apiFetch<T>(
       // Handle empty responses (DELETE operations)
       if (response.status === 200 && response.headers.get('content-length') === '0') {
         return undefined as T;
+      }
+
+      // Handle text/plain responses (e.g., MoMo payment URLs)
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('text/plain')) {
+        const text = await response.text();
+        return text as T;
       }
 
       const data = await response.json();

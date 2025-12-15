@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthContext';
@@ -16,47 +16,49 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Get return URL from query params
+  const returnUrl = searchParams.get('returnUrl');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      let userDto: UserDto;
-      try {
-        // Call backend login API with email and password
-        const loginPayload: LoginRequest = {
-          email: formData.email,
-          password: formData.password,
-        };
-        const authResponse = await apiLogin(loginPayload);
-        
-        // Convert AuthResponse to UserDto
-        // Note: Backend should return user details, for now using demo data structure
-        userDto = { 
-          id: 'backend-user-id', // Backend should provide this
-          name: authResponse.email?.split('@')[0] || 'User', // Temporary: extract from email
-          email: authResponse.email || formData.email, 
-          role: authResponse.role === 'Admin' ? UserRole.Admin : 
-                authResponse.role === 'Staff' ? UserRole.Staff : UserRole.Passenger,
-          createdAt: new Date().toISOString() 
-        };
-      } catch {
-        // Fallback to demo users if backend fails
-        const demoUsers = {
-          'admin@demo.com': { id:'demo-admin-1', name:'Admin Demo', email:'admin@demo.com', role:UserRole.Admin, createdAt:new Date().toISOString() },
-          'staff@demo.com': { id:'demo-staff-1', name:'Staff Demo', email:'staff@demo.com', role:UserRole.Staff, createdAt:new Date().toISOString() },
-          'user@demo.com' : { id:'demo-user-1',  name:'User Demo',  email:'user@demo.com',  role:UserRole.Passenger, createdAt:new Date().toISOString() },
-        } as const;
-        userDto = demoUsers[formData.email as keyof typeof demoUsers];
-        if (!userDto) throw new Error('Email không hợp lệ. Vui lòng dùng tài khoản demo.');
-      }
+      const loginPayload: LoginRequest = {
+        email: formData.email,
+        password: formData.password,
+      };
+      const authResponse = await apiLogin(loginPayload);
+      
+      // Convert AuthResponse to UserDto
+      const userDto: UserDto = { 
+        id: authResponse.id || formData.email,
+        name: authResponse.name || authResponse.email?.split('@')[0] || 'User',
+        email: authResponse.email || formData.email, 
+        role: authResponse.role === 'Admin' ? UserRole.Admin : 
+              authResponse.role === 'Staff' ? UserRole.Staff : UserRole.Passenger,
+        createdAt: new Date().toISOString(),
+        token: authResponse.token,
+      };
+      
+      // Save userId separately for backward compatibility
+      localStorage.setItem("userId", userDto.id);
+      
       login(userDto);
-      switch (userDto.role) {
-        case UserRole.Admin: router.push('/admin-dashboard'); break;
-        case UserRole.Staff: router.push('/staff-dashboard'); break;
-        case UserRole.Passenger: router.push('/search'); break;
-        default: router.push('/');
+      
+      // Redirect to returnUrl if provided, otherwise use role-based routing
+      if (returnUrl) {
+        console.log("✅ Login successful, redirecting to:", returnUrl);
+        router.push(returnUrl);
+      } else {
+        switch (userDto.role) {
+          case UserRole.Admin: router.push('/admin-dashboard'); break;
+          case UserRole.Staff: router.push('/staff-dashboard'); break;
+          case UserRole.Passenger: router.push('/search'); break;
+          default: router.push('/');
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Đăng nhập thất bại.');

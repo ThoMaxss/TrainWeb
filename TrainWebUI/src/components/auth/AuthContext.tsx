@@ -64,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             role: normalizedRole,
           });
         } else {
+          // No stored user: end loading without auto-login
           setAuthState(prev => ({ ...prev, isLoading: false }));
         }
       } catch (error) {
@@ -78,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = (user: UserDto) => {
     const normalizedRole = normalizeUserRole(user.role ?? null);
     const normalizedUser: UserDto = { ...user, role: normalizedRole ?? undefined };
+    // Persist token if available on the user object
     localStorage.setItem('train_booking_user', JSON.stringify(normalizedUser));
     setAuthState({
       user: normalizedUser,
@@ -89,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem('train_booking_user');
+    localStorage.removeItem('userId'); // Also remove userId for backward compatibility
     setAuthState({
       user: null,
       isLoading: false,
