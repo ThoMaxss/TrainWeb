@@ -1,6 +1,6 @@
 // API Configuration based on backend documentation
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5191',
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'https://localhost:7128',
   API_ROOT: '/api',
   TIMEOUT: 10000,
   HEADERS: {
@@ -89,7 +89,7 @@ export async function apiFetch<T>(
       // Check if it's a network error (backend not running)
       if (error instanceof TypeError && error.message === 'Failed to fetch') {
         console.error('❌ Backend server is not running at:', API_CONFIG.BASE_URL);
-        console.error('💡 Please start your backend server on http://localhost:5191');
+        console.error('💡 Please start your backend server on https://localhost:7128');
         throw new Error('Backend server is not accessible. Please check if the server is running.');
       }
       

@@ -7,25 +7,34 @@ namespace TrainWeb.Domain.Entities
     [FirestoreData]
     public class UserEntity
     {
-        [FirestoreProperty] 
-        public string Id { get; set; } 
         [FirestoreProperty]
-        public string Name { get; set; }
-        [FirestoreProperty] 
-        public string Email { get; set; }
-        [FirestoreProperty] 
+        public required string Id { get; set; }
+
+        [FirestoreProperty]
+        public required string Name { get; set; }
+
+        [FirestoreProperty]
+        public required string Email { get; set; }
+
+        [FirestoreProperty]
         public UserRole Role { get; set; }
-        [FirestoreProperty] 
+
+        [FirestoreProperty]
         public DateTime CreatedAt { get; set; }
+
         [FirestoreProperty]
         public string PasswordHash { get; set; } = string.Empty;
+
+        [FirestoreProperty]
+        public bool IsEmailVerified { get; set; } = false;
 
         public User ToDomain() => new User(
             Id,
             Name,
             Email,
             Role,
-            CreatedAt
+            CreatedAt,
+            IsEmailVerified 
         );
 
         public static UserEntity FromDomain(User user)
@@ -36,7 +45,9 @@ namespace TrainWeb.Domain.Entities
                 Name = user.Name ?? string.Empty,
                 Email = user.Email ?? string.Empty,
                 Role = user.Role ?? UserRole.Passenger,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = user.CreatedAt ?? DateTime.UtcNow,
+                IsEmailVerified = user.IsEmailVerified ?? false, 
+                PasswordHash = string.Empty 
             };
         }
     }

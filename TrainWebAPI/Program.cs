@@ -65,7 +65,7 @@ builder.Services.AddCors(options =>
 
 
 //AuthService
-builder.Services.AddSingleton<AuthService>();
+builder.Services.AddSingleton<FirebaseService>();
 
 //Cấu hình Authentication & Authorization
 var jwtKey = builder.Configuration["Jwt:Key"];
@@ -102,23 +102,26 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
-//Middleware 
-app.UseCors("AllowAll");
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseMiddleware<ExceptionMiddleware>();
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "TrainWeb API v1");
         options.RoutePrefix = "swagger";
     });
-    app.UseDeveloperExceptionPage();
 }
 
+app.UseHttpsRedirection(); 
+
+app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseCors("AllowAll");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
+
 app.Run();
