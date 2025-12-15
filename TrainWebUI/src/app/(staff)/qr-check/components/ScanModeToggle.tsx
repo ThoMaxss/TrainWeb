@@ -11,7 +11,7 @@ interface ScanModeToggleProps {
 
 export function ScanModeToggle({ mode, onModeChange, isPaused, onTogglePause }: ScanModeToggleProps) {
   return (
-    <Card className="p-3 border-0 bg-gradient-to-r from-primary via-secondary to-primary text-primary-foreground">
+    <Card className="p-4 border-0 bg-gradient-to-r from-primary via-secondary to-primary text-primary-foreground">
       <div className="flex items-center justify-between gap-3">
         <div className="flex gap-2">
           <Button

@@ -54,7 +54,7 @@ export function TicketInfoCard({ ticket, formatCurrency, onCheckIn, onCancelChec
   return (
     <div className="space-y-4">
       <Card className="border-0 bg-background shadow-lg rounded-2xl overflow-hidden">
-        <div className="p-5">
+        <div className="p-4">
           <div className="mb-4 flex items-start justify-between">
             <div>
               <h3 className="mb-1 text-lg font-semibold text-foreground">Thông tin vé</h3>

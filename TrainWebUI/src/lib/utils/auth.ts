@@ -1,33 +1,27 @@
 /**
- * Get the current user's ID from localStorage
- * Supports both new format (train_booking_user object) and legacy format (userId string)
+ * Get the current user's ID from localStorage (GoRail key only).
  */
 export function getCurrentUserId(): string | null {
-  // Try new format first
-  const storedUser = localStorage.getItem("train_booking_user");
-  if (storedUser) {
+  const stored = localStorage.getItem("gorail_user");
+  if (stored) {
     try {
-      const user = JSON.parse(storedUser);
+      const user = JSON.parse(stored);
       if (user.id) return user.id;
     } catch (e) {
-      console.error("Failed to parse train_booking_user:", e);
+      console.error("Failed to parse gorail_user:", e);
     }
   }
-
-  // Fallback to legacy format
-  return localStorage.getItem("userId");
+  return null;
 }
 
-/**
- * Get the current user object from localStorage
- */
+/** Get the current user object from localStorage (GoRail key only) */
 export function getCurrentUser() {
-  const storedUser = localStorage.getItem("train_booking_user");
-  if (storedUser) {
+  const stored = localStorage.getItem("gorail_user");
+  if (stored) {
     try {
-      return JSON.parse(storedUser);
+      return JSON.parse(stored);
     } catch (e) {
-      console.error("Failed to parse train_booking_user:", e);
+      console.error("Failed to parse gorail_user:", e);
       return null;
     }
   }

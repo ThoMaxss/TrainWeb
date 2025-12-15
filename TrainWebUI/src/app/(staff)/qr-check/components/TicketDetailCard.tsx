@@ -58,7 +58,7 @@ function formatCurrency(amount: number) {
 export function TicketDetailCard({ ticket, onCheckIn, onClear }: TicketDetailCardProps) {
   if (!ticket) {
     return (
-      <Card className="p-8 text-center border-2 border-dashed border-border/50">
+      <Card className="p-4 text-center border-2 border-dashed border-border/50">
         <div className="flex flex-col items-center gap-3 text-muted-foreground">
           <TrainFront className="h-12 w-12 opacity-30" />
           <p className="text-sm">Quét mã QR hoặc nhập mã vé để hiển thị thông tin</p>
@@ -68,7 +68,7 @@ export function TicketDetailCard({ ticket, onCheckIn, onClear }: TicketDetailCar
   }
 
   return (
-    <Card className="p-5 border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
+    <Card className="p-4 border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-foreground">Thông tin vé</h3>
         {getStatusBadge(ticket.status)}

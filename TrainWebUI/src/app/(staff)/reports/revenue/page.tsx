@@ -288,7 +288,7 @@ export default function RevenueReportPage() {
 
   if (error) {
     return (
-      <div className="flex h-screen flex-col bg-gradient-to-br from-muted via-primary/10 to-primary/20 items-center justify-center">
+      <div className="flex h-screen flex-col bg-background items-center justify-center">
         <div className="text-center">
           <XCircle className="h-12 w-12 text-destructive mx-auto mb-3" />
           <p className="text-destructive mb-3">Lỗi: {error}</p>
@@ -299,14 +299,14 @@ export default function RevenueReportPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-gradient-to-br from-muted via-primary/10 to-primary/20">
+    <div className="flex h-screen flex-col bg-background">
       <ScrollArea className="flex-1">
-        <div className="p-2 lg:p-2 space-y-3">
+        <div className="container mx-auto px-4 py-6 space-y-6">
           <RevenueKPICards data={kpiData} />
           
           <RevenueInsightsBox />
 
-          <div className="grid gap-3 lg:grid-cols-3">
+          <div className="grid gap-4 lg:grid-cols-3">
             <RevenueTrendChart 
               data={revenueTrendData} 
               timeFilterLabel={getTimeFilterLabel()} 

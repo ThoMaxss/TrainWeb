@@ -60,7 +60,7 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
       } catch (e) {
         console.error('API Error:', e);
         if (!mounted) return;
-        setError("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy ở http://localhost:5191");
+        setError("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy ở https://localhost:7128");
         setTrips([]);
       } finally {
         if (mounted) setLoading(false);

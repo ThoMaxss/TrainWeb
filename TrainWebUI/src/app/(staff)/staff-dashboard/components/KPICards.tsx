@@ -29,7 +29,7 @@ export function KPICards({ data, onNavigate }: KPICardsProps) {
         className="border-0 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl"
         onClick={() => onNavigate("/manage-tickets")}
       >
-        <CardContent className="p-2">
+        <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-primary-foreground">Vé hôm nay</p>
@@ -57,7 +57,7 @@ export function KPICards({ data, onNavigate }: KPICardsProps) {
         className="border-0 bg-gradient-to-br from-success to-success/80 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl"
         onClick={() => onNavigate("/reports/revenue")}
       >
-        <CardContent className="p-2">
+        <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-success/70">Doanh thu hôm nay</p>
@@ -82,7 +82,7 @@ export function KPICards({ data, onNavigate }: KPICardsProps) {
 
       {/* Upcoming Trains */}
       <Card className="border-0 bg-gradient-to-br from-accent to-accent/60 text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
-        <CardContent className="p-2">
+        <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-accent/10">Tàu sắp khởi hành</p>
@@ -100,8 +100,8 @@ export function KPICards({ data, onNavigate }: KPICardsProps) {
       </Card>
 
       {/* Performance Score */}
-      <Card className="border-0 bg-gradient-to-br from-purple-500 to-purple-600 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl">
-        <CardContent className="p-2">
+      <Card className="border-0 bg-gradient-to-br from-secondary to-secondary/80 text-primary-foreground shadow-lg cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl">
+        <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-secondary/10">Hiệu suất hoàn thành</p>

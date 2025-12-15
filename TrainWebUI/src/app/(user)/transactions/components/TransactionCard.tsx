@@ -24,8 +24,8 @@ interface TransactionCardProps {
   formatPrice: (price: number) => string
   getStatusConfig: (status: Transaction["status"]) => {
     label: string
-    icon: string
-    color: string
+    icon: React.ElementType
+    className: string
   }
   getPaymentMethodInfo: (method: Transaction["paymentMethod"]) => {
     label: string

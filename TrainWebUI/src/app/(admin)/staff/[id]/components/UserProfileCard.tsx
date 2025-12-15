@@ -13,9 +13,9 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
   const getRoleBadge = (role?: UserRole) => {
     if (role === undefined) return null;
     const colorClasses = {
-      [UserRole.Admin]: "bg-purple-100 text-purple-700 hover:bg-purple-100",
+      [UserRole.Admin]: "bg-primary/10 text-primary hover:bg-primary/10",
       [UserRole.Staff]: "bg-primary/10 text-primary hover:bg-primary/10",
-      [UserRole.Passenger]: "bg-gray-100 text-gray-700 hover:bg-gray-100",
+      [UserRole.Passenger]: "bg-muted text-muted-foreground hover:bg-muted",
     };
     return (
       <Badge className={`gap-1 text-base ${colorClasses[role]}`}>

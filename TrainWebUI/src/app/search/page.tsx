@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SearchSection } from "@/components/shared/SearchSection";
-import { TrainResults } from "../components/TrainResults";
+import { TrainResults } from "@/app/(user)/components/TrainResults";
+import { useDebounce } from "@/hooks/useDebounce";
 
-export default function SearchPage() {
+function SearchPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -21,8 +22,11 @@ export default function SearchPage() {
     };
   }, [searchParams]);
 
+  // Debounce the search params for API calls
+  const debouncedParams = useDebounce(params, 500);
+
   const handleViewDetail = useMemo(
-    () => (tripId: string, trainId: string) => {
+    () => (tripId: string, trainId?: string) => {
       const urlParams = new URLSearchParams();
       if (tripId) urlParams.set("tripId", tripId);
       if (trainId) urlParams.set("trainId", trainId);
@@ -34,7 +38,7 @@ export default function SearchPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Search Section */}
-      <div className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/20 dark:to-primary/10 border-b">
+      <div className="bg-gradient-to-br from-primary/5 via-background to-background border-b">
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
           <SearchSection />
         </div>
@@ -42,8 +46,16 @@ export default function SearchPage() {
 
       {/* Results Section */}
       <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
-        <TrainResults searchParams={params} onViewDetail={handleViewDetail} />
+        <TrainResults searchParams={debouncedParams} onViewDetail={handleViewDetail} />
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>}>
+      <SearchPageContent />
+    </Suspense>
   );
 }

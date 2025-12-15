@@ -189,7 +189,7 @@ export default function SupportPage() {
       {
         icon: Mail,
         title: "Email",
-        value: "support@trainbooking.vn",
+        value: "support@gorail.vn",
         description: "Phản hồi trong 24h",
         color: "text-success",
       },
