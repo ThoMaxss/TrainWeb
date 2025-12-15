@@ -26,25 +26,23 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
+      // Real API login
       const loginPayload: LoginRequest = {
         email: formData.email,
         password: formData.password,
       };
       const authResponse = await apiLogin(loginPayload);
       
-      // Convert AuthResponse to UserDto
+      // Convert AuthResponse to UserDto (AuthResponse doesn't include id/name)
       const userDto: UserDto = { 
-        id: authResponse.id || formData.email,
-        name: authResponse.name || authResponse.email?.split('@')[0] || 'User',
+        id: authResponse.email || formData.email,
+        name: (authResponse.email || formData.email).split('@')[0] || 'User',
         email: authResponse.email || formData.email, 
         role: authResponse.role === 'Admin' ? UserRole.Admin : 
               authResponse.role === 'Staff' ? UserRole.Staff : UserRole.Passenger,
         createdAt: new Date().toISOString(),
         token: authResponse.token,
       };
-      
-      // Save userId separately for backward compatibility
-      localStorage.setItem("userId", userDto.id);
       
       login(userDto);
       
@@ -78,7 +76,7 @@ export default function LoginPage() {
           <div className="text-center py-8 px-6 bg-background">
             <H1 className="mb-2">Đăng nhập</H1>
             <Body className="text-muted-foreground">
-              Đăng nhập vào tài khoản TrainBooking của bạn
+              Đăng nhập vào tài khoản GoRail của bạn
             </Body>
           </div>
 
@@ -153,20 +151,7 @@ export default function LoginPage() {
                 {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </button>
 
-              {/* Demo Accounts Info */}
-              <div className="bg-accent/50 border border-accent rounded-xl p-4">
-                <Small className="font-semibold text-accent-foreground mb-3 block">
-                  Tài khoản demo để test:
-                </Small>
-                <div className="space-y-2 text-sm text-accent-foreground">
-                  <div><strong>Admin:</strong> admin@demo.com</div>
-                  <div><strong>Staff:</strong> staff@demo.com</div>
-                  <div><strong>User:</strong> user@demo.com</div>
-                  <Small className="text-muted-foreground mt-3 block">
-                    Nhập một trong các email trên để thử!
-                  </Small>
-                </div>
-              </div>
+
 
               {/* Links */}
               <div className="space-y-4 text-center">

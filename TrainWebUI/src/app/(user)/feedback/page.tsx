@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { getTripById } from "@/lib/api/trip";
 import { submitFeedback } from "@/lib/api/feedback";
 import type { TripDto, FeedbackEntity } from "@/types";
+import { getCurrentUserId } from "@/lib/utils/auth";
 import { FeedbackHeader } from "./components/FeedbackHeader";
 import { TripInfoCard } from "./components/TripInfoCard";
 import { RatingCard } from "./components/RatingCard";
@@ -145,7 +146,7 @@ export default function FeedbackPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [comment, rating, selectedCategories, tripData, tripId, userId]);
 
   const handleSkip = () => router.push("/");
   const handleGoHome = () => router.push("/");

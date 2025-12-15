@@ -72,7 +72,7 @@ export default function PaymentPage() {
         console.log(`🔄 Loading ${bookingIds.length} bookings:`, bookingIds);
         
         // Load all bookings in parallel with timeout
-        const bookingPromises = bookingIds.map(async (id) => {
+        const bookingPromises = bookingIds.map(async (id: string) => {
           console.log(`📥 Fetching booking: ${id} at ${new Date().toISOString()}`);
           const timeoutPromise = new Promise((_, reject) => 
             setTimeout(() => reject(new Error("Booking fetch timeout (20s)")), 20000)
@@ -117,12 +117,12 @@ export default function PaymentPage() {
               } catch (parseErr) {
                 console.error("Failed to parse fallback data", parseErr);
                 // Create minimal fallback
-                bookingsToUse = bookingIds.map(id => ({ id, status: BookingStatus.Reserved }));
+                bookingsToUse = bookingIds.map((id: string) => ({ id, status: BookingStatus.Reserved }));
               }
             } else {
               console.warn("⚠️ No fallback data in session storage, creating minimal state");
               // Create minimal state to allow page to render
-              bookingsToUse = bookingIds.map(id => ({ id, status: BookingStatus.Reserved }));
+              bookingsToUse = bookingIds.map((id: string) => ({ id, status: BookingStatus.Reserved }));
             }
           } else {
             // Use loaded bookings
@@ -170,7 +170,7 @@ export default function PaymentPage() {
             try {
               const parsed = JSON.parse(fallbackData);
               const { seats } = parsed;
-              const demoBookings = bookingIds.map((id, idx) => ({
+              const demoBookings = bookingIds.map((id: string, idx: number) => ({
                 id: id.startsWith('demo-') ? id : `demo-${Date.now()}-${idx}`,
                 status: BookingStatus.Reserved,
               }));
@@ -256,16 +256,9 @@ export default function PaymentPage() {
 
       // Handle Momo redirect (if payment returns URL string)
       if (typeof paymentResult === 'string') {
-        // For demo: redirect to mock MoMo page instead of real MoMo
-        const bookingId = bookings[0].id;
-        const successUrl = `/booking/success?bookingId=${bookingId}`;
-        const mockMomoUrl = `/booking/momo-mock?amount=${grandTotal}&orderId=${bookingId}&orderInfo=Thanh%20toan%20ve%20tau&returnUrl=${encodeURIComponent(window.location.origin + successUrl)}`;
-        
-        console.log("💳 Redirecting to mock MoMo payment page");
-        window.location.href = mockMomoUrl;
-        
-        // Uncomment below to use real MoMo payment
-        // window.location.href = paymentResult;
+        console.log("💳 Redirecting to MoMo payment page:", paymentResult);
+        // Redirect to real MoMo payment URL
+        window.location.href = paymentResult;
         return;
       }
 
@@ -442,7 +435,7 @@ export default function PaymentPage() {
                   <div className="space-y-2 text-sm">
                     <p><strong>Ngân hàng:</strong> Vietcombank</p>
                     <p><strong>Số tài khoản:</strong> 1234567890</p>
-                    <p><strong>Tên tài khoản:</strong> CONG TY TNHH TRAIN BOOKING</p>
+                    <p><strong>Tên tài khoản:</strong> CONG TY TNHH GORAIL</p>
                     <p><strong>Nội dung:</strong> THANHTOAN [MÃ ĐẶT VÉ]</p>
                     <div className="bg-warning/10 p-2 rounded-md border border-warning/20">
                       <p className="text-warning">

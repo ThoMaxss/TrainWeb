@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { getBookingsByUserId } from "@/lib/api/booking";
+import { getTicketQrUrl } from "@/lib/api/ticket";
 import { getCurrentUserId } from "@/lib/utils/auth";
+import { generateTicketPDF } from "@/lib/utils/pdfGenerator";
 import { BookingDto, BookingStatus } from "@/types";
 import {
   Search,
@@ -25,10 +27,12 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface BookedTicket {
   id: string;
-  ticketId: string;
+  ticketId: string; // human friendly code
+  ticketRawId?: string; // actual ticket id from backend for QR
   trainNumber: string;
   origin: string;
   destination: string;
@@ -52,6 +56,7 @@ export default function MyTicketsPage() {
   const [tickets, setTickets] = useState<BookedTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedTicket, setSelectedTicket] = useState<BookedTicket | null>(null);
 
   // Fetch bookings with caching
   const fetchBookings = useCallback(async () => {
@@ -114,9 +119,15 @@ export default function MyTicketsPage() {
           status = "completed";
         }
 
+        const rawTicketId = booking.ticket?.id || booking.id || "";
+        const friendlyId = rawTicketId
+          ? `TK${rawTicketId.substring(0, 10).toUpperCase()}`
+          : `TK${booking.id?.substring(0, 10).toUpperCase()}`;
+
         return {
           id: booking.id || "",
-          ticketId: `TK${booking.id?.substring(0, 10).toUpperCase()}`,
+          ticketId: friendlyId,
+          ticketRawId: rawTicketId,
           trainNumber: booking.trip?.train?.name || "N/A",
           origin: booking.trip?.originStation || "N/A",
           destination: booking.trip?.destinationStation || "N/A",
@@ -216,28 +227,6 @@ export default function MyTicketsPage() {
     }
     fetchBookings();
   }, [fetchBookings]);
-
-  // Generate QR code
-  const generateQRCode = () => {
-    return (
-      <svg viewBox="0 0 100 100" className="h-20 w-20">
-        <rect width="100" height="100" fill="white" />
-        <rect x="5" y="5" width="20" height="20" fill="black" />
-        <rect x="75" y="5" width="20" height="20" fill="black" />
-        <rect x="5" y="75" width="20" height="20" fill="black" />
-        {Array.from({ length: 30 }).map((_, i) => (
-          <rect
-            key={i}
-            x={35 + (i % 5) * 12}
-            y={35 + Math.floor(i / 5) * 12}
-            width="8"
-            height="8"
-            fill={Math.random() > 0.5 ? "black" : "white"}
-          />
-        ))}
-      </svg>
-    );
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -346,6 +335,18 @@ export default function MyTicketsPage() {
 
                       {/* Content */}
                       <CardContent className="p-4 space-y-4">
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                          <div>
+                            <p className="font-semibold text-gray-900">{ticket.ticketId}</p>
+                            {ticket.ticketRawId && (
+                              <p className="text-xs">Mã vé gốc: {ticket.ticketRawId}</p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p>Đặt lúc {ticket.bookingDate}</p>
+                          </div>
+                        </div>
+
                         {/* Route */}
                         <div className="flex items-center justify-between">
                           <div>
@@ -407,17 +408,73 @@ export default function MyTicketsPage() {
                             </div>
 
                             {/* QR Code */}
-                            <div className="flex justify-center pt-2">
-                              {generateQRCode()}
+                            <div className="flex flex-col items-center gap-2 pt-2">
+                              {ticket.ticketRawId ? (
+                                <img
+                                  src={getTicketQrUrl(ticket.ticketRawId)}
+                                  alt="QR Code"
+                                  className="h-24 w-24 rounded border"
+                                />
+                              ) : (
+                                <div className="text-sm text-muted-foreground">
+                                  Không có mã QR khả dụng
+                                </div>
+                              )}
+                              {ticket.ticketRawId && (
+                                <p className="text-xs text-muted-foreground text-center">
+                                  Quét mã để kiểm tra vé
+                                </p>
+                              )}
                             </div>
 
                             {/* Actions */}
                             <div className="flex gap-2 pt-2">
-                              <Button variant="outline" className="flex-1 gap-2" size="sm">
+                              <Button 
+                                variant="outline" 
+                                className="flex-1 gap-2" 
+                                size="sm"
+                                onClick={async () => {
+                                  try {
+                                    // Get QR code data URL if available
+                                    let qrCodeDataUrl: string | undefined;
+                                    if (ticket.ticketRawId) {
+                                      const qrUrl = getTicketQrUrl(ticket.ticketRawId);
+                                      // Convert QR URL to data URL for embedding
+                                      const response = await fetch(qrUrl);
+                                      const blob = await response.blob();
+                                      qrCodeDataUrl = await new Promise<string>((resolve) => {
+                                        const reader = new FileReader();
+                                        reader.onloadend = () => resolve(reader.result as string);
+                                        reader.readAsDataURL(blob);
+                                      });
+                                    }
+
+                                    await generateTicketPDF({
+                                      ticketId: ticket.ticketId,
+                                      trainNumber: ticket.trainNumber,
+                                      passengerName: ticket.passengerName,
+                                      route: `${ticket.origin} → ${ticket.destination}`,
+                                      departureDate: ticket.departureDate,
+                                      departureTime: ticket.departureTime,
+                                      seatNumber: ticket.seatNumber,
+                                      price: ticket.totalPrice,
+                                      qrCodeDataUrl,
+                                    });
+                                  } catch (error) {
+                                    console.error('Failed to generate PDF:', error);
+                                    alert('Không thể tải vé. Vui lòng thử lại.');
+                                  }
+                                }}
+                              >
                                 <Download className="h-4 w-4" />
                                 Tải
                               </Button>
-                              <Button variant="outline" className="flex-1 gap-2" size="sm">
+                              <Button 
+                                variant="outline" 
+                                className="flex-1 gap-2" 
+                                size="sm"
+                                onClick={() => setSelectedTicket(ticket)}
+                              >
                                 <Eye className="h-4 w-4" />
                                 Chi tiết
                               </Button>
@@ -433,6 +490,181 @@ export default function MyTicketsPage() {
           ))}
         </Tabs>
       </div>
+
+      {/* Ticket Detail Modal */}
+      {selectedTicket && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedTicket(null)}
+        >
+          <div 
+            className="bg-background rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-primary/10 to-primary/5 border-b p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold mb-2">Chi tiết vé</h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-semibold">{selectedTicket.ticketId}</span>
+                    <span
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+                        selectedTicket.status === "upcoming"
+                          ? "bg-success/10 text-success"
+                          : selectedTicket.status === "completed"
+                            ? "bg-muted text-muted-foreground"
+                            : "bg-destructive/10 text-destructive"
+                      }`}
+                    >
+                      {selectedTicket.status === "upcoming" && "Sắp tới"}
+                      {selectedTicket.status === "completed" && "Hoàn thành"}
+                      {selectedTicket.status === "cancelled" && "Đã hủy"}
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSelectedTicket(null)}
+                  className="shrink-0"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </Button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* QR Code */}
+              <div className="flex flex-col items-center gap-3 py-4">
+                {selectedTicket.ticketRawId ? (
+                  <>
+                    <img
+                      src={getTicketQrUrl(selectedTicket.ticketRawId)}
+                      alt="QR Code"
+                      className="h-48 w-48 rounded border-2"
+                    />
+                    <p className="text-sm text-muted-foreground text-center">
+                      Quét mã này tại ga để kiểm tra vé
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Mã vé: {selectedTicket.ticketRawId}
+                    </p>
+                  </>
+                ) : (
+                  <div className="text-center text-muted-foreground">
+                    <AlertCircle className="h-12 w-12 mx-auto mb-2" />
+                    <p>Không có mã QR khả dụng</p>
+                  </div>
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Trip Information */}
+              <div>
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Train className="h-5 w-5 text-primary" />
+                  Thông tin chuyến đi
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Tàu</p>
+                    <p className="font-semibold">{selectedTicket.trainNumber}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Số ghế</p>
+                    <p className="font-semibold">{selectedTicket.seatNumber}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <div className="flex items-center justify-between bg-muted/50 p-4 rounded-lg">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Ga đi</p>
+                        <p className="font-bold text-lg">{selectedTicket.origin}</p>
+                      </div>
+                      <ArrowRight className="h-6 w-6 text-primary" />
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground mb-1">Ga đến</p>
+                        <p className="font-bold text-lg">{selectedTicket.destination}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      Ngày khởi hành
+                    </p>
+                    <p className="font-semibold">{selectedTicket.departureDate}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      Giờ khởi hành
+                    </p>
+                    <p className="font-semibold">{selectedTicket.departureTime}</p>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Passenger Information */}
+              <div>
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <User className="h-5 w-5 text-primary" />
+                  Thông tin hành khách
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Họ và tên</p>
+                    <p className="font-semibold text-lg">{selectedTicket.passengerName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Ngày đặt vé</p>
+                    <p className="font-semibold">{selectedTicket.bookingDate}</p>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Price Information */}
+              <div>
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-primary" />
+                  Thông tin thanh toán
+                </h3>
+                <div className="bg-primary/5 p-4 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Tổng tiền</span>
+                    <span className="text-2xl font-bold text-primary">
+                      {formatPrice(selectedTicket.totalPrice)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <Button variant="outline" className="flex-1 gap-2">
+                  <Download className="h-4 w-4" />
+                  Tải vé
+                </Button>
+                <Button 
+                  variant="default" 
+                  className="flex-1"
+                  onClick={() => setSelectedTicket(null)}
+                >
+                  Đóng
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { apiFetch } from './config';
+import { apiFetch, API_CONFIG } from './config';
 import { TicketEntity as TicketDto, TicketStatus, parseTicketStatus, type SeatDto, type TicketTypeDto } from '@/types';
 import { SEAT_TYPE_LABELS } from '@/types/seat';
 
@@ -100,4 +100,8 @@ export function getSeatNumber(ticket: TicketDto): string {
  */
 export function getSeatPrice(ticket: TicketDto): number {
   return ticket.seat?.price || 0;
+}
+
+export function getTicketQrUrl(id: string): string {
+  return `${API_CONFIG.BASE_URL}${API_CONFIG.API_ROOT}${BASE}/${id}/qrcode`;
 }

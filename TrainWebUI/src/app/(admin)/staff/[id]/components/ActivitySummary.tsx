@@ -39,8 +39,8 @@ export function ActivitySummary() {
               <p className="text-sm text-muted-foreground">Hoạt động</p>
               <p className="text-xl font-bold text-foreground mt-1">0</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
-              <Activity className="h-6 w-6 text-purple-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <Activity className="h-6 w-6 text-primary" />
             </div>
           </div>
         </CardContent>

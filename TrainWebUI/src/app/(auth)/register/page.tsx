@@ -89,7 +89,7 @@ export default function RegisterPage() {
           <div className="text-center py-8 px-6 bg-background">
             <H1 className="mb-2">Đăng ký</H1>
             <Body className="text-muted-foreground">
-              Tạo tài khoản TrainBooking mới
+              Tạo tài khoản GoRail mới
             </Body>
           </div>
 

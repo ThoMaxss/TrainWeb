@@ -47,7 +47,7 @@ function getStatusBadge(status: TicketStatus) {
 export function RecentScansTable({ scans }: RecentScansTableProps) {
   if (scans.length === 0) {
     return (
-      <Card className="p-8 text-center border-2 border-dashed border-border/50">
+      <Card className="p-4 text-center border-2 border-dashed border-border/50">
         <div className="flex flex-col items-center gap-3 text-muted-foreground">
           <Clock className="h-12 w-12 opacity-30" />
           <p className="text-sm">Chưa có lịch sử quét vé</p>

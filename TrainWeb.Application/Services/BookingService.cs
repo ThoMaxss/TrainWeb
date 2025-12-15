@@ -12,17 +12,20 @@ namespace TrainWeb.Application.Services
         private IBookingRepository BookingRepository { get; }
         private UserService UserService { get; }
         private TicketService TicketService { get; }
+        private SeatService SeatService { get; }
         private IPaymentRepository PaymentRepository { get; }
 
         public BookingService(
             IBookingRepository bookingRepository, 
             UserService userService, 
-            TicketService ticketService, 
+            TicketService ticketService,
+            SeatService seatService,
             IPaymentRepository paymentRepository)
         {
             BookingRepository = bookingRepository;
             UserService = userService;
             TicketService = ticketService;
+            SeatService = seatService;
             PaymentRepository = paymentRepository;
         }
 
@@ -78,6 +81,39 @@ namespace TrainWeb.Application.Services
             var ticket = booking.Ticket?.Id != null
                 ? await TicketService.GetById(booking.Ticket.Id)
                 : null;
+
+            // Check if seat is already booked
+            if (ticket?.Seat?.Id != null)
+            {
+                // Check if seat is available
+                var seat = await SeatService.GetById(ticket.Seat.Id);
+                if (seat?.IsAvailable == false)
+                {
+                    throw new BadRequestException("Ghế này không còn khả dụng. Vui lòng chọn ghế khác.");
+                }
+
+                // Check all bookings to see if this seat is already taken
+                var allBookings = await BookingRepository.GetAllAsync();
+                foreach (var existingBooking in allBookings)
+                {
+                    if (existingBooking.Status == BookingStatus.Reserved || 
+                        existingBooking.Status == BookingStatus.Paid)
+                    {
+                        if (existingBooking.TicketId != null)
+                        {
+                            var existingTicket = await TicketService.GetById(existingBooking.TicketId);
+                            if (existingTicket?.Seat?.Id == ticket.Seat.Id)
+                            {
+                                throw new BadRequestException("Ghế này đã được đặt. Vui lòng chọn ghế khác.");
+                            }
+                        }
+                    }
+                }
+
+                // Mark seat as unavailable
+                await SeatService.MarkSeatAsUnavailable(ticket.Seat.Id);
+            }
+
             booking.Price = ticket?.Seat?.Price - ticket?.TicketType?.Discount;
             booking.Status = BookingStatus.Reserved;
             var bookingEntity = BookingEntity.FromDomain(booking);
@@ -131,6 +167,17 @@ namespace TrainWeb.Application.Services
             {
                 throw new NotFoundException("Booking Not Found");
             }
+
+            // Release the seat
+            if (bookingEntity.TicketId != null)
+            {
+                var ticket = await TicketService.GetById(bookingEntity.TicketId);
+                if (ticket?.Seat?.Id != null)
+                {
+                    await SeatService.MarkSeatAsAvailable(ticket.Seat.Id);
+                }
+            }
+
             bookingEntity.Status = BookingStatus.Cancelled;
             await BookingRepository.UpdateAsync(id, bookingEntity);
 

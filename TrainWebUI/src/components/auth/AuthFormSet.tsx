@@ -56,10 +56,11 @@ export default function AuthFormSet() {
         else if (authResponse.role === 1) mappedRole = UserRole.Staff;
         else mappedRole = UserRole.Passenger;
       }
+      const email = authResponse.email || loginData.email;
       const userDto = {
-        id: authResponse.id || loginData.email,
-        email: authResponse.email || loginData.email,
-        name: authResponse.name || authResponse.email?.split('@')[0] || 'User',
+        id: email,
+        email,
+        name: email.split('@')[0] || 'User',
         role: mappedRole,
         createdAt: new Date().toISOString(),
         token: authResponse.token,
@@ -144,11 +145,11 @@ export default function AuthFormSet() {
           
           {/* Header */}
           <div className="text-center py-8 px-6 bg-background">
-            <Display className="mb-2">Welcome to TrainBooking</Display>
+            <Display className="mb-2">Welcome to GoRail</Display>
             <Body className="text-muted-foreground">
               {activeTab === 'login' 
                 ? 'Trải nghiệm đặt vé tàu dễ dàng.' 
-                : 'Đăng ký TrainBooking để đặt vé tàu ngay hôm nay.'
+                : 'Đăng ký GoRail để đặt vé tàu ngay hôm nay.'
               }
             </Body>
           </div>

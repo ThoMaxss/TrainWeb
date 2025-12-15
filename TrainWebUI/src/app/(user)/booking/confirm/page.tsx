@@ -3,8 +3,12 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/components/auth/AuthContext"
 import { getTripById } from "@/lib/api/trip"
 import { getSeatsByTripId } from "@/lib/api/seat"
@@ -13,6 +17,19 @@ import { getAllTicketTypes } from "@/lib/api/ticketType"
 import { createBooking } from "@/lib/api/booking"
 import { SeatType, BookingStatus, TicketStatus, type TripDto, type BookingDto, type TicketEntity } from "@/types"
 import { SEAT_TYPE_LABELS } from "@/types/seat"
+import { 
+	Train, 
+	Calendar, 
+	Clock, 
+	MapPin, 
+	User, 
+	Phone, 
+	Mail, 
+	CreditCard,
+	AlertCircle,
+	ArrowRight,
+	Armchair
+} from "lucide-react"
 
 type PassengerFormData = {
 	fullName: string
@@ -44,6 +61,7 @@ export default function BookingConfirmPage() {
 	const [passengers, setPassengers] = useState<PassengerFormData[]>([])
 	const [loading, setLoading] = useState(true)
 	const [submitting, setSubmitting] = useState(false)
+	const [error, setError] = useState<string | null>(null)
 
 	const seatIdsKey = useMemo(() => seatIds.join(","), [seatIds])
 
@@ -59,9 +77,9 @@ export default function BookingConfirmPage() {
 				])
 				if (!mounted) return
 				setTripData(trip)
-				const seatsMap = new Map(allSeats?.map(s => [s.id, s]) || [])
+				const seatsMap = new Map(allSeats?.map((s: any) => [s.id, s]) || [])
 				const actualSeats: SelectedSeat[] = seatIds
-					.map(id => {
+					.map((id: string) => {
 						const s = seatsMap.get(id)
 						if (!s) return null
 						const typeLabel = (() => {
@@ -79,7 +97,7 @@ export default function BookingConfirmPage() {
 							seatType: typeLabel,
 						}
 					})
-					.filter((x): x is SelectedSeat => x !== null)
+					.filter((x: SelectedSeat | null): x is SelectedSeat => x !== null)
 
 				if (actualSeats.length === 0) throw new Error("Không tìm thấy ghế hợp lệ")
 				setSelectedSeats(actualSeats)
@@ -117,6 +135,7 @@ export default function BookingConfirmPage() {
 
 		try {
 			setSubmitting(true)
+			setError(null)
 			if (!tripData) throw new Error("Thiếu dữ liệu chuyến đi")
 
 			// 1) Lấy ticket type (dùng default nếu BE chưa có)
@@ -127,7 +146,7 @@ export default function BookingConfirmPage() {
 			const defaultTicketType = ticketTypes[0] || { id: 'default', name: 'Standard', discount: 0 }
 
 			// 2) Tạo Ticket cho từng ghế
-			const tickets = await Promise.all(selectedSeats.map(seat => {
+			const tickets = await Promise.all(selectedSeats.map(async seat => {
 				const payload: Partial<TicketEntity> = {
 					seat: {
 						id: seat.id,
@@ -142,11 +161,16 @@ export default function BookingConfirmPage() {
 					},
 					status: TicketStatus.Active,
 				}
-				return createTicket(payload as TicketEntity)
+				try {
+					return await createTicket(payload as TicketEntity)
+				} catch (ticketErr) {
+					console.error("Create ticket failed", ticketErr)
+					throw new Error("Không thể tạo vé, vui lòng thử lại")
+				}
 			}))
 
 			// 3) Tạo Booking tham chiếu ticket.id
-			const bookings = await Promise.all(tickets.map((t, idx) => {
+			const bookings = await Promise.all(tickets.map(async (t, idx) => {
 				if (!t?.id) throw new Error("Tạo vé thất bại")
 				const p = passengers[idx]
 				const bookingData: BookingDto = {
@@ -155,7 +179,20 @@ export default function BookingConfirmPage() {
 					status: BookingStatus.Reserved,
 					createdAt: new Date().toISOString(),
 				}
-				return createBooking(bookingData)
+				
+				// Optimistic UI: show success immediately
+				setSubmitting(false)
+				
+				try {
+					return await createBooking(bookingData)
+				} catch (bookingErr: any) {
+					console.error("Create booking failed", bookingErr)
+					// Check if it's a seat already booked error from backend
+					const errorMsg = bookingErr?.response?.data?.message || 
+					                 bookingErr?.message || 
+					                 "Không thể tạo đơn đặt vé"
+					throw new Error(errorMsg)
+				}
 			}))
 
 			const bookingIds = bookings.filter(b => b?.id).map(b => b!.id!)
@@ -171,9 +208,10 @@ export default function BookingConfirmPage() {
 			router.push(`/booking/payment?bookingId=${bookingIds.join(',')}`)
 		} catch (e) {
 			console.error(e)
-			alert("Không thể tạo đơn đặt vé, vui lòng thử lại")
-		} finally {
-			setSubmitting(false)
+			const message = e instanceof Error ? e.message : "Không thể tạo đơn đặt vé, vui lòng thử lại"
+			setError(message)
+			setSubmitting(false) // Re-enable button on error
+			alert(message)
 		}
 	}
 
@@ -196,64 +234,229 @@ export default function BookingConfirmPage() {
 	const totalPrice = selectedSeats.reduce((sum, s) => sum + s.price, 0)
 
 	return (
-		<div className="min-h-screen bg-background">
-			<div className="max-w-5xl mx-auto p-4 md:p-6">
-				<h1 className="text-2xl font-semibold mb-2">Xác nhận thông tin hành khách</h1>
-				<p className="text-muted-foreground mb-6">Chuyến đi: {tripData.originStation ?? "—"} → {tripData.destinationStation ?? "—"}</p>
-
-				<Card className="p-4 mb-6">
-					<h2 className="font-medium mb-3">Ghế đã chọn</h2>
-					<div className="space-y-2">
-						{selectedSeats.map((s, idx) => (
-							<div key={s.id} className="flex items-center justify-between">
-								<div>
-									<span className="font-medium">Ghế {s.seatNumber}</span>
-									<span className="text-muted-foreground ml-2">{s.seatType}</span>
-								</div>
-								<div className="font-medium">{s.price.toLocaleString()}₫</div>
-							</div>
-						))}
-					</div>
-					<Separator className="my-3" />
+		<div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+			{/* Header Section */}
+			<div className="bg-background border-b">
+				<div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 					<div className="flex items-center justify-between">
-						<span className="font-medium">Tổng cộng</span>
-						<span className="font-semibold">{totalPrice.toLocaleString()}₫</span>
-					</div>
-				</Card>
-
-				<Card className="p-4 mb-6">
-					<h2 className="font-medium mb-3">Thông tin hành khách</h2>
-					<div className="space-y-3">
-						{passengers.map((p, idx) => (
-							<div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-3">
-								<input
-									className="border rounded px-3 py-2"
-									placeholder="Họ và tên"
-									value={p.fullName}
-									onChange={e => {
-										const next = [...passengers]; next[idx] = { ...p, fullName: e.target.value }; setPassengers(next)
-									}}
-								/>
-								<input
-									className="border rounded px-3 py-2"
-									placeholder="Số điện thoại"
-									value={p.phone}
-									onChange={e => { const next = [...passengers]; next[idx] = { ...p, phone: e.target.value }; setPassengers(next) }}
-								/>
-								<input
-									className="border rounded px-3 py-2"
-									placeholder="Email (tuỳ chọn)"
-									value={p.email}
-									onChange={e => { const next = [...passengers]; next[idx] = { ...p, email: e.target.value }; setPassengers(next) }}
-								/>
+						<div>
+							<h1 className="text-3xl font-bold mb-2">Xác nhận đặt vé</h1>
+							<div className="flex items-center gap-2 text-muted-foreground">
+								<MapPin className="h-4 w-4" />
+								<span className="font-medium">{tripData.originStation ?? "—"}</span>
+								<ArrowRight className="h-4 w-4" />
+								<span className="font-medium">{tripData.destinationStation ?? "—"}</span>
 							</div>
-						))}
+						</div>
+						<Button variant="ghost" onClick={() => router.back()}>
+							← Quay lại
+						</Button>
 					</div>
-				</Card>
+				</div>
+			</div>
 
-				<div className="flex gap-3">
-					<Button variant="outline" onClick={() => router.back()}>Quay lại</Button>
-					<Button onClick={handleContinue} disabled={submitting}>{submitting ? "Đang xử lý…" : "Tiếp tục thanh toán"}</Button>
+			<div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+				<div className="grid lg:grid-cols-3 gap-6">
+					{/* Left Column - Form */}
+					<div className="lg:col-span-2 space-y-6">
+						{/* Error Alert */}
+						{error && (
+							<Alert variant="destructive">
+								<AlertCircle className="h-4 w-4" />
+								<AlertTitle>Đặt vé thất bại</AlertTitle>
+								<AlertDescription>{error}</AlertDescription>
+							</Alert>
+						)}
+
+						{/* Trip Information Card */}
+						<Card>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<Train className="h-5 w-5 text-primary" />
+									Thông tin chuyến đi
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div className="grid grid-cols-2 gap-4">
+									<div className="flex items-start gap-3">
+										<Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+										<div>
+											<p className="text-sm text-muted-foreground">Ngày khởi hành</p>
+											<p className="font-semibold">
+												{tripData.departure ? new Date(tripData.departure).toLocaleDateString("vi-VN") : "—"}
+											</p>
+										</div>
+									</div>
+									<div className="flex items-start gap-3">
+										<Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+										<div>
+											<p className="text-sm text-muted-foreground">Giờ khởi hành</p>
+											<p className="font-semibold">
+												{tripData.departure ? new Date(tripData.departure).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "—"}
+											</p>
+										</div>
+									</div>
+								</div>
+								<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+									<Train className="h-5 w-5 text-primary" />
+									<div>
+										<p className="text-sm text-muted-foreground">Tàu</p>
+										<p className="font-semibold">{tripData.train?.name ?? "—"}</p>
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+
+						{/* Passenger Information Card */}
+						<Card>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<User className="h-5 w-5 text-primary" />
+									Thông tin hành khách
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-6">
+								{passengers.map((p, idx) => (
+									<div key={idx} className="space-y-4 p-4 border rounded-lg bg-muted/20">
+										<div className="flex items-center gap-2 mb-2">
+											<Badge variant="secondary">Ghế {selectedSeats[idx]?.seatNumber}</Badge>
+											<span className="text-sm text-muted-foreground">
+												{selectedSeats[idx]?.seatType}
+											</span>
+										</div>
+										<div className="grid gap-4">
+											<div className="space-y-2">
+												<Label htmlFor={`name-${idx}`} className="flex items-center gap-2">
+													<User className="h-4 w-4" />
+													Họ và tên <span className="text-destructive">*</span>
+												</Label>
+												<Input
+													id={`name-${idx}`}
+													placeholder="Nhập họ và tên"
+													value={p.fullName}
+													onChange={e => {
+														const next = [...passengers]
+														next[idx] = { ...p, fullName: e.target.value }
+														setPassengers(next)
+													}}
+													className="border-2"
+												/>
+											</div>
+											<div className="grid md:grid-cols-2 gap-4">
+												<div className="space-y-2">
+													<Label htmlFor={`phone-${idx}`} className="flex items-center gap-2">
+														<Phone className="h-4 w-4" />
+														Số điện thoại
+													</Label>
+													<Input
+														id={`phone-${idx}`}
+														placeholder="Nhập số điện thoại"
+														value={p.phone}
+														onChange={e => {
+															const next = [...passengers]
+															next[idx] = { ...p, phone: e.target.value }
+															setPassengers(next)
+														}}
+													/>
+												</div>
+												<div className="space-y-2">
+													<Label htmlFor={`email-${idx}`} className="flex items-center gap-2">
+														<Mail className="h-4 w-4" />
+														Email (tùy chọn)
+													</Label>
+													<Input
+														id={`email-${idx}`}
+														type="email"
+														placeholder="Nhập email"
+														value={p.email}
+														onChange={e => {
+															const next = [...passengers]
+															next[idx] = { ...p, email: e.target.value }
+															setPassengers(next)
+														}}
+													/>
+												</div>
+											</div>
+										</div>
+									</div>
+								))}
+							</CardContent>
+						</Card>
+					</div>
+
+					{/* Right Column - Summary */}
+					<div className="lg:col-span-1">
+						<div className="sticky top-6 space-y-6">
+							{/* Selected Seats Card */}
+							<Card className="border-2">
+								<CardHeader className="bg-primary/5">
+									<CardTitle className="flex items-center gap-2 text-lg">
+										<Armchair className="h-5 w-5" />
+										Ghế đã chọn
+									</CardTitle>
+								</CardHeader>
+								<CardContent className="pt-6 space-y-3">
+									{selectedSeats.map((s, idx) => (
+										<div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+											<div className="flex items-center gap-3">
+												<div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+													<Armchair className="h-5 w-5 text-primary" />
+												</div>
+												<div>
+													<p className="font-semibold">Ghế {s.seatNumber}</p>
+													<p className="text-xs text-muted-foreground">{s.seatType}</p>
+												</div>
+											</div>
+											<div className="text-right">
+												<p className="font-semibold">{s.price.toLocaleString()}₫</p>
+											</div>
+										</div>
+									))}
+									<Separator className="my-4" />
+									<div className="flex items-center justify-between p-3 rounded-lg bg-primary/10">
+										<span className="font-semibold">Tổng cộng</span>
+										<span className="text-xl font-bold text-primary">{totalPrice.toLocaleString()}₫</span>
+									</div>
+								</CardContent>
+							</Card>
+
+							{/* Payment Button */}
+							<Button 
+								className="w-full h-12 text-base gap-2" 
+								onClick={handleContinue} 
+								disabled={submitting}
+								size="lg"
+							>
+								{submitting ? (
+									<>
+										<div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+										Đang xử lý...
+									</>
+								) : (
+									<>
+										<CreditCard className="h-5 w-5" />
+										Tiếp tục thanh toán
+									</>
+								)}
+							</Button>
+
+							{/* Note */}
+							<Card className="bg-muted/30">
+								<CardContent className="pt-6">
+									<div className="flex gap-3">
+										<AlertCircle className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+										<div className="text-sm text-muted-foreground space-y-1">
+											<p className="font-medium text-foreground">Lưu ý:</p>
+											<ul className="list-disc list-inside space-y-1">
+												<li>Vui lòng kiểm tra kỹ thông tin trước khi thanh toán</li>
+												<li>Họ tên phải trùng với giấy tờ tùy thân</li>
+											</ul>
+										</div>
+									</div>
+								</CardContent>
+							</Card>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

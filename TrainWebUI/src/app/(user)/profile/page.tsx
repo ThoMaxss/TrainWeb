@@ -8,6 +8,7 @@ import { SettingsCard } from "./components/SettingsCard";
 import { QuickLinksCard } from "./components/QuickLinksCard";
 import { LogoutCard } from "./components/LogoutCard";
 import { getUserById, updateUser } from "@/lib/api/user";
+import { getCurrentUserId } from "@/lib/utils/auth";
 import { UserDto } from "@/types";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -131,9 +132,8 @@ export default function UserProfilePage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("authToken");
-    router.push("/login");
+    // Use centralized logout route
+    router.push("/logout");
   };
 
   const getInitials = (name: string) =>
@@ -206,7 +206,7 @@ export default function UserProfilePage() {
               getInitials={getInitials}
             />
 
-            <PersonalInfoCard profile={profile} onSave={handleSaveProfile} isSaving={saving} />
+            <PersonalInfoCard profile={profile} onEdit={() => {}} />
 
             <SettingsCard
               language={language}

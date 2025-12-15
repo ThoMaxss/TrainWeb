@@ -95,7 +95,7 @@ export default function TrainDetailPage({ params }: TrainDetailPageProps) {
       .catch((error) => {
         if (!mounted) return;
         console.error('API Error:', error);
-        setError("Không thể tải dữ liệu từ server. Vui lòng kiểm tra backend đang chạy ở http://localhost:5191");
+        setError("Không thể tải dữ liệu từ server. Vui lòng kiểm tra backend đang chạy ở https://localhost:7128");
         setTrain(null);
         setTrip(null);
         setSeats([]);

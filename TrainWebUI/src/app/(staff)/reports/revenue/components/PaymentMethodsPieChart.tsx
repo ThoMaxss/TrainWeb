@@ -20,7 +20,7 @@ const PIE_COLORS = LIB_PIE_COLORS;
 export function PaymentMethodsPieChart({ data }: PaymentMethodsChartProps) {
   return (
     <Card className="border-0 bg-background/80 backdrop-blur-sm shadow-xl shadow-primary/10">
-      <div className="p-2">
+      <div className="p-4">
         <div className="mb-3">
           <h3 className="text-lg font-bold text-foreground">Phương thức thanh toán</h3>
           <p className="text-sm text-muted-foreground font-medium">Phân bổ theo giá trị</p>
@@ -42,7 +42,7 @@ export function PaymentMethodsPieChart({ data }: PaymentMethodsChartProps) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: "white",
+                backgroundColor: "var(--color-card)",
                 border: `1px solid var(--color-border)`,
                 borderRadius: "8px",
               }}

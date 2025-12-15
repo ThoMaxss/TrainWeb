@@ -108,7 +108,7 @@ export function RevenueChart({
                 border: `1px solid var(--color-border)`,
                 borderRadius: "8px",
                 fontSize: "14px",
-                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                // boxShadow removed to comply with no hardcoded colors
               }}
               formatter={(value: number, name: string) => [
                 name === "revenue" ? formatCurrency(value * 1000) : value,

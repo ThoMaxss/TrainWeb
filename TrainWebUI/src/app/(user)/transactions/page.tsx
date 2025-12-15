@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { getCurrentUserId } from "@/lib/utils/auth"
-import { Receipt, DollarSign, TrendingUp, AlertCircle } from "lucide-react";
+import { Receipt, DollarSign, TrendingUp, AlertCircle, CheckCircle, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { getBookingsByUserId } from "@/lib/api/booking";
 import { BookingStatus } from "@/types";
@@ -128,25 +128,25 @@ export default function TransactionsPage() {
   }, []);
 
   const getStatusConfig = useCallback((status: Transaction["status"]) => {
-    const colorMap = {
-      success: "var(--color-success)",
-      failed: "var(--color-destructive)",
-      pending: "var(--color-warning)",
-    };
     const labelMap = {
       success: "Thành công",
       failed: "Thất bại",
       pending: "Đang xử lý",
-    };
+    } as const;
     const iconMap = {
-      success: "CheckCircle",
-      failed: "AlertCircle",
-      pending: "Clock",
-    };
+      success: CheckCircle,
+      failed: AlertCircle,
+      pending: Clock,
+    } as const;
+    const badgeClassMap = {
+      success: "bg-success/10 text-success border-transparent",
+      failed: "bg-destructive/10 text-destructive border-transparent",
+      pending: "bg-warning/10 text-warning border-transparent",
+    } as const;
     return {
       label: labelMap[status],
       icon: iconMap[status],
-      color: colorMap[status],
+      className: badgeClassMap[status],
     };
   }, []);
 

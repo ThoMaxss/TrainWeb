@@ -297,10 +297,10 @@ export default function ManageTicketPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-muted to-primary/5">
+    <div className="min-h-screen bg-background">
       {/* Ticket Management Info Section - Converted from sticky header */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-sm">
-        <div className="container mx-auto px-2 lg:px-2">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex h-16 items-center justify-between">
             {/* Back Button + Title */}
             <div className="flex items-center gap-3">
@@ -333,12 +333,12 @@ export default function ManageTicketPage() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-2 lg:px-2 py-5">
+      <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Search and Filters */}
-        <Card className="mb-3 border-0 bg-background shadow-md">
-          <div className="p-2">
+        <Card className="border-0 bg-background shadow-md">
+          <div className="p-4">
             {/* Search Bar */}
-            <div className="relative mb-3">
+            <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Nhập mã vé, tên hành khách, hoặc tuyến..."
@@ -404,7 +404,7 @@ export default function ManageTicketPage() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-slate-50 hover:bg-slate-50">
+                  <TableRow className="bg-muted hover:bg-muted">
                     <TableHead className="font-medium">Mã vé</TableHead>
                     <TableHead className="font-medium">Chuyến tàu</TableHead>
                     <TableHead className="font-medium">Hành khách</TableHead>
@@ -548,7 +548,7 @@ export default function ManageTicketPage() {
 
               {/* QR Code */}
               <div className="mb-3 flex justify-center">
-                <div className="rounded-xl border-2 border-dashed border-border bg-background p-2">
+                <div className="rounded-xl border-2 border-dashed border-border bg-background p-4">
                   <div className="h-48 w-48 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg flex items-center justify-center">
                     <div className="text-center">
                       <Train className="h-12 w-12 mx-auto mb-2 text-primary" />
@@ -568,7 +568,7 @@ export default function ManageTicketPage() {
 
               {/* Train Info */}
               <Card className="mb-3 border-2 border-primary/50 bg-primary/10">
-                <div className="p-2">
+                <div className="p-4">
                   <div className="mb-3 flex items-center gap-2">
                     <Train className="h-5 w-5 text-primary" />
                     <h3 className="text-foreground">Thông tin chuyến tàu</h3>
@@ -622,7 +622,7 @@ export default function ManageTicketPage() {
 
               {/* Passenger Info */}
               <Card className="mb-3 border-2 border-secondary/20 bg-secondary/10">
-                <div className="p-2">
+                <div className="p-4">
                   <div className="mb-3 flex items-center gap-2">
                     <User className="h-5 w-5 text-secondary" />
                     <h3 className="text-foreground">Thông tin hành khách</h3>
@@ -658,7 +658,7 @@ export default function ManageTicketPage() {
 
               {/* Ticket Info */}
               <Card className="mb-3 border-2 border-success/20 bg-success/10">
-                <div className="p-2">
+                <div className="p-4">
                   <div className="mb-3 flex items-center gap-2">
                     <MapPin className="h-5 w-5 text-success" />
                     <h3 className="text-foreground">Thông tin vé</h3>
@@ -692,7 +692,7 @@ export default function ManageTicketPage() {
 
               {/* Payment Info */}
               <Card className="mb-3 border-2 border-accent/20 bg-accent/10">
-                <div className="p-2">
+                <div className="p-4">
                   <div className="mb-3 flex items-center gap-2">
                     <CreditCard className="h-5 w-5 text-accent" />
                     <h3 className="text-foreground">Thông tin thanh toán</h3>
@@ -730,7 +730,7 @@ export default function ManageTicketPage() {
 
               {/* Policy */}
               <Card className="mb-3 border-2 border-border bg-card">
-                <div className="p-2">
+                <div className="p-4">
                   <div className="mb-3 flex items-center gap-2">
                     <AlertCircle className="h-5 w-5 text-muted-foreground" />
                     <h3 className="text-foreground">Chính sách vé</h3>

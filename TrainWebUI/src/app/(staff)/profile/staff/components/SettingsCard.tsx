@@ -119,7 +119,7 @@ export function SettingsCard({
                 </div>
                 <div
                   className={`w-12 h-6 rounded-full transition-colors ${
-                    notificationsEnabled ? "bg-success" : "bg-gray-300"
+                    notificationsEnabled ? "bg-success" : "bg-muted"
                   }`}
                 >
                   <div

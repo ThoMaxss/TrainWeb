@@ -340,10 +340,10 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-gradient-to-br from-slate-50 via-primary/10 to-primary/20 dark:from-slate-900 dark:via-primary-950 dark:to-primary-900">
+    <div className="flex min-h-screen flex-col bg-gradient-to-br from-primary/5 via-background to-background">
       {/* Main Content */}
       <ScrollArea className="flex-1">
-        <div className="p-4 lg:p-8 space-y-8">
+        <div className="mx-auto max-w-7xl p-4 lg:p-8 space-y-8">
           <AdminPageHeader
             title="Admin Dashboard"
             description="Overview and key metrics"
@@ -700,7 +700,7 @@ export default function AdminDashboardPage() {
                   {staffMembers.map((staff) => (
                     <div
                       key={staff.id}
-                      className="rounded-lg border bg-gradient-to-r from-gray-50 to-white p-4 hover:shadow-md transition-shadow"
+                      className="rounded-lg border bg-gradient-to-r from-muted/40 via-background to-background p-4 hover:shadow-md transition-shadow"
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">

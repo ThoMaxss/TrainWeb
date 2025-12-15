@@ -25,7 +25,7 @@ export function RevenueKPICards({ data }: RevenueKPICardsProps) {
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {/* Total Revenue */}
       <Card className="border-0 bg-gradient-to-br from-success/5 via-success/10 to-success/20 shadow-xl shadow-success/10 hover:shadow-2xl hover:shadow-success/20 transition-all duration-300">
-        <div className="p-2">
+        <div className="p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-success to-success/80 shadow-lg shadow-success/40">
               <DollarSign className="h-6 w-6 text-primary-foreground" />
@@ -54,7 +54,7 @@ export function RevenueKPICards({ data }: RevenueKPICardsProps) {
 
       {/* Tickets Sold */}
       <Card className="border-0 bg-gradient-to-br from-primary/5 via-primary/10 to-secondary/5 shadow-xl shadow-primary/10 hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300">
-        <div className="p-2">
+        <div className="p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 shadow-lg shadow-primary/40">
               <Ticket className="h-6 w-6 text-primary-foreground" />
@@ -81,7 +81,7 @@ export function RevenueKPICards({ data }: RevenueKPICardsProps) {
 
       {/* Refunds */}
       <Card className="border-0 bg-gradient-to-br from-warning/5 via-accent/10 to-warning/20 shadow-xl shadow-warning/10 hover:shadow-2xl hover:shadow-warning/20 transition-all duration-300">
-        <div className="p-2">
+        <div className="p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-warning to-accent/60 shadow-lg shadow-warning/40">
               <RefreshCw className="h-6 w-6 text-primary-foreground" />
@@ -108,7 +108,7 @@ export function RevenueKPICards({ data }: RevenueKPICardsProps) {
 
       {/* Failed Transactions */}
       <Card className="border-0 bg-gradient-to-br from-destructive/5 via-destructive/10 to-destructive/20 shadow-xl shadow-destructive/10 hover:shadow-2xl hover:shadow-destructive/20 transition-all duration-300">
-        <div className="p-2">
+        <div className="p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-destructive to-destructive/60 shadow-lg shadow-destructive/40">
               <XCircle className="h-6 w-6 text-primary-foreground" />

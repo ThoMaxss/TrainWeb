@@ -52,7 +52,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Initialize auth state from localStorage or session
     const initAuth = async () => {
       try {
-        const storedUser = localStorage.getItem('train_booking_user');
+        // In development, optionally disable auto-login restoration
+        const disableAutoLogin = process.env.NODE_ENV === 'development';
+        if (disableAutoLogin) {
+          setAuthState(prev => ({ ...prev, isLoading: false }));
+          return;
+        }
+
+        const storedUser = localStorage.getItem('gorail_user');
         if (storedUser) {
           const loaded = JSON.parse(storedUser) as UserDto;
           const normalizedRole = normalizeUserRole(loaded.role ?? null);
@@ -80,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const normalizedRole = normalizeUserRole(user.role ?? null);
     const normalizedUser: UserDto = { ...user, role: normalizedRole ?? undefined };
     // Persist token if available on the user object
-    localStorage.setItem('train_booking_user', JSON.stringify(normalizedUser));
+    localStorage.setItem('gorail_user', JSON.stringify(normalizedUser));
     setAuthState({
       user: normalizedUser,
       isLoading: false,
@@ -90,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('train_booking_user');
+    localStorage.removeItem('gorail_user');
     localStorage.removeItem('userId'); // Also remove userId for backward compatibility
     setAuthState({
       user: null,

@@ -59,7 +59,7 @@ export function CustomerFeedback({ feedbackList, onNavigate }: CustomerFeedbackP
           {feedbackList.map((feedback) => (
             <div
               key={feedback.id}
-              className="rounded-lg border-2 border-border p-2 transition-all hover:border-warning/30 hover:bg-warning/10 cursor-pointer"
+              className="rounded-lg border-2 border-border p-4 transition-all hover:border-warning/30 hover:bg-warning/10 cursor-pointer"
               onClick={() => onNavigate(`/feedback/${feedback.id}`)}
             >
               <div className="flex items-start justify-between mb-3">

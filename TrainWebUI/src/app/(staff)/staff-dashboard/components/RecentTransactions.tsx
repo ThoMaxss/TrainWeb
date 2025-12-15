@@ -65,7 +65,7 @@ export function RecentTransactions({ transactions, onNavigate, formatCurrency }:
           {transactions.map((txn) => (
             <div
               key={txn.id}
-              className="rounded-lg border border-border p-2 transition-all hover:border-primary hover:bg-primary/10 cursor-pointer"
+              className="rounded-lg border border-border p-4 transition-all hover:border-primary hover:bg-primary/10 cursor-pointer"
               onClick={() => onNavigate(`/transactions/${txn.id}`)}
             >
               <div className="flex items-start justify-between mb-2">

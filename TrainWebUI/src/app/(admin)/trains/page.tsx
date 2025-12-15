@@ -147,7 +147,7 @@ export default function AdminTrainsPage() {
         }
       />
 
-      <div className="container mx-auto px-2 py-5 max-w-7xl space-y-6">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 space-y-6">
         <TrainStats totalTrains={totalTrains} />
 
         <TrainFilters

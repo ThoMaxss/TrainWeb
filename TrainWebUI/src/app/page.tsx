@@ -116,10 +116,10 @@ export default function HomePage() {
           >
             <H2 className="text-2xl font-bold mb-4">Dịch vụ đặt vé tàu hiện đại</H2>
             <Body className="text-lg text-muted-foreground mb-4">
-              Hoạt động như một dịch vụ đặt vé độc lập, TrainBook kết nối với Đường sắt Việt Nam (VNR) để mở rộng phạm vi toàn quốc.
+              Hoạt động như một dịch vụ đặt vé độc lập, GoRail kết nối với Đường sắt Việt Nam (VNR) để mở rộng phạm vi toàn quốc.
             </Body>
             <Body className="text-lg text-muted-foreground">
-              Bên cạnh tính năng đặt vé, TrainBook còn hỗ trợ chọn chỗ ngồi chi tiết và thanh toán bảo mật với nhiều phương thức.
+              Bên cạnh tính năng đặt vé, GoRail còn hỗ trợ chọn chỗ ngồi chi tiết và thanh toán bảo mật với nhiều phương thức.
             </Body>
           </motion.div>
           <motion.div
@@ -363,7 +363,7 @@ export default function HomePage() {
       <section className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-20 text-center">
         <Display className="mb-6">Bắt đầu hành trình của bạn</Display>
         <Lead className="max-w-2xl mx-auto mb-8">
-          Tìm kiếm và đặt vé tàu hỏa với giá tốt nhất trên TrainBook ngay hôm nay
+          Tìm kiếm và đặt vé tàu hỏa với giá tốt nhất trên GoRail ngay hôm nay
         </Lead>
         <Button asChild size="lg" className="rounded-xl min-w-[200px]">
           <Link href="/search">Tìm kiếm vé tàu</Link>
@@ -375,7 +375,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <div>
-              <H3 className="font-bold mb-4">TrainBook Vietnam</H3>
+              <H3 className="font-bold mb-4">GoRail Vietnam</H3>
               <Body className="text-sm text-muted-foreground">
                 285 Cách Mạng Tháng Tám, Quận 10, TP. Hồ Chí Minh 700000
               </Body>
@@ -384,7 +384,7 @@ export default function HomePage() {
               <H3 className="font-bold mb-4">Liên hệ</H3>
               <Body className="text-sm text-muted-foreground mb-2">📍 285 CMT8, Quận 10, TP.HCM</Body>
               <Body className="text-sm text-muted-foreground mb-2">📞 +84 28 3920 1234</Body>
-              <Body className="text-sm text-muted-foreground">✉️ support@trainbook.vn</Body>
+              <Body className="text-sm text-muted-foreground">✉️ support@gorail.vn</Body>
             </div>
             <div>
               <H3 className="font-bold mb-4">Theo dõi chúng tôi</H3>
@@ -405,7 +405,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t pt-8 text-center text-sm text-muted-foreground">
-            <p>© {new Date().getFullYear()} TrainBook Vietnam. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} GoRail Vietnam. All rights reserved.</p>
           </div>
         </div>
       </footer>

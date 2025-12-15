@@ -18,7 +18,7 @@ const COLORS = { primary: "var(--color-primary)" };
 export function RouteRevenueBarChart({ data }: RouteRevenueChartProps) {
   return (
     <Card className="border-0 bg-background/80 backdrop-blur-sm shadow-xl shadow-primary/10">
-      <div className="p-2">
+      <div className="p-4">
         <div className="mb-3 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-foreground">Doanh thu theo tuyến</h3>
@@ -38,7 +38,7 @@ export function RouteRevenueBarChart({ data }: RouteRevenueChartProps) {
             <YAxis type="category" dataKey="route" stroke="var(--color-muted-foreground)" fontSize={12} tickLine={false} width={150} />
             <Tooltip
               contentStyle={{
-                backgroundColor: "white",
+                backgroundColor: "var(--color-card)",
                 border: `1px solid var(--color-border)`,
                 borderRadius: "8px",
               }}

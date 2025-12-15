@@ -30,7 +30,7 @@ export function UserTable({ users, loading, onEditUser, onDeleteUser }: UserTabl
       case UserRole.Passenger:
         return "bg-primary/10 text-primary dark:bg-primary-900/30 dark:text-primary/30";
       default:
-        return "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300";
+        return "bg-muted text-muted-foreground";
     }
   };
 

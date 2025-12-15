@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { NotificationBell } from "@/components/shared/NotificationBell";
 import { H3 } from "@/components/ui/typography";
 import { Train, Menu, X, Search, LogOut } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
@@ -68,12 +69,12 @@ export function Header() {
         <Link
           href="/"
           className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0"
-          aria-label="TrainBook - Home"
+          aria-label="GoRail - Home"
         >
           <div className="flex h-9 w-9 lg:h-10 lg:w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary">
             <Train className="h-5 w-5 lg:h-6 lg:w-6 text-primary-foreground" />
           </div>
-          <H3 className="hidden sm:block text-base lg:text-lg">TrainBook</H3>
+          <H3 className="hidden sm:block text-base lg:text-lg">GoRail</H3>
         </Link>
 
         <nav className="hidden lg:flex items-center justify-center gap-2 flex-1 max-w-2xl mx-auto" role="navigation">
@@ -114,6 +115,8 @@ export function Header() {
           </Button>
 
           <ThemeToggle variant="simple" />
+          
+          {isAuthenticated && <NotificationBell />}
 
           {isAuthenticated && user ? (
             <div className="hidden lg:block relative">
@@ -169,7 +172,7 @@ export function Header() {
                       className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors w-full text-left text-destructive"
                     >
                       <LogOut className="h-4 w-4" />
-                      Sign out
+                      Đăng xuất
                     </button>
                   </div>
                 </>
@@ -179,12 +182,12 @@ export function Header() {
             <div className="hidden lg:flex items-center gap-3">
               <Link href="/login">
                 <Button variant="ghost" size="sm" className="px-6">
-                  Sign in
+                  Đăng nhập
                 </Button>
               </Link>
               <Link href="/register">
                 <Button size="sm" className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-6">
-                  Sign up
+                  Đăng ký
                 </Button>
               </Link>
             </div>
@@ -248,7 +251,7 @@ export function Header() {
               <div className="flex gap-2">
                 <Link href={getProfileUrl} className="flex-1" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="outline" size="sm" className="w-full">
-                    Profile
+                    Hồ sơ
                   </Button>
                 </Link>
                 <Button
@@ -268,12 +271,12 @@ export function Header() {
             <div className="mb-4 flex flex-col gap-2">
               <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="outline" size="sm" className="w-full justify-start">
-                  Sign in
+                  Đăng nhập
                 </Button>
               </Link>
               <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
                 <Button size="sm" className="w-full justify-start bg-gradient-to-r from-primary to-secondary">
-                  Sign up
+                  Đăng ký
                 </Button>
               </Link>
             </div>
