@@ -1,20 +1,28 @@
 ﻿using FirebaseAdmin.Auth;
+using System;
 using System.Threading.Tasks;
 
 namespace TrainWeb.Infrastructure.Services
 {
     public class FirebaseAuthService
     {
-        public async Task<FirebaseToken?> VerifyFirebaseTokenAsync(string idToken)
+        public async Task<string?> RegisterUserAsync(string email, string password)
         {
             try
             {
-                var decoded = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(idToken);
-                return decoded;
+                var userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(new UserRecordArgs()
+                {
+                    Email = email,
+                    Password = password
+                });
+
+                Console.WriteLine("User created successfully, verification email sent to the user.");
+
+                return userRecord.Uid;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Token verification failed: {ex.Message}");
+                Console.WriteLine($"Error registering user: {ex.Message}");
                 return null;
             }
         }
