@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ProfileHeaderCard } from "./components/ProfileHeaderCard";
 import { PersonalInfoCard } from "./components/PersonalInfoCard";
@@ -9,163 +8,222 @@ import { SettingsCard } from "./components/SettingsCard";
 import { QuickLinksCard } from "./components/QuickLinksCard";
 import { LogoutCard } from "./components/LogoutCard";
 import { getUserById, updateUser } from "@/lib/api/user";
+import { UserDto } from "@/types";
+import { AlertCircle, CheckCircle } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 type Gender = "Nam" | "Nữ" | "Khác";
 
 interface LocalUserProfile {
-	name: string;
-	email: string;
-	phone: string;
-	birthDate?: string;
-	gender?: Gender;
-	avatar?: string;
-	role: string;
-	userId?: string;
+  name: string;
+  email: string;
+  phone: string;
+  birthDate?: string;
+  gender?: Gender;
+  avatar?: string;
+  role: string;
+  userId?: string;
 }
 
 export default function UserProfilePage() {
-	const router = useRouter();
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-	const [user, setUser] = useState<any>(null);
-	const [profile, setProfile] = useState<LocalUserProfile>({
-		name: "",
-		email: "",
-		phone: "",
-		role: "Khách hàng",
-		userId: "U001",
-	});
+  const [user, setUser] = useState<UserDto | null>(null);
+  const [profile, setProfile] = useState<LocalUserProfile>({
+    name: "",
+    email: "",
+    phone: "",
+    role: "Khách hàng",
+    userId: "U001",
+  });
 
-	const [language, setLanguage] = useState("vi");
-	const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [language, setLanguage] = useState("vi");
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
-	const avatarInputRef = useRef<HTMLInputElement>(null!);
-	const [avatarPreview, setAvatarPreview] = useState(profile.avatar ?? "");
+  const avatarInputRef = useRef<HTMLInputElement>(null!);
+  const [avatarPreview, setAvatarPreview] = useState(profile.avatar ?? "");
 
-	useEffect(() => {
-		let mounted = true;
-		async function load() {
-			try {
-				setLoading(true);
-				setError(null);
-				// TODO: replace 'user-me' with actual user id from auth context
-				const u = await getUserById("user-me");
-				if (!mounted) return;
-				setUser(u);
-				const local: LocalUserProfile = {
-					name: u.name ?? "",
-					email: u.email ?? "",
-					phone: "",
-					role: "Khách hàng",
-					userId: u.id ?? "U001",
-				};
-				setProfile(local);
-			} catch (e) {
-				if (!mounted) return;
-				setError("Không thể tải hồ sơ người dùng.");
-			} finally {
-				if (mounted) setLoading(false);
-			}
-		}
-		load();
-		return () => { mounted = false; };
-	}, []);
+  // Load user data on mount
+  const loadUserProfile = useCallback(async () => {
+    let mounted = true;
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Get userId from localStorage or auth context
+      const userId = getCurrentUserId() || "user-me";
+      const userData = await getUserById(userId);
+      
+      if (!mounted) return;
+      
+      setUser(userData);
+      const local: LocalUserProfile = {
+        name: userData?.name ?? "",
+        email: userData?.email ?? "",
+        phone: "",
+        role: "Khách hàng",
+        userId: userData?.id ?? "U001",
+      };
+      setProfile(local);
+    } catch (err) {
+      if (!mounted) return;
+      setError("Không thể tải hồ sơ người dùng. Vui lòng thử lại.");
+      console.error("Error loading user profile:", err);
+    } finally {
+      if (mounted) setLoading(false);
+    }
+    
+    return () => { mounted = false; };
+  }, []);
 
-	const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onloadend = () => setAvatarPreview(reader.result as string);
-			reader.readAsDataURL(file);
-		}
-	};
+  useEffect(() => {
+    loadUserProfile();
+  }, [loadUserProfile]);
 
-	const handleSaveProfile = async (updatedProfile: LocalUserProfile, newAvatarPreview: string) => {
-		try {
-			setLoading(true);
-			if (user?.id) {
-				const dto: Partial<any> = {
-					id: user.id,
-					name: updatedProfile.name,
-					email: updatedProfile.email,
-					phone: updatedProfile.phone,
-				};
-				const updated = await updateUser(user.id, dto as any);
-				setUser(updated);
-			}
-			setProfile({ ...updatedProfile, avatar: newAvatarPreview });
-			setAvatarPreview(newAvatarPreview);
-		} catch (e) {
-			setError("Không thể lưu thay đổi hồ sơ.");
-		} finally {
-			setLoading(false);
-		}
-	};
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setAvatarPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
 
-	const handleChangePassword = () => {
-		// Implement password change logic
-		console.log("Password changed");
-	};
+  const handleSaveProfile = async (
+    updatedProfile: LocalUserProfile,
+    newAvatarPreview: string
+  ) => {
+    try {
+      setSaving(true);
+      setError(null);
+      setSuccess(null);
+      
+      if (user?.id) {
+        const dto = {
+          id: user.id,
+          name: updatedProfile.name ?? "",
+          email: updatedProfile.email ?? "",
+        };
+        const updated = await updateUser(user.id, dto);
+        setUser(updated);
+      }
+      
+      setProfile({ ...updatedProfile, avatar: newAvatarPreview });
+      setAvatarPreview(newAvatarPreview);
+      setSuccess("Hồ sơ đã được cập nhật thành công!");
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      setError("Không thể lưu thay đổi hồ sơ. Vui lòng thử lại.");
+      console.error("Error saving profile:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
 
-	const handleLogout = () => {
-		router.push("/login");
-	};
+  const handleChangePassword = () => {
+    router.push("/profile/change-password");
+  };
 
-	const getInitials = (name: string) =>
-		name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("authToken");
+    router.push("/login");
+  };
 
-	if (loading) {
-		return (
-			<div className="min-h-screen bg-background flex items-center justify-center">
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-success mx-auto mb-3"></div>
-					<p className="text-muted-foreground">Đang tải hồ sơ người dùng...</p>
-				</div>
-			</div>
-		);
-	}
+  const getInitials = (name: string) =>
+    name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
 
-	return (
-		<div className="min-h-screen bg-background">
-			<div className="container mx-auto px-2 py-5 max-w-7xl">
-				<div className="grid gap-6 lg:grid-cols-[1fr_400px]">
-					{/* Left Column */}
-					<div className="space-y-6">
-						<ProfileHeaderCard
-							profile={profile}
-							avatarPreview={avatarPreview}
-							avatarInputRef={avatarInputRef}
-							onAvatarUpload={handleAvatarUpload}
-							getInitials={getInitials}
-						/>
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Đang tải hồ sơ người dùng...</p>
+        </div>
+      </div>
+    );
+  }
 
-						<PersonalInfoCard
-							profile={profile}
-							onEdit={() => {}}
-						/>
+  // Error state
+  if (error && !user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <Card className="w-full max-w-md p-8 text-center rounded-2xl border">
+          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+          <h2 className="text-lg font-semibold mb-2">Lỗi tải dữ liệu</h2>
+          <p className="text-muted-foreground mb-6">{error}</p>
+          <button
+            onClick={() => loadUserProfile()}
+            className="px-4 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            Thử lại
+          </button>
+        </Card>
+      </div>
+    );
+  }
 
-						<SettingsCard
-							language={language}
-							setLanguage={setLanguage}
-							onChangePassword={handleChangePassword}
-							notificationsEnabled={notificationsEnabled}
-							onToggleNotifications={() => setNotificationsEnabled(!notificationsEnabled)}
-						/>
-					</div>
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16">
+        {/* Success Message */}
+        {success && (
+          <div className="mb-6 p-4 rounded-xl border flex items-center gap-3" style={{ backgroundColor: "color-mix(in srgb, var(--color-success), transparent 95%)", borderColor: "color-mix(in srgb, var(--color-success), transparent 70%)" }}>
+            <CheckCircle className="w-5 h-5 flex-shrink-0" style={{ color: "var(--color-success)" }} />
+            <p className="text-sm font-medium" style={{ color: "var(--color-success)" }}>{success}</p>
+          </div>
+        )}
 
-					{/* Right Column */}
-					<div className="space-y-6">
-						<QuickLinksCard
-							onNavigate={(path) => router.push(path)}
-						/>
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 rounded-xl border flex items-center gap-3" style={{ backgroundColor: "color-mix(in srgb, var(--color-destructive), transparent 95%)", borderColor: "color-mix(in srgb, var(--color-destructive), transparent 70%)" }}>
+            <AlertCircle className="w-5 h-5 flex-shrink-0" style={{ color: "var(--color-destructive)" }} />
+            <p className="text-sm font-medium" style={{ color: "var(--color-destructive)" }}>{error}</p>
+          </div>
+        )}
 
-						<LogoutCard
-							onLogout={handleLogout}
-						/>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8">
+          {/* Left Column - Profile Info */}
+          <div className="space-y-6">
+            <ProfileHeaderCard
+              profile={profile}
+              avatarPreview={avatarPreview}
+              avatarInputRef={avatarInputRef}
+              onAvatarUpload={handleAvatarUpload}
+              getInitials={getInitials}
+            />
+
+            <PersonalInfoCard profile={profile} onSave={handleSaveProfile} isSaving={saving} />
+
+            <SettingsCard
+              language={language}
+              setLanguage={setLanguage}
+              onChangePassword={handleChangePassword}
+              notificationsEnabled={notificationsEnabled}
+              onToggleNotifications={() => setNotificationsEnabled(!notificationsEnabled)}
+            />
+          </div>
+
+          {/* Right Column - Quick Links */}
+          <div className="space-y-6">
+            <QuickLinksCard onNavigate={(path) => router.push(path)} />
+            <LogoutCard onLogout={handleLogout} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

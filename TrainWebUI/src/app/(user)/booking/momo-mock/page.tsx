@@ -42,8 +42,11 @@ export default function MoMoMockPage() {
   useEffect(() => {
     if (step === "success") {
       const timer = setTimeout(() => {
-        // Redirect back to app with success status
-        window.location.href = `${returnUrl}?orderId=${orderId}&resultCode=0&message=Success`
+        // Redirect back to app with success status (append params properly)
+        const separator = returnUrl.includes("?") ? "&" : "?"
+        const successUrl = `${returnUrl}${separator}orderId=${encodeURIComponent(orderId)}&resultCode=0&message=${encodeURIComponent("Success")}`
+        console.log(`Redirecting to: ${successUrl}`)
+        window.location.href = successUrl
       }, 3000)
       return () => clearTimeout(timer)
     }
@@ -88,7 +91,9 @@ export default function MoMoMockPage() {
 
   const handleCancel = () => {
     if (confirm("Bạn có chắc muốn hủy thanh toán?")) {
-      window.location.href = `${returnUrl}?orderId=${orderId}&resultCode=1002&message=Transaction%20cancelled`
+      const separator = returnUrl.includes("?") ? "&" : "?"
+      const cancelUrl = `${returnUrl}${separator}orderId=${encodeURIComponent(orderId)}&resultCode=1002&message=${encodeURIComponent("Transaction cancelled")}`
+      window.location.href = cancelUrl
     }
   }
 

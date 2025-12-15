@@ -10,7 +10,15 @@ export async function getAllBookings(): Promise<BookingDto[]> {
 
 // GET /api/booking/{id} - Get booking by ID
 export async function getBookingById(id: string): Promise<BookingDto> {
-  return apiFetch<BookingDto>(`/Booking/${id}`);
+  console.log(`[Booking API] Fetching booking with ID: ${id}`);
+  try {
+    const result = await apiFetch<BookingDto>(`/Booking/${id}`);
+    console.log(`[Booking API] Successfully fetched booking:`, result);
+    return result;
+  } catch (error) {
+    console.error(`[Booking API] Failed to fetch booking ${id}:`, error);
+    throw error;
+  }
 }
 
 // POST /api/booking - Create booking
@@ -45,8 +53,8 @@ export async function updateBooking(id: string, updates: Partial<BookingDto>): P
 
 // Helper function to get bookings by user ID
 export async function getBookingsByUserId(userId: string): Promise<BookingDto[]> {
-  const allBookings = await getAllBookings();
-  return allBookings.filter(booking => booking.user?.id === userId);
+  // Use dedicated backend endpoint instead of filtering all bookings client-side
+  return apiFetch<BookingDto[]>(`/Booking/user/${userId}`);
 }
 
 // Helper function to get bookings by status

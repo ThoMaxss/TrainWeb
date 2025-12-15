@@ -64,26 +64,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             role: normalizedRole,
           });
         } else {
-          // Dev mode: auto-login if no user stored and in development
-          if (process.env.NODE_ENV === 'development') {
-            console.log("🔐 Dev mode: Auto-login enabled");
-            const devUser: UserDto = {
-              id: 'dev-user-' + Math.random().toString(36).substring(7),
-              name: 'Dev User',
-              email: 'dev@example.com',
-              role: UserRole.Passenger,
-              createdAt: new Date().toISOString(),
-            };
-            localStorage.setItem('train_booking_user', JSON.stringify(devUser));
-            setAuthState({
-              user: devUser,
-              isLoading: false,
-              isAuthenticated: true,
-              role: UserRole.Passenger,
-            });
-          } else {
-            setAuthState(prev => ({ ...prev, isLoading: false }));
-          }
+          // No stored user: end loading without auto-login
+          setAuthState(prev => ({ ...prev, isLoading: false }));
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
@@ -109,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem('train_booking_user');
+    localStorage.removeItem('userId'); // Also remove userId for backward compatibility
     setAuthState({
       user: null,
       isLoading: false,

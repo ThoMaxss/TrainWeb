@@ -13,6 +13,10 @@ namespace TrainWeb.Application.DTOS
 
         public UserDto? User { get; set; }
 
+        public TripDto? Trip { get; set; }
+
+        public SeatDto? Seat { get; set; }
+
         public TicketDto? Ticket { get; set; }
 
         public double? Price { get; set; }
@@ -23,3 +27,4 @@ namespace TrainWeb.Application.DTOS
 
     }
 }
+
