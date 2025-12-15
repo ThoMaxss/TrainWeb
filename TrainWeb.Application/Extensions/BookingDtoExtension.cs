@@ -19,6 +19,8 @@ namespace TrainWeb.Application.Extensions
                 Id = @this.Id,
                 User = @this.User?.ToDto(),   
                 Ticket = @this.Ticket?.ToDto(),
+                Trip = @this.Ticket?.Seat?.Trip?.ToDto(),  // Map Booking → Ticket → Seat → Trip
+                Seat = @this.Ticket?.Seat?.ToDto(),        // Map Booking → Ticket → Seat
                 Price = @this.Price,
                 Status = @this.Status,
                 CreatedAt = @this.CreatedAt,
@@ -29,7 +31,7 @@ namespace TrainWeb.Application.Extensions
             @this.Id,
             @this.User?.FromDto(), 
             @this.Ticket?.FromDto(),
-            null,
+            @this.Price,
             @this.Status,
             @this.CreatedAt
         );

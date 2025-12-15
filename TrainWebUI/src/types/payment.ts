@@ -1,3 +1,5 @@
+import { BookingDto } from './booking';
+
 export enum PaymentMethod {
   Visa = 0,
   Momo = 1,
@@ -12,7 +14,8 @@ export enum PaymentStatus {
 
 export interface PaymentEntity {
   id: string;
-  bookingId: string;
+  bookingId?: string; // legacy
+  booking?: BookingDto; // backend returns nested booking dto
   amount: number;
   method: PaymentMethod;
   status: PaymentStatus;
@@ -20,8 +23,8 @@ export interface PaymentEntity {
 }
 
 export interface PaymentRequest {
-  bookingId: string;
-  amount: number;
+  booking: { id: string };
+  amount?: number;
   method: PaymentMethod;
   status: PaymentStatus;
 }

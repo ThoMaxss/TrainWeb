@@ -1,11 +1,11 @@
 import { apiFetch } from './config';
-import { TicketEntity as TicketDto, TicketStatus, parseTicketStatus } from '@/types';
+import { TicketEntity as TicketDto, TicketStatus, parseTicketStatus, type SeatDto, type TicketTypeDto } from '@/types';
 import { SEAT_TYPE_LABELS } from '@/types/seat';
 
 // Define local request types to match backend contract
 type CreateTicketRequest = {
-  bookingId: string;
-  qrCode: string;
+  seat?: { id: string; [key: string]: any };
+  ticketType?: { id: string; [key: string]: any };
   status: TicketStatus;
 };
 
@@ -52,7 +52,7 @@ export async function getTicketsByBookingId(bookingId: string): Promise<TicketDt
   return all.filter(t => t.bookingId === bookingId);
 }
 
-export async function createTicket(payload: CreateTicketRequest): Promise<TicketDto> {
+export async function createTicket(payload: TicketDto | CreateTicketRequest): Promise<TicketDto> {
   return apiFetch<TicketDto>(`${BASE}`, {
     method: 'POST',
     body: JSON.stringify(payload),

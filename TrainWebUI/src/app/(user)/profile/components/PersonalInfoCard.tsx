@@ -1,9 +1,9 @@
-import { User as UserIcon, Edit2 } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+"use client";
 
-type Gender = "Nam" | "Nữ" | "Khác";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { User, Mail, Phone, Calendar, Users, Edit2 } from "lucide-react";
 
 interface PersonalInfoCardProps {
   profile: {
@@ -11,54 +11,95 @@ interface PersonalInfoCardProps {
     email: string;
     phone: string;
     birthDate?: string;
-    gender?: Gender;
+    gender?: string;
   };
   onEdit: () => void;
 }
 
 export function PersonalInfoCard({ profile, onEdit }: PersonalInfoCardProps) {
   return (
-    <Card className="border-0 bg-background shadow-md">
-      <div className="p-2">
-        <div className="mb-3 flex items-center justify-between">
+    <Card className="bg-background/70 backdrop-blur-sm border-0 shadow-sm">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <UserIcon className="h-5 w-5 text-primary" />
-            </div>
-            <h3 className="text-foreground">Thông tin cá nhân</h3>
+            <User className="h-5 w-5 text-success" />
+            <h3 className="text-lg font-semibold">Thông tin cá nhân</h3>
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={onEdit}
-            className="gap-2 border-primary hover:bg-primary/10"
+            className="border-success/20 text-success hover:bg-success/10 hover:border-success/40"
           >
-            <Edit2 className="h-4 w-4" />
+            <Edit2 className="h-4 w-4 mr-2" />
             Chỉnh sửa
           </Button>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <Label className="text-xs text-muted-foreground">Họ tên</Label>
-            <p className="mt-1">{profile.name || "--"}</p>
+        <div className="space-y-4">
+          <div className="flex items-start gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
+              <User className="h-5 w-5 text-success" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground">Họ và tên</p>
+              <p className="font-medium">{profile.name || "Chưa cập nhật"}</p>
+            </div>
           </div>
-          <div>
-            <Label className="text-xs text-muted-foreground">Email</Label>
-            <p className="mt-1">{profile.email}</p>
+
+          <Separator />
+
+          <div className="flex items-start gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
+              <Mail className="h-5 w-5 text-success" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground">Email</p>
+              <p className="font-medium">{profile.email || "Chưa cập nhật"}</p>
+            </div>
           </div>
-          <div>
-            <Label className="text-xs text-muted-foreground">Số điện thoại</Label>
-            <p className="mt-1">{profile.phone}</p>
+
+          <Separator />
+
+          <div className="flex items-start gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
+              <Phone className="h-5 w-5 text-success" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground">Số điện thoại</p>
+              <p className="font-medium">{profile.phone || "Chưa cập nhật"}</p>
+            </div>
           </div>
-          <div>
-            <Label className="text-xs text-muted-foreground">Ngày sinh</Label>
-            <p className="mt-1">{profile.birthDate ?? "--"}</p>
-          </div>
-          <div>
-            <Label className="text-xs text-muted-foreground">Giới tính</Label>
-            <p className="mt-1">{profile.gender ?? "--"}</p>
-          </div>
+
+          {profile.birthDate && (
+            <>
+              <Separator />
+              <div className="flex items-start gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
+                  <Calendar className="h-5 w-5 text-success" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">Ngày sinh</p>
+                  <p className="font-medium">{profile.birthDate}</p>
+                </div>
+              </div>
+            </>
+          )}
+
+          {profile.gender && (
+            <>
+              <Separator />
+              <div className="flex items-start gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
+                  <Users className="h-5 w-5 text-success" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">Giới tính</p>
+                  <p className="font-medium">{profile.gender}</p>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </Card>
