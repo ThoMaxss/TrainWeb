@@ -1,6 +1,7 @@
 ﻿using FirebaseAdmin;
-using Google.Apis.Auth.OAuth2;
 using FirebaseAdmin.Auth;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 
@@ -8,30 +9,18 @@ namespace TrainWeb.Infrastructure.Services
 {
     public class FirebaseService
     {
-        public FirebaseService()
+        public FirebaseService(IConfiguration configuration)
         {
-            FirebaseApp.Create(new AppOptions()
-            {
-                Credential = GoogleCredential.FromFile("D:\\TrainWeb\\TrainWeb\\TrainWebAPI\\firebase-key.json")
-            });
-        }
+            var serviceAccountPath = configuration["Firebase:ServiceAccountPath"];
+            if (string.IsNullOrWhiteSpace(serviceAccountPath))
+                throw new InvalidOperationException("Missing config: Firebase:ServiceAccountPath");
 
-        public async Task<string?> CreateUserAsync(string email, string password)
-        {
-            try
+            if (FirebaseApp.DefaultInstance == null)
             {
-                var userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(new UserRecordArgs()
+                FirebaseApp.Create(new AppOptions
                 {
-                    Email = email,
-                    Password = password
+                    Credential = GoogleCredential.FromFile(serviceAccountPath)
                 });
-
-                return userRecord.Uid;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating user: {ex.Message}");
-                return null;
             }
         }
 
@@ -39,8 +28,7 @@ namespace TrainWeb.Infrastructure.Services
         {
             try
             {
-                var decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(idToken);
-                return decodedToken;
+                return await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(idToken);
             }
             catch (Exception ex)
             {
@@ -49,55 +37,25 @@ namespace TrainWeb.Infrastructure.Services
             }
         }
 
-        public async Task<bool> VerifyEmailAsync(string email)
+        public Task<UserRecord> GetUserAsync(string uid)
+            => FirebaseAuth.DefaultInstance.GetUserAsync(uid);
+
+        public async Task<string?> CreateUserAsync(string email, string password)
         {
             try
             {
-                var user = await FirebaseAuth.DefaultInstance.GetUserByEmailAsync(email);
-                return user.EmailVerified;
-            }
-            catch (FirebaseAuthException)
-            {
-                return false;
-            }
-        }
-
-        public async Task SendEmailVerificationAsync(string email)
-        {
-            try
-            {
-                var user = await FirebaseAuth.DefaultInstance.GetUserByEmailAsync(email);
-                var link = await FirebaseAuth.DefaultInstance.GenerateEmailVerificationLinkAsync(email);
-                Console.WriteLine($"Verification link: {link}");
-
-                await SendEmailAsync(email, "Xác thực tài khoản", $"Vui lòng nhấp vào liên kết để xác thực tài khoản của bạn: {link}");
+                var userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(new UserRecordArgs
+                {
+                    Email = email,
+                    Password = password
+                });
+                return userRecord.Uid;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error sending email verification: {ex.Message}");
+                Console.WriteLine($"Error creating user: {ex.Message}");
+                return null;
             }
-        }
-
-        private async Task SendEmailAsync(string toEmail, string subject, string body)
-        {
-            var smtpClient = new System.Net.Mail.SmtpClient("smtp.gmail.com")
-            {
-                Port = 587,
-                Credentials = new System.Net.NetworkCredential("your-email@gmail.com", "your-email-password"),
-                EnableSsl = true,
-            };
-
-            var mailMessage = new System.Net.Mail.MailMessage
-            {
-                From = new System.Net.Mail.MailAddress("your-email@gmail.com"),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true,
-            };
-
-            mailMessage.To.Add(toEmail);
-
-            await smtpClient.SendMailAsync(mailMessage);
         }
     }
 }

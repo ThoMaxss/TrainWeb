@@ -1,5 +1,5 @@
-﻿using Google.Cloud.Firestore;
-using TrainWeb.Application.Interfaces;
+﻿using TrainWeb.Application.Interfaces;
+using TrainWeb.Domain.Domain;
 using TrainWeb.Domain.Entities;
 using TrainWeb.Infrastructure.Persistence;
 
@@ -7,53 +7,45 @@ namespace TrainWeb.Infrastructure.Repositories
 {
     public class UserRepository : FirestoreRepository<UserEntity>, IUserRepository
     {
-        private const string CollectionName = "Users";
+        private const string CollectionName = "users";
 
         public UserRepository(FirestoreDbContext context) : base(context) { }
 
-        public async Task<UserEntity?> GetByIdAsync(string id)
+        public async Task<User?> GetByIdAsync(string id)
         {
-            return await GetByIdAsync(CollectionName, id);
+            var entity = await GetByIdAsync(CollectionName, id);
+            return entity?.ToDomain();
         }
 
-        public async Task<UserEntity?> GetByEmailAsync(string email)
+        public async Task<User?> GetByEmailAsync(string email)
         {
-            return await QueryFirstAsync(CollectionName, collection =>
-                collection.WhereEqualTo("Email", email)
+            var entity = await QueryFirstAsync(CollectionName, c =>
+                c.WhereEqualTo("email", email)
             );
+
+            return entity?.ToDomain();
         }
 
-        public async Task<IEnumerable<UserEntity>> GetAllAsync()
+        public async Task<IReadOnlyList<User>> GetAllAsync()
         {
-            return await GetAllAsync(CollectionName);
+            var entities = await GetAllAsync(CollectionName);
+            return entities.Select(x => x.ToDomain()).ToList();
         }
 
-        public async Task AddAsync(UserEntity userEntity)
+        public async Task AddAsync(User user)
         {
-            await AddAsync(CollectionName, userEntity.Id, userEntity);
+            var entity = UserEntity.FromDomain(user);
+            await AddAsync(CollectionName, entity.Id, entity);
         }
 
-        public async Task UpdateAsync(string id, UserEntity user)
+        public async Task UpdateAsync(string id, User user)
         {
-            await UpdateAsync(CollectionName, id, user);
+            var entity = UserEntity.FromDomain(user);
+            entity.Id = id;
+            await UpdateAsync(CollectionName, id, entity);
         }
 
-        public async Task UpdateAsync(UserEntity user)
-        {
-            await UpdateAsync(CollectionName, user.Id, user);
-        }
-
-        public async Task UpdateEmailVerifiedStatusAsync(string id, bool isVerified)
-        {
-            await UpdateFieldsAsync(CollectionName, id, new Dictionary<string, object>
-            {
-                { "IsEmailVerified", isVerified }
-            });
-        }
-
-        public async Task DeleteAsync(string id)
-        {
-            await base.DeleteAsync(CollectionName, id);
-        }
+        public Task DeleteAsync(string id)
+            => base.DeleteAsync(CollectionName, id);
     }
 }

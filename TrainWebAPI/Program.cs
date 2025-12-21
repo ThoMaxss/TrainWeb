@@ -13,7 +13,7 @@ using FirestoreDbContext = TrainWeb.Infrastructure.Persistence.FirestoreDbContex
 
 var builder = WebApplication.CreateBuilder(args);
 
-var projectId = "trainweb-g16";
+var projectId = "gorail-g16";
 var credentialPath = Path.Combine(builder.Environment.ContentRootPath, "firebase-key.json");
 
 builder.Services.AddSingleton<FirestoreDbContext>(sp =>
