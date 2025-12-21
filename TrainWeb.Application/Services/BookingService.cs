@@ -48,13 +48,7 @@ namespace TrainWeb.Application.Services
 
             return bookingEntities.Select(bookingEntity =>
             {
-                var user = bookingEntity.UserId != null
-                    ? UserService.GetUserByIdAsync(bookingEntity.UserId).Result
-                    : null;
-                var ticket = bookingEntity.TicketId != null
-                    ? TicketService.GetById(bookingEntity.TicketId).Result
-                    : null;
-                return bookingEntity.ToDomain(user, ticket);
+                return bookingEntity.ToDomain(null, null);
             }).ToImmutableList();
         }
 
