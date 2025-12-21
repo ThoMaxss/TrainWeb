@@ -1,33 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Bell,
   Check,
-  CheckCheck,
+  Trash2,
+  AlertCircle,
   Train,
   CreditCard,
   Gift,
-  AlertCircle,
+  X,
+  CheckCheck,
+  Filter,
+  Home,
+  Search,
   Clock,
   ChevronRight,
-  Trash2,
-  X,
   Sparkles,
-  Home,
-  Filter,
-  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils/utils";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import { getCurrentUserId } from "@/lib/utils/auth";
 
 type NotificationCategory = "all" | "trip" | "payment" | "promotion" | "system";
 
@@ -43,6 +43,8 @@ interface Notification {
   actionId?: string;
 }
 
+const CACHE_KEY = "notifications_cache";
+
 export default function NotificationsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<NotificationCategory>("all");
@@ -51,124 +53,151 @@ export default function NotificationsPage() {
   const [selectionMode, setSelectionMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showOnlyUnread, setShowOnlyUnread] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Initialize mock notifications
-  useEffect(() => {
-    const mockNotifications: Notification[] = [
-      // Critical alert
-      {
-        id: "notif-1",
-        category: "trip",
-        title: "Chuyến tàu SE3 bị hoãn 30 phút",
-        message: "Chuyến tàu SE3 từ Hà Nội đi Đà Nẵng ngày 30/09/2025 sẽ xuất phát muộn 30 phút do sự cố kỹ thuật.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-        isRead: false,
-        isCritical: true,
-        actionType: "ticket",
-        actionId: "VNAB12CD34",
-      },
-      // Today
-      {
-        id: "notif-2",
-        category: "payment",
-        title: "Thanh toán thành công",
-        message: "Giao dịch 1.900.000đ cho vé SE3 đã được xử lý thành công qua VISA.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 120), // 2 hours ago
-        isRead: false,
-        isCritical: false,
-        actionType: "transaction",
-        actionId: "TXN2025093001234",
-      },
-      {
-        id: "notif-3",
-        category: "promotion",
-        title: "🎉 Khuyến mãi mùa thu - Giảm 20%",
-        message: "Đặt vé tàu đi Đà Nẵng, Nha Trang giảm ngay 20%. Áp dụng từ 01-15/10/2025.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 180), // 3 hours ago
-        isRead: false,
-        isCritical: false,
-        actionType: "promotion",
-        actionId: "PROMO-FALL2025",
-      },
-      {
-        id: "notif-4",
-        category: "trip",
-        title: "Nhắc nhở: Chuyến tàu sắp khởi hành",
-        message: "Chuyến tàu SE3 của bạn sẽ khởi hành trong 24 giờ. Vui lòng chuẩn bị hành lý.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 300), // 5 hours ago
-        isRead: true,
-        isCritical: false,
-        actionType: "ticket",
-        actionId: "VNAB12CD34",
-      },
-      // Yesterday
-      {
-        id: "notif-5",
-        category: "system",
-        title: "Cập nhật điều khoản dịch vụ",
-        message: "Chúng tôi đã cập nhật điều khoản sử dụng. Vui lòng xem lại để tiếp tục sử dụng dịch vụ.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 26), // 26 hours ago
-        isRead: false,
-        isCritical: false,
-        actionType: "system",
-      },
-      {
-        id: "notif-6",
-        category: "payment",
-        title: "Hoàn tiền thành công",
-        message: "Số tiền 950.000đ đã được hoàn về thẻ VISA của bạn. Vui lòng kiểm tra sau 3-5 ngày làm việc.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 30), // 30 hours ago
-        isRead: true,
-        isCritical: false,
-        actionType: "transaction",
-        actionId: "TXN2025092501789",
-      },
-      // This week
-      {
-        id: "notif-7",
-        category: "trip",
-        title: "Xác nhận đặt vé thành công",
-        message: "Vé tàu SE2 từ TP. Hồ Chí Minh đi Nha Trang đã được xác nhận. Mã vé: VN56EF78GH",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
-        isRead: true,
-        isCritical: false,
-        actionType: "ticket",
-        actionId: "VN56EF78GH",
-      },
-      {
-        id: "notif-8",
-        category: "promotion",
-        title: "Điểm thưởng của bạn sắp hết hạn",
-        message: "Bạn có 1.500 điểm sẽ hết hạn vào 15/10/2025. Sử dụng ngay để được giảm giá.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72), // 3 days ago
-        isRead: true,
-        isCritical: false,
-        actionType: "promotion",
-      },
-      {
-        id: "notif-9",
-        category: "system",
-        title: "Bảo trì hệ thống",
-        message: "Hệ thống sẽ tạm ngưng hoạt động từ 01:00-03:00 ngày 05/10 để bảo trì.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 96), // 4 days ago
-        isRead: true,
-        isCritical: false,
-        actionType: "system",
-      },
-      {
-        id: "notif-10",
-        category: "trip",
-        title: "Thay đổi ga xuất phát",
-        message: "Chuyến tàu SE5 sẽ xuất phát từ ga B thay vì ga A. Vui lòng kiểm tra lại thông tin.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 120), // 5 days ago
-        isRead: false,
-        isCritical: true,
-        actionType: "ticket",
-        actionId: "VN78IJ90KL",
-      },
-    ];
+  // Load notifications with caching
+  const loadNotifications = useCallback(() => {
+    try {
+      setLoading(true);
+      const userId = getCurrentUserId() || "guest";
+      const cached = localStorage.getItem(`${CACHE_KEY}_${userId}`);
 
-    setNotifications(mockNotifications);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        const notifications = parsed.map((n: any) => ({
+          ...n,
+          timestamp: new Date(n.timestamp),
+        }));
+        setNotifications(notifications);
+      } else {
+        // Mock data - replace with API call
+        const mockNotifications: Notification[] = [
+          {
+            id: "notif-1",
+            category: "trip",
+            title: "Chuyến tàu SE3 bị hoãn 30 phút",
+            message:
+              "Chuyến tàu SE3 từ Hà Nội đi Đà Nẵng ngày 30/09/2025 sẽ xuất phát muộn 30 phút.",
+            timestamp: new Date(Date.now() - 1000 * 60 * 30),
+            isRead: false,
+            isCritical: true,
+            actionType: "ticket",
+            actionId: "VNAB12CD34",
+          },
+          {
+            id: "notif-2",
+            category: "payment",
+            title: "Thanh toán thành công",
+            message:
+              "Giao dịch 1.900.000đ cho vé SE3 đã được xử lý thành công.",
+            timestamp: new Date(Date.now() - 1000 * 60 * 120),
+            isRead: false,
+            isCritical: false,
+            actionType: "transaction",
+            actionId: "TXN2025093001234",
+          },
+          {
+            id: "notif-3",
+            category: "promotion",
+            title: "🎉 Khuyến mãi mùa thu - Giảm 20%",
+            message:
+              "Đặt vé tàu đi Đà Nẵng, Nha Trang giảm ngay 20%. Áp dụng từ 01-15/10/2025.",
+            timestamp: new Date(Date.now() - 1000 * 60 * 180), // 3 hours ago
+            isRead: false,
+            isCritical: false,
+            actionType: "promotion",
+            actionId: "PROMO-FALL2025",
+          },
+          {
+            id: "notif-4",
+            category: "trip",
+            title: "Nhắc nhở: Chuyến tàu sắp khởi hành",
+            message:
+              "Chuyến tàu SE3 của bạn sẽ khởi hành trong 24 giờ. Vui lòng chuẩn bị hành lý.",
+            timestamp: new Date(Date.now() - 1000 * 60 * 300), // 5 hours ago
+            isRead: true,
+            isCritical: false,
+            actionType: "ticket",
+            actionId: "VNAB12CD34",
+          },
+          // Yesterday
+          {
+            id: "notif-5",
+            category: "system",
+            title: "Cập nhật điều khoản dịch vụ",
+            message:
+              "Chúng tôi đã cập nhật điều khoản sử dụng. Vui lòng xem lại để tiếp tục sử dụng dịch vụ.",
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 26), // 26 hours ago
+            isRead: false,
+            isCritical: false,
+            actionType: "system",
+          },
+          {
+            id: "notif-6",
+            category: "payment",
+            title: "Hoàn tiền thành công",
+            message:
+              "Số tiền 950.000đ đã được hoàn về thẻ VISA của bạn. Vui lòng kiểm tra sau 3-5 ngày làm việc.",
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 30), // 30 hours ago
+            isRead: true,
+            isCritical: false,
+            actionType: "transaction",
+            actionId: "TXN2025092501789",
+          },
+          // This week
+          {
+            id: "notif-7",
+            category: "trip",
+            title: "Xác nhận đặt vé thành công",
+            message:
+              "Vé tàu SE2 từ TP. Hồ Chí Minh đi Nha Trang đã được xác nhận. Mã vé: VN56EF78GH",
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
+            isRead: true,
+            isCritical: false,
+            actionType: "ticket",
+            actionId: "VN56EF78GH",
+          },
+          {
+            id: "notif-8",
+            category: "promotion",
+            title: "Điểm thưởng của bạn sắp hết hạn",
+            message:
+              "Bạn có 1.500 điểm sẽ hết hạn vào 15/10/2025. Sử dụng ngay để được giảm giá.",
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72), // 3 days ago
+            isRead: true,
+            isCritical: false,
+            actionType: "promotion",
+          },
+          {
+            id: "notif-9",
+            category: "system",
+            title: "Bảo trì hệ thống",
+            message:
+              "Hệ thống sẽ tạm ngưng hoạt động từ 01:00-03:00 ngày 05/10 để bảo trì.",
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 96), // 4 days ago
+            isRead: true,
+            isCritical: false,
+            actionType: "system",
+          },
+          {
+            id: "notif-10",
+            category: "trip",
+            title: "Thay đổi ga xuất phát",
+            message:
+              "Chuyến tàu SE5 sẽ xuất phát từ ga B thay vì ga A. Vui lòng kiểm tra lại thông tin.",
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 120), // 5 days ago
+            isRead: false,
+            isCritical: true,
+            actionType: "ticket",
+            actionId: "VN78IJ90KL",
+          },
+        ];
+
+        setNotifications(mockNotifications);
+      }
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   // Simulate real-time notification

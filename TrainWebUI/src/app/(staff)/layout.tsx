@@ -12,7 +12,7 @@ export default function StaffProfileLayout({
     <StaffGuard showFallback={true}>
       <div className="min-h-screen bg-card" role="main" aria-label="Staff Portal">
         <Header />
-        <main className="container mx-auto px-2 py-5">
+        <main className="container mx-auto px-4 py-6">
           {children}
         </main>
       </div>

@@ -51,12 +51,21 @@ namespace TrainWeb.API.Controllers
             switch (createdPayment.Method)
             {
                 case PaymentMethod.Momo:
-                    var response = await MomoService.CreateMomoPaymentAsync(createdPayment);
-                    if(response.resultCode != 0)
-                    {
-                        return BadRequest("Payment Not Created");
-                    }    
-                    return Ok(response.payUrl);
+                    // For demo, return mock MoMo URL instead of calling real MoMo
+                    // (which requires valid merchant credentials)
+                    var mockPayUrl = $"http://localhost:3001/booking/momo-mock?amount={createdPayment.Amount}&orderId={createdPayment.Id}&orderInfo=Thanh+toan+ve+tau&returnUrl={Uri.EscapeDataString("http://localhost:3001/booking/success")}";
+                    Console.WriteLine($"💳 Returning mock MoMo URL for testing: {mockPayUrl}");
+                    // Return plain text URL (frontend expects string, not JSON)
+                    return Content(mockPayUrl, "text/plain");
+                    
+                    // For real MoMo payment, uncomment below:
+                    // var response = await MomoService.CreateMomoPaymentAsync(createdPayment);
+                    // Console.WriteLine($"MoMo Response: resultCode={response.resultCode}, message={response.message}");
+                    // if(response.resultCode != 0)
+                    // {
+                    //     return BadRequest($"Payment Not Created. MoMo: resultCode={response.resultCode}, message={response.message}");
+                    // }    
+                    // return Ok(response.payUrl);
                 case PaymentMethod.VnPay:
                     break;
                 case PaymentMethod.Visa:

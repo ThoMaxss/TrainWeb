@@ -26,7 +26,7 @@ export function PageHeader({ children, className }: PageHeaderProps) {
   return (
     <header className={cn(
       "bg-background/80 backdrop-blur-sm border-b border-border shadow-sm",
-      "dark:bg-gray-900/80 dark:border-gray-800",
+      "dark:bg-card/80 dark:border-border",
       className
     )}>
       <div className="container mx-auto px-2 lg:px-2 py-2">

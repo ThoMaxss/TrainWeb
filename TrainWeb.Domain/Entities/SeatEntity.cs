@@ -8,7 +8,7 @@ namespace TrainWeb.Domain.Entities
     public class SeatEntity
     {
         [FirestoreProperty]
-        public string Id { get; set; }
+        public required string Id { get; set; }
         [FirestoreProperty]
         public string? TripId { get; set; }
         [FirestoreProperty]

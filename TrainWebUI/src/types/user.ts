@@ -19,6 +19,7 @@ export interface UserDto {
   email?: string;
   role?: UserRole;
   createdAt?: string;
+  token?: string; // Optional JWT token returned by backend
 }
 
 export interface RegisterRequest {

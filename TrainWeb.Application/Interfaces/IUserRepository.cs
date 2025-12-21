@@ -10,6 +10,9 @@ namespace TrainWeb.Application.Interfaces
         Task<IEnumerable<UserEntity>> GetAllAsync();
         Task AddAsync(UserEntity user);
         Task UpdateAsync(string id, UserEntity user);
+
+        Task UpdateAsync(UserEntity user);
+
         Task DeleteAsync(string id);
     }
 }

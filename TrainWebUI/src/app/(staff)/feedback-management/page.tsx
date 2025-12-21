@@ -108,7 +108,7 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-6 space-y-6">
       <PageHeader title="Quản lý phản hồi" description="Xem và trả lời phản hồi từ khách hàng" icon={MessageSquare} />
 
       <FeedbackStatsCards stats={stats} />

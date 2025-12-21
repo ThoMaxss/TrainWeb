@@ -13,7 +13,7 @@ export interface TicketTypeDto {
 }
 
 export interface TicketEntity {
-  id: string;
+  id?: string; // Optional when creating, required in response
   bookingId?: string; // Optional vì response từ backend không có
   seat?: SeatDto; // Backend trả về nested seat object
   ticketType?: TicketTypeDto; // Backend trả về nested ticketType

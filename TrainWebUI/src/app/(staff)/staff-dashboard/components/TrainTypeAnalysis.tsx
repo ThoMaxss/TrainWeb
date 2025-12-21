@@ -66,7 +66,6 @@ export function TrainTypeAnalysis({ data, formatCurrency }: TrainTypeAnalysisPro
                 border: `1px solid var(--color-border)`, 
                 borderRadius: "8px",
                 fontSize: "14px",
-                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
               }}
               formatter={(value: number, name: string, props: any) => [
                 name === "tickets" ? `${value} vé` : formatCurrency(value),
@@ -85,7 +84,7 @@ export function TrainTypeAnalysis({ data, formatCurrency }: TrainTypeAnalysisPro
           {data.map((type) => (
             <div
               key={type.type}
-              className="flex items-center justify-between p-2 rounded-lg border-2 border-border/50 hover:border-primary transition-colors"
+              className="flex items-center justify-between p-4 rounded-lg border-2 border-border/50 hover:border-primary transition-colors"
             >
               <div>
                 <div className="flex items-center gap-2 mb-1">

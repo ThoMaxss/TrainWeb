@@ -23,9 +23,9 @@ export function StaffTable({ users, onView, onEdit, onDelete }: StaffTableProps)
   const getRoleBadge = (role?: UserRole) => {
     if (role === undefined) return null;
     const colorClasses = {
-      [UserRole.Admin]: "bg-purple-100 text-purple-700 hover:bg-purple-100",
+      [UserRole.Admin]: "bg-primary/10 text-primary hover:bg-primary/10",
       [UserRole.Staff]: "bg-primary/10 text-primary hover:bg-primary/10",
-      [UserRole.Passenger]: "bg-gray-100 text-gray-700 hover:bg-gray-100",
+      [UserRole.Passenger]: "bg-muted text-muted-foreground hover:bg-muted",
     };
     return (
       <Badge className={`gap-1 ${colorClasses[role]}`}>
@@ -58,7 +58,7 @@ export function StaffTable({ users, onView, onEdit, onDelete }: StaffTableProps)
                 </TableRow>
               ) : (
                 users.map((user) => (
-                  <TableRow key={user.id} className="hover:bg-muted/50">
+                  <TableRow key={user.id || user.email} className="hover:bg-muted/50">
                     <TableCell className="font-medium">{user.name}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">

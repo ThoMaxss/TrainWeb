@@ -6,7 +6,7 @@ interface TransactionListProps {
   formatPrice: (price: number) => string
   getStatusConfig: (status: Transaction["status"]) => {
     label: string
-    icon: any
+    icon: React.ElementType
     className: string
   }
   getPaymentMethodInfo: (method: Transaction["paymentMethod"]) => {

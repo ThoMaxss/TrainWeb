@@ -64,7 +64,7 @@ export function TicketDetailSheet({
 
           {/* QR Code */}
           <div className="mb-3 flex justify-center">
-            <div className="rounded-2xl border-2 border-dashed border-border bg-background p-2 shadow-inner">
+            <div className="rounded-2xl border-2 border-dashed border-border bg-background p-4 shadow-inner">
               <div className="h-48 w-48 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl flex items-center justify-center shadow-md">
                 <div className="text-center">
                   <Train className="h-12 w-12 mx-auto mb-2 text-primary" />
@@ -80,7 +80,7 @@ export function TicketDetailSheet({
 
           {/* Train Info */}
           <Card className="mb-3 border-2 border-primary bg-gradient-to-br from-primary/5 to-primary/10 shadow-md">
-            <div className="p-2">
+            <div className="p-4">
               <div className="mb-3 flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                   <Train className="h-4 w-4 text-primary-foreground" />
@@ -116,7 +116,7 @@ export function TicketDetailSheet({
 
           {/* Passenger Info */}
           <Card className="mb-3 border-2 border-secondary/20 bg-gradient-to-br from-secondary/5 to-secondary/10 shadow-md">
-            <div className="p-2">
+            <div className="p-4">
               <div className="mb-3 flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
                   <User className="h-4 w-4 text-primary-foreground" />
@@ -142,7 +142,7 @@ export function TicketDetailSheet({
 
           {/* Ticket Info */}
           <Card className="mb-3 border-2 border-success/20 bg-gradient-to-br from-success/5 to-success/10 shadow-md">
-            <div className="p-2">
+            <div className="p-4">
               <div className="mb-3 flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-success">
                   <MapPin className="h-4 w-4 text-primary-foreground" />
@@ -168,7 +168,7 @@ export function TicketDetailSheet({
 
           {/* Payment Info */}
           <Card className="mb-3 border-2 border-warning/20 bg-gradient-to-br from-warning/5 to-accent/10 shadow-md">
-            <div className="p-2">
+            <div className="p-4">
               <div className="mb-3 flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-warning">
                   <CreditCard className="h-4 w-4 text-primary-foreground" />
@@ -195,10 +195,10 @@ export function TicketDetailSheet({
           </Card>
 
           {/* Policy */}
-          <Card className="mb-3 border-2 border-border bg-gradient-to-br from-slate-50 to-slate-100/50 shadow-md">
-            <div className="p-2">
+          <Card className="mb-3 border-2 border-border bg-card shadow-md">
+            <div className="p-4">
               <div className="mb-3 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-600">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted-foreground">
                   <AlertCircle className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <h3 className="font-semibold text-foreground">Chính sách vé</h3>

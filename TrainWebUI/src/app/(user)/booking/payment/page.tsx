@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -50,44 +50,109 @@ export default function PaymentPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const bookingIdsParam = searchParams.get("bookingId");
-  const bookingIds = bookingIdsParam?.split(",") || [];
+  // Memoize to avoid new array on every render which retriggers effects
+  const bookingIds = useMemo(
+    () => bookingIdsParam?.split(",").filter(Boolean) || [],
+    [bookingIdsParam]
+  );
+
+  console.log(`🔍 Payment page - bookingIdsParam: "${bookingIdsParam}", parsed IDs:`, bookingIds);
 
   useEffect(() => {
     let mounted = true;
     async function loadBookingData() {
       try {
         if (bookingIds.length === 0) {
-          throw new Error("No booking IDs provided");
+          throw new Error("No booking IDs provided in URL");
         }
 
+        console.log(`🔄 Starting loadBookingData() at ${new Date().toISOString()}`);
         setLoading(true);
         
-        // Load all bookings in parallel
-        const bookingPromises = bookingIds.map(id => getBookingById(id));
-        const loadedBookings = await Promise.all(bookingPromises);
+        console.log(`🔄 Loading ${bookingIds.length} bookings:`, bookingIds);
+        
+        // Load all bookings in parallel with timeout
+        const bookingPromises = bookingIds.map(async (id: string) => {
+          console.log(`📥 Fetching booking: ${id} at ${new Date().toISOString()}`);
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Booking fetch timeout (20s)")), 20000)
+          );
+          
+          try {
+            const result = await Promise.race([
+              getBookingById(id),
+              timeoutPromise
+            ]);
+            console.log(`✅ Successfully fetched booking ${id}:`, result);
+            return result;
+          } catch (err) {
+            console.error(`❌ Failed to fetch booking ${id}:`, err);
+            return null; // Return null on error instead of throwing
+          }
+        });
+        
+        console.log('⏳ Waiting for all booking promises to resolve...');
+        const loadedBookings = (await Promise.all(bookingPromises)).filter(Boolean);
+        console.log(`✅ Loaded ${loadedBookings.length} bookings:`, loadedBookings);
         
         if (mounted) {
-          setBookings(loadedBookings);
+          let bookingsToUse: BookingDto[] = [];
+          let seatsToUse: SelectedSeat[] = [];
 
-          // Transform all booking seats to SelectedSeat format
-          const allSeats: SelectedSeat[] = loadedBookings
-            .map(bookingData => {
-              if (bookingData.seat && bookingData.seat.id) {
-                const seat = bookingData.seat;
-                const seatLabel = seat.type === SeatType.Soft ? "Ngồi mềm điều hòa" : "Ngồi cứng";
-                return {
-                  id: seat.id!,
-                  coachNumber: 1,
-                  seatNumber: seat.seatNumber || "",
-                  seatType: seatLabel,
-                  price: seat.price || 0,
-                };
+          if (loadedBookings.length === 0) {
+            console.warn("⚠️ Không thể load bookings từ backend. Thử fallback sang session storage.");
+            // Try to get booking data from session storage (set by confirm page)
+            const fallbackData = sessionStorage.getItem('pendingBooking');
+            if (fallbackData) {
+              try {
+                const { seats, tripId } = JSON.parse(fallbackData);
+                console.log("📦 Using fallback booking data:", { seats, tripId });
+                seatsToUse = seats || [];
+                // Create demo bookings for display purposes
+                bookingsToUse = (seats || []).map((seat: any, idx: number) => ({
+                  id: bookingIds[idx] || `demo-${Date.now()}-${idx}`,
+                  seat: seat,
+                  status: BookingStatus.Reserved,
+                }));
+              } catch (parseErr) {
+                console.error("Failed to parse fallback data", parseErr);
+                // Create minimal fallback
+                bookingsToUse = bookingIds.map((id: string) => ({ id, status: BookingStatus.Reserved }));
               }
-              return null;
-            })
-            .filter((s): s is SelectedSeat => s !== null);
+            } else {
+              console.warn("⚠️ No fallback data in session storage, creating minimal state");
+              // Create minimal state to allow page to render
+              bookingsToUse = bookingIds.map((id: string) => ({ id, status: BookingStatus.Reserved }));
+            }
+          } else {
+            // Use loaded bookings
+            bookingsToUse = loadedBookings as BookingDto[];
+            // Transform all booking seats to SelectedSeat format (prefer ticket.seat if available)
+            seatsToUse = (loadedBookings as BookingDto[])
+              .map((bookingData: BookingDto | null) => {
+                if (!bookingData) return null;
+                // Prefer seat from ticket if backend returns nested ticket
+                const seatSource = bookingData.ticket?.seat ?? (bookingData as any).seat;
+                const seat = seatSource;
+                if (seat && seat.id) {
+                  const seatLabel = typeof seat.type === 'string'
+                    ? (seat.type.toLowerCase() === 'soft' ? "Ngồi mềm điều hòa" : "Ngồi cứng")
+                    : (seat.type === SeatType.Soft ? "Ngồi mềm điều hòa" : "Ngồi cứng");
+                  return {
+                    id: seat.id!,
+                    coachNumber: 1,
+                    seatNumber: seat.seatNumber || "",
+                    seatType: seatLabel,
+                    price: seat.price || 0,
+                  };
+                }
+                return null;
+              })
+              .filter((s): s is SelectedSeat => s !== null);
+          }
 
-          setSelectedSeats(allSeats);
+          setBookings(bookingsToUse);
+          setSelectedSeats(seatsToUse);
           
           // Initialize optional services (can be extended based on backend support)
           setOptionalServices({
@@ -98,17 +163,43 @@ export default function PaymentPage() {
       } catch (error) {
         console.error("Failed to load booking data:", error);
         if (mounted) {
-          alert("Không thể tải thông tin đặt vé. Vui lòng thử lại.");
-          router.back();
+          // On error, still try to show payment page with fallback data
+          console.warn("⚠️ Attempting fallback due to error");
+          const fallbackData = sessionStorage.getItem('pendingBooking');
+          if (fallbackData) {
+            try {
+              const parsed = JSON.parse(fallbackData);
+              const { seats } = parsed;
+              const demoBookings = bookingIds.map((id: string, idx: number) => ({
+                id: id.startsWith('demo-') ? id : `demo-${Date.now()}-${idx}`,
+                status: BookingStatus.Reserved,
+              }));
+              setBookings(demoBookings);
+              setSelectedSeats(seats || []);
+              console.log("✅ Fallback loaded successfully");
+            } catch (parseErr) {
+              console.error("Fallback parse error", parseErr);
+              alert(`⚠️ Không thể tải dữ liệu. Vui lòng quay lại và thử lại.`);
+              router.back();
+            }
+          } else {
+            alert(`⚠️ Không thể tải thông tin đặt vé. Vui lòng quay lại và thử lại.`);
+            router.back();
+          }
         }
       } finally {
         if (mounted) setLoading(false);
       }
     }
 
+    if (bookingIds.length === 0) {
+      console.error("❌ No booking IDs provided");
+      return;
+    }
+
     loadBookingData();
     return () => { mounted = false; };
-  }, [bookingIds, router]);
+  }, [bookingIdsParam, router]);
 
   // Calculate prices
   const ticketTotal = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
@@ -122,7 +213,10 @@ export default function PaymentPage() {
   };
 
   const handlePayment = async () => {
-    if (bookings.length === 0) return;
+    if (bookings.length === 0) {
+      alert("Không tìm thấy thông tin đặt vé. Vui lòng quay lại và thử lại.");
+      return;
+    }
 
     setProcessing(true);
 
@@ -152,15 +246,18 @@ export default function PaymentPage() {
 
       // Create payment for first booking (or combine amounts)
       const paymentResult = await createPayment({
-        bookingId: bookings[0].id!,
+        booking: { id: bookings[0].id! },
         method: methodEnum,
         amount: grandTotal,
         status: PaymentStatus.Pending,
       });
 
+      console.log("💳 Payment result:", paymentResult, "Type:", typeof paymentResult);
+
       // Handle Momo redirect (if payment returns URL string)
       if (typeof paymentResult === 'string') {
-        // Momo payment - redirect to payment URL
+        console.log("💳 Redirecting to MoMo payment page:", paymentResult);
+        // Redirect to real MoMo payment URL
         window.location.href = paymentResult;
         return;
       }
@@ -174,13 +271,14 @@ export default function PaymentPage() {
       );
       await Promise.all(updatePromises);
       
+      console.log("✅ Payment successful, redirecting to success page");
       // Navigate to success page with booking IDs and payment result
       const bookingIdsString = bookings.map(b => b.id).join(",");
       router.push(`/booking/success?bookingId=${bookingIdsString}&paymentId=${paymentResult.id}`);
     } catch (error) {
       console.error("Payment failed:", error);
       const errorMessage = error instanceof Error ? error.message : "Thanh toán thất bại";
-      alert(`Lỗi thanh toán: ${errorMessage}. Vui lòng thử lại hoặc chọn phương thức khác.`);
+      alert(`❌ Lỗi thanh toán: ${errorMessage}\n\nVui lòng thử lại hoặc chọn phương thức khác.`);
     } finally {
       setProcessing(false);
     }
@@ -337,7 +435,7 @@ export default function PaymentPage() {
                   <div className="space-y-2 text-sm">
                     <p><strong>Ngân hàng:</strong> Vietcombank</p>
                     <p><strong>Số tài khoản:</strong> 1234567890</p>
-                    <p><strong>Tên tài khoản:</strong> CONG TY TNHH TRAIN BOOKING</p>
+                    <p><strong>Tên tài khoản:</strong> CONG TY TNHH GORAIL</p>
                     <p><strong>Nội dung:</strong> THANHTOAN [MÃ ĐẶT VÉ]</p>
                     <div className="bg-warning/10 p-2 rounded-md border border-warning/20">
                       <p className="text-warning">
@@ -413,13 +511,18 @@ export default function PaymentPage() {
                 {/* Payment Button */}
                 <Button 
                   onClick={handlePayment} 
-                  disabled={processing}
+                  disabled={processing || bookings.length === 0 || loading}
                   className="w-full"
                 >
                   {processing ? (
                     <div className="flex items-center space-x-2">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      <span>Đang xử lý...</span>
+                      <span>Đang xử lý thanh toán...</span>
+                    </div>
+                  ) : loading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      <span>Đang tải dữ liệu...</span>
                     </div>
                   ) : (
                     <>

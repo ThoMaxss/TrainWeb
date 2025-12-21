@@ -36,6 +36,13 @@ namespace TrainWeb.API.Controllers
             return Ok(bookings.Select(booking => booking.ToDto()));
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetByUserId([FromRoute] string userId)
+        {
+            var bookings = await BookingService.GetByUserIdAsync(userId);
+            return Ok(bookings.Select(booking => booking.ToDto()));
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] BookingDto bookingDto)
         {

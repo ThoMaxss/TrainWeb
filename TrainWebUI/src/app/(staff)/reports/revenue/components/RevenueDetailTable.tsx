@@ -22,7 +22,7 @@ interface RevenueDetailTableProps {
 export function RevenueDetailTable({ data }: RevenueDetailTableProps) {
   return (
     <Card className="border-0 bg-background/80 backdrop-blur-sm shadow-xl shadow-primary/10">
-      <div className="p-2">
+      <div className="p-4">
         <div className="mb-3 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-foreground">Bảng chi tiết</h3>
