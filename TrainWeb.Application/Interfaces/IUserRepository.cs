@@ -1,18 +1,15 @@
-﻿using TrainWeb.Domain.Entities;
-using TrainWeb.Infrastructure.Repositories;
+﻿using TrainWeb.Domain.Domain;
 
 namespace TrainWeb.Application.Interfaces
 {
-    public interface IUserRepository : IRepository<UserEntity>
+    public interface IUserRepository
     {
-        Task<UserEntity?> GetByIdAsync(string id);
-        Task<UserEntity?> GetByEmailAsync(string email);
-        Task<IEnumerable<UserEntity>> GetAllAsync();
-        Task AddAsync(UserEntity user);
-        Task UpdateAsync(string id, UserEntity user);
+        Task<User?> GetByIdAsync(string id);
+        Task<User?> GetByEmailAsync(string email);
+        Task<IReadOnlyList<User>> GetAllAsync();
 
-        Task UpdateAsync(UserEntity user);
-
+        Task AddAsync(User user);
+        Task UpdateAsync(string id, User user);
         Task DeleteAsync(string id);
     }
 }
