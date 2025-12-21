@@ -1,6 +1,7 @@
 import { UserDto } from './user';
 import { TripDto } from './trip';
 import { SeatDto } from './seat';
+import { TicketEntity } from './ticket';
 
 export enum BookingStatus {
   Reserved = 0,
@@ -22,6 +23,7 @@ export interface BookingDto {
   user?: UserDto;
   trip?: TripDto;
   seat?: SeatDto;
+  ticket?: TicketEntity; // Ticket reference for creating bookings
   status?: BookingStatus;
   createdAt?: string;
 }

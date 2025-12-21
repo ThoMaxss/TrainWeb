@@ -25,7 +25,7 @@ const COLORS = {
 export function RevenueTrendChart({ data, timeFilterLabel }: RevenueTrendChartProps) {
   return (
     <Card className="border-0 bg-background/80 backdrop-blur-sm shadow-xl shadow-primary/10 lg:col-span-2">
-      <div className="p-2">
+      <div className="p-4">
         <div className="mb-3 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-foreground">Xu hướng doanh thu</h3>
@@ -54,7 +54,7 @@ export function RevenueTrendChart({ data, timeFilterLabel }: RevenueTrendChartPr
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "white",
+                backgroundColor: "var(--color-card)",
                 border: `1px solid var(--color-border)`,
                 borderRadius: "8px",
               }}

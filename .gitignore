@@ -17,9 +17,7 @@
 mono_crash.*
 
 # Sensitive configs
-appsettings.json
 appsettings.Production.json
-firebase-key.json
 
 # Build results
 [Dd]ebug/

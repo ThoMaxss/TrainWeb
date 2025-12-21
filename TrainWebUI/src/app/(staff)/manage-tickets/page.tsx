@@ -169,12 +169,12 @@ export default function ManageTicketsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-muted via-primary/10 to-primary/20">
-      <div className="p-2 border-b bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto px-2 lg:px-2">
+    <div className="min-h-screen bg-background">
+      <div className="border-b bg-background/95 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4">
           <PageHeader
-            title="Manage Tickets"
-            description="Search, filter, and inspect tickets"
+            title="Quản lý vé"
+            description="Tìm kiếm, lọc và kiểm tra vé"
             actions={
               <Button onClick={handleExportExcel} className="h-9">
                 <FileDown className="h-4 w-4 mr-2" />
@@ -185,7 +185,7 @@ export default function ManageTicketsPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-2 lg:px-2 py-5">
+      <div className="container mx-auto px-4 py-6 space-y-6">
         <TicketSearchFilters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}

@@ -22,13 +22,13 @@ export function InfoRow({
       className
     )}>
       <span className={cn(
-        "text-sm text-muted-foreground dark:text-muted-foreground",
+        "text-sm text-muted-foreground",
         labelClassName
       )}>
         {label}:
       </span>
       <span className={cn(
-        "text-sm font-medium text-foreground dark:text-gray-100",
+        "text-sm font-medium text-foreground",
         valueClassName
       )}>
         {value}

@@ -27,7 +27,7 @@ export default function AuthLayout({
         
         <div className="relative z-10 flex flex-col justify-center items-center text-white p-12">
           <div className="text-center space-y-6">
-            <Display className="text-white drop-shadow-lg">TrainBooking</Display>
+            <Display className="text-white drop-shadow-lg">GoRail</Display>
             <H2 className="text-white/95 font-medium">
               Hệ thống đặt vé tàu hỏa trực tuyến
             </H2>

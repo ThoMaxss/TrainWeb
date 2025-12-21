@@ -1,16 +1,15 @@
 ﻿using Google.Cloud.Firestore;
 using TrainWeb.Application.Interfaces;
-using TrainWeb.Domain.Domain;
 using TrainWeb.Domain.Entities;
 using TrainWeb.Infrastructure.Persistence;
-using TrainWeb.Infrastructure.Repositories;
 
 namespace TrainWeb.Infrastructure.Repositories
 {
     public class UserRepository : FirestoreRepository<UserEntity>, IUserRepository
     {
-        public UserRepository(FirestoreDbContext context) : base(context) { }
         private const string CollectionName = "Users";
+
+        public UserRepository(FirestoreDbContext context) : base(context) { }
 
         public async Task<UserEntity?> GetByIdAsync(string id)
         {
@@ -19,9 +18,9 @@ namespace TrainWeb.Infrastructure.Repositories
 
         public async Task<UserEntity?> GetByEmailAsync(string email)
         {
-            Query query = FirestoreDb.Collection(CollectionName).WhereEqualTo("Email", email);
-            QuerySnapshot snapshot = await query.GetSnapshotAsync();
-            return snapshot.Documents.FirstOrDefault()?.ConvertTo<UserEntity>();
+            return await QueryFirstAsync(CollectionName, collection =>
+                collection.WhereEqualTo("Email", email)
+            );
         }
 
         public async Task<IEnumerable<UserEntity>> GetAllAsync()
@@ -38,10 +37,23 @@ namespace TrainWeb.Infrastructure.Repositories
         {
             await UpdateAsync(CollectionName, id, user);
         }
+
+        public async Task UpdateAsync(UserEntity user)
+        {
+            await UpdateAsync(CollectionName, user.Id, user);
+        }
+
+        public async Task UpdateEmailVerifiedStatusAsync(string id, bool isVerified)
+        {
+            await UpdateFieldsAsync(CollectionName, id, new Dictionary<string, object>
+            {
+                { "IsEmailVerified", isVerified }
+            });
+        }
+
         public async Task DeleteAsync(string id)
         {
             await base.DeleteAsync(CollectionName, id);
         }
-
     }
 }

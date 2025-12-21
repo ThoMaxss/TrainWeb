@@ -1,13 +1,14 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Star } from "lucide-react";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { Star, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getTripById } from "@/lib/api/trip";
 import { submitFeedback } from "@/lib/api/feedback";
 import type { TripDto, FeedbackEntity } from "@/types";
+import { getCurrentUserId } from "@/lib/utils/auth";
 import { FeedbackHeader } from "./components/FeedbackHeader";
 import { TripInfoCard } from "./components/TripInfoCard";
 import { RatingCard } from "./components/RatingCard";
@@ -30,52 +31,68 @@ export default function FeedbackPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const tripId = searchParams.get("tripId");
-  const seats = searchParams.get("seats")?.split(",") || ["1A", "1B"];
-  const userId = "current-user"; // TODO: get from auth context
+  // Memoize URL params
+  const { tripId, seats, userId } = useMemo(() => ({
+    tripId: searchParams.get("tripId"),
+    seats: searchParams.get("seats")?.split(",") || ["1A", "1B"],
+    userId: getCurrentUserId() || "current-user",
+  }), [searchParams]);
 
-  useEffect(() => {
-    if (tripId) {
-      let mounted = true;
-      async function loadTrip() {
-        try {
-          setLoading(true);
-          const trip = await getTripById(tripId!);
-          if (mounted) {
-            setTripData(trip);
-          }
-        } catch (error) {
-          console.error("Failed to load trip data:", error);
-          // Continue with fallback data
-        } finally {
-          if (mounted) setLoading(false);
-        }
+  // Load trip data with caching
+  const loadTrip = useCallback(async () => {
+    if (!tripId) return;
+    
+    const controller = new AbortController();
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const trip = await getTripById(tripId);
+      setTripData(trip);
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        console.error("Failed to load trip data:", err);
+        setError("Không thể tải thông tin chuyến đi");
       }
-      loadTrip();
-      return () => { mounted = false; };
+    } finally {
+      setLoading(false);
     }
+
+    return () => controller.abort();
   }, [tripId]);
 
-  // Default trip info fallback
-  const tripInfo = tripData ? {
-    trainNumber: tripData.train?.name || "N/A",
-    route: `${tripData.originStation || "N/A"} → ${tripData.destinationStation || "N/A"}`,
-    date: tripData.departure ? new Date(tripData.departure).toLocaleDateString("vi-VN", {
-      year: "numeric",
-      month: "2-digit", 
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    }) : "N/A",
-    seats,
-  } : {
-    trainNumber: "SE3",
-    route: "Hà Nội → Đà Nẵng", 
-    date: "30/09/2025, 06:00",
-    seats,
-  };
+  useEffect(() => {
+    loadTrip();
+  }, [loadTrip]);
 
-  const toggleCategory = (categoryId: string) => {
+  // Memoized trip info
+  const tripInfo = useMemo(() => {
+    if (tripData) {
+      return {
+        trainNumber: tripData.train?.name || "N/A",
+        route: `${tripData.originStation || "N/A"} → ${tripData.destinationStation || "N/A"}`,
+        date: tripData.departure
+          ? new Date(tripData.departure).toLocaleDateString("vi-VN", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "N/A",
+        seats,
+      };
+    }
+    return {
+      trainNumber: "SE3",
+      route: "Hà Nội → Đà Nẵng",
+      date: "30/09/2025, 06:00",
+      seats,
+    };
+  }, [tripData, seats]);
+
+  const toggleCategory = useCallback((categoryId: string) => {
     setSelectedCategories((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(categoryId)) {
@@ -85,43 +102,51 @@ export default function FeedbackPage() {
       }
       return newSet;
     });
-  };
+  }, []);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
       const newImages = Array.from(files).slice(0, 3 - uploadedImages.length);
       setUploadedImages((prev) => [...prev, ...newImages]);
     }
-  };
+  }, [uploadedImages.length]);
 
-  const removeImage = (index: number) => {
+  const removeImage = useCallback((index: number) => {
     setUploadedImages((prev) => prev.filter((_, i) => i !== index));
-  };
+  }, []);
 
   // Submit feedback
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
       const feedbackData: FeedbackEntity = {
-        id: '',
+        id: "",
         userId,
-        tripId: tripData?.id || "fallback-trip-id",
+        tripId: tripData?.id || tripId || "fallback-trip-id",
         rating,
-        content: JSON.stringify({ categories: Array.from(selectedCategories), comment: comment.trim() || undefined }),
+        content: JSON.stringify({
+          categories: Array.from(selectedCategories),
+          comment: comment.trim() || undefined,
+        }),
         createdAt: new Date().toISOString(),
       };
 
       await submitFeedback(feedbackData);
       setIsSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Không thể gửi phản hồi. Vui lòng thử lại.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Không thể gửi phản hồi. Vui lòng thử lại."
+      );
+      console.error("Failed to submit feedback:", err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [comment, rating, selectedCategories, tripData, tripId, userId]);
 
   const handleSkip = () => router.push("/");
   const handleGoHome = () => router.push("/");

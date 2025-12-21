@@ -140,7 +140,7 @@ export default function StaffProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-2 py-5 max-w-7xl">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
         <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
           {/* Left Column */}
           <div className="space-y-6">

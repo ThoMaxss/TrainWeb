@@ -84,5 +84,25 @@ namespace TrainWeb.Application.Services
         {
             await SeatRepository.DeleteAsync(id);
         }
+
+        public async Task MarkSeatAsUnavailable(string seatId)
+        {
+            var seatEntity = await SeatRepository.GetByIdAsync(seatId);
+            if (seatEntity != null)
+            {
+                seatEntity.IsAvailable = false;
+                await SeatRepository.UpdateAsync(seatId, seatEntity);
+            }
+        }
+
+        public async Task MarkSeatAsAvailable(string seatId)
+        {
+            var seatEntity = await SeatRepository.GetByIdAsync(seatId);
+            if (seatEntity != null)
+            {
+                seatEntity.IsAvailable = true;
+                await SeatRepository.UpdateAsync(seatId, seatEntity);
+            }
+        }
     }
 }

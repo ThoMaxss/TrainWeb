@@ -22,7 +22,8 @@ namespace TrainWeb.Infrastructure.Services.Momo
             var accessKey = Configuration["Momo:AccessKey"];
             var secretKey = Configuration["Momo:SecretKey"];
             var requestId = Guid.NewGuid().ToString();
-            var amount = payment.Amount.ToString();
+            // Ensure amount uses invariant culture to avoid comma/locale issues
+            var amount = (payment.Amount ?? 0).ToString(System.Globalization.CultureInfo.InvariantCulture);
             var redirectUrl = Configuration["Momo:RedirectUrl"]; //Thay bằng URL của FE // Chạy lệnh 'ngrok http https://localhost:7128' khi chạy local
             var ipnUrl = Configuration["Momo:IpnUrl"]; // Chạy lệnh 'ngrok http https://localhost:7128' khi chạy local
             var orderInfo = "Thanh toán vé tàu";
@@ -40,6 +41,12 @@ namespace TrainWeb.Infrastructure.Services.Momo
                 $"&redirectUrl={redirectUrl}" +
                 $"&requestId={requestId}" +
                 $"&requestType={requestType}";
+            if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(partnerCode) ||
+                string.IsNullOrWhiteSpace(accessKey) || string.IsNullOrWhiteSpace(secretKey))
+            {
+                return new MomoPaymentResponse { resultCode = -1, message = "Missing MoMo configuration." };
+            }
+
             var signature = MomoHelper.CreateSignature(rawHash, secretKey);
 
             var paymentRequest = new

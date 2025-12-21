@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthContext';
@@ -16,47 +16,47 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Get return URL from query params
+  const returnUrl = searchParams.get('returnUrl');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      let userDto: UserDto;
-      try {
-        // Call backend login API with email and password
-        const loginPayload: LoginRequest = {
-          email: formData.email,
-          password: formData.password,
-        };
-        const authResponse = await apiLogin(loginPayload);
-        
-        // Convert AuthResponse to UserDto
-        // Note: Backend should return user details, for now using demo data structure
-        userDto = { 
-          id: 'backend-user-id', // Backend should provide this
-          name: authResponse.email?.split('@')[0] || 'User', // Temporary: extract from email
-          email: authResponse.email || formData.email, 
-          role: authResponse.role === 'Admin' ? UserRole.Admin : 
-                authResponse.role === 'Staff' ? UserRole.Staff : UserRole.Passenger,
-          createdAt: new Date().toISOString() 
-        };
-      } catch {
-        // Fallback to demo users if backend fails
-        const demoUsers = {
-          'admin@demo.com': { id:'demo-admin-1', name:'Admin Demo', email:'admin@demo.com', role:UserRole.Admin, createdAt:new Date().toISOString() },
-          'staff@demo.com': { id:'demo-staff-1', name:'Staff Demo', email:'staff@demo.com', role:UserRole.Staff, createdAt:new Date().toISOString() },
-          'user@demo.com' : { id:'demo-user-1',  name:'User Demo',  email:'user@demo.com',  role:UserRole.Passenger, createdAt:new Date().toISOString() },
-        } as const;
-        userDto = demoUsers[formData.email as keyof typeof demoUsers];
-        if (!userDto) throw new Error('Email không hợp lệ. Vui lòng dùng tài khoản demo.');
-      }
+      // Real API login
+      const loginPayload: LoginRequest = {
+        email: formData.email,
+        password: formData.password,
+      };
+      const authResponse = await apiLogin(loginPayload);
+      
+      // Convert AuthResponse to UserDto (AuthResponse doesn't include id/name)
+      const userDto: UserDto = { 
+        id: authResponse.email || formData.email,
+        name: (authResponse.email || formData.email).split('@')[0] || 'User',
+        email: authResponse.email || formData.email, 
+        role: authResponse.role === 'Admin' ? UserRole.Admin : 
+              authResponse.role === 'Staff' ? UserRole.Staff : UserRole.Passenger,
+        createdAt: new Date().toISOString(),
+        token: authResponse.token,
+      };
+      
       login(userDto);
-      switch (userDto.role) {
-        case UserRole.Admin: router.push('/admin-dashboard'); break;
-        case UserRole.Staff: router.push('/staff-dashboard'); break;
-        case UserRole.Passenger: router.push('/search'); break;
-        default: router.push('/');
+      
+      // Redirect to returnUrl if provided, otherwise use role-based routing
+      if (returnUrl) {
+        console.log("✅ Login successful, redirecting to:", returnUrl);
+        router.push(returnUrl);
+      } else {
+        switch (userDto.role) {
+          case UserRole.Admin: router.push('/admin-dashboard'); break;
+          case UserRole.Staff: router.push('/staff-dashboard'); break;
+          case UserRole.Passenger: router.push('/search'); break;
+          default: router.push('/');
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Đăng nhập thất bại.');
@@ -76,7 +76,7 @@ export default function LoginPage() {
           <div className="text-center py-8 px-6 bg-background">
             <H1 className="mb-2">Đăng nhập</H1>
             <Body className="text-muted-foreground">
-              Đăng nhập vào tài khoản TrainBooking của bạn
+              Đăng nhập vào tài khoản GoRail của bạn
             </Body>
           </div>
 
@@ -151,20 +151,7 @@ export default function LoginPage() {
                 {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </button>
 
-              {/* Demo Accounts Info */}
-              <div className="bg-accent/50 border border-accent rounded-xl p-4">
-                <Small className="font-semibold text-accent-foreground mb-3 block">
-                  Tài khoản demo để test:
-                </Small>
-                <div className="space-y-2 text-sm text-accent-foreground">
-                  <div><strong>Admin:</strong> admin@demo.com</div>
-                  <div><strong>Staff:</strong> staff@demo.com</div>
-                  <div><strong>User:</strong> user@demo.com</div>
-                  <Small className="text-muted-foreground mt-3 block">
-                    Nhập một trong các email trên để thử!
-                  </Small>
-                </div>
-              </div>
+
 
               {/* Links */}
               <div className="space-y-4 text-center">

@@ -252,13 +252,13 @@ export default function StaffDashboardPage() {
 
   return (
     <TooltipProvider>
-      <div className="space-y-6">
+      <div className="container mx-auto px-4 py-6 space-y-6">
         <DashboardHeader staffInfo={staffInfo} />
 
-        <div className="space-y-5">
+        <div className="space-y-6">
           <KPICards data={kpiData} onNavigate={handleNavigation} />
 
-          <div className="mb-5 grid gap-3 lg:grid-cols-3">
+          <div className="grid gap-4 lg:grid-cols-3">
             <RevenueChart
               data={revenueData}
               selectedPeriod={selectedPeriod}
@@ -271,7 +271,7 @@ export default function StaffDashboardPage() {
 
           <TrainTypeAnalysis data={ticketsByType} formatCurrency={formatCurrency} />
 
-          <div className="grid gap-3 lg:grid-cols-3">
+          <div className="grid gap-4 lg:grid-cols-3">
             <UpcomingTrainsList trains={upcomingTrains} onNavigate={handleNavigation} />
             <RecentTransactions
               transactions={transactions}

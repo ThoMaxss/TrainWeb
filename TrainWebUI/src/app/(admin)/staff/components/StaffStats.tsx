@@ -51,8 +51,8 @@ export function StaffStats({
               <p className="text-sm text-muted-foreground">Quản trị viên</p>
               <p className="text-2xl font-bold text-foreground mt-1">{adminCount}</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
-              <UserCheck className="h-6 w-6 text-purple-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <UserCheck className="h-6 w-6 text-primary" />
             </div>
           </div>
         </div>
@@ -65,8 +65,8 @@ export function StaffStats({
               <p className="text-sm text-muted-foreground">Hành khách</p>
               <p className="text-2xl font-bold text-foreground mt-1">{passengerCount}</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-              <Activity className="h-6 w-6 text-gray-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <Activity className="h-6 w-6 text-muted-foreground" />
             </div>
           </div>
         </div>

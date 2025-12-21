@@ -15,14 +15,22 @@ namespace TrainWeb.Domain.Domain
         public string? Email { get; }
         public UserRole? Role { get; }
         public DateTime? CreatedAt { get; }
+        public bool? IsEmailVerified { get; } 
 
-        public User(string? id, string? name, string? email, UserRole? role, DateTime? createdAt)
+        public User(
+            string? id,
+            string? name,
+            string? email,
+            UserRole? role,
+            DateTime? createdAt,
+            bool? isEmailVerified = false) 
         {
             Id = id;
             Name = name;
             Email = email;
             Role = role;
             CreatedAt = createdAt;
+            IsEmailVerified = isEmailVerified; 
         }
     }
 }

@@ -383,7 +383,12 @@ export default function QRCheckPage() {
           if (cams[0]?.id) setActiveCameraId(cams[0].id)
         }
 
-        await qr.start()
+        await qr.start().catch((err) => {
+          // Suppress "play() interrupted" warnings from video element
+          if (err?.name !== 'AbortError' && !err?.message?.includes('play()')) {
+            throw err;
+          }
+        })
         if (!canceled) {
           setIsScanning(true)
           setIsPaused(false)
@@ -420,7 +425,12 @@ export default function QRCheckPage() {
     if (!scannerRef.current) return
     try {
       await scannerRef.current.stop()
-      await scannerRef.current.start()
+      await scannerRef.current.start().catch((err: any) => {
+        // Suppress "play() interrupted" warnings
+        if (err?.name !== 'AbortError' && !err?.message?.includes('play()')) {
+          throw err;
+        }
+      })
       setIsScanning(true)
       setIsPaused(false)
     } catch {
@@ -463,7 +473,12 @@ export default function QRCheckPage() {
   const resumeScanner = async () => {
     if (!scannerRef.current) return
     try {
-      await scannerRef.current.start()
+      await scannerRef.current.start().catch((err: any) => {
+        // Suppress "play() interrupted" warnings
+        if (err?.name !== 'AbortError' && !err?.message?.includes('play()')) {
+          throw err;
+        }
+      })
       setIsScanning(true)
       setIsPaused(false)
       // xoá khung hình freeze cũ
@@ -514,7 +529,7 @@ export default function QRCheckPage() {
   }, [notification])
 
   return (
-    <div className="space-y-5">
+    <div className="container mx-auto px-4 py-6 space-y-6">
       <PageHeader
         title="Kiểm tra vé QR"
         description="Quét mã QR hoặc nhập thủ công để xác thực vé"

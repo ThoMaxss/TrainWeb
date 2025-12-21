@@ -46,13 +46,13 @@ export function UserStatsCards({ users }: UserStatsCardsProps) {
         </div>
       </Card>
 
-      <Card className="p-4 border-0 bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-950/30 dark:to-gray-900/20">
+      <Card className="p-4 border-0 bg-gradient-to-br from-muted/30 to-muted/50">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Hành khách</p>
-            <p className="text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.passengers}</p>
+            <p className="text-sm text-muted-foreground font-medium">Hành khách</p>
+            <p className="text-3xl font-bold text-foreground">{stats.passengers}</p>
           </div>
-          <UsersIcon className="h-10 w-10 text-gray-600/40" />
+          <UsersIcon className="h-10 w-10 text-muted-foreground/40" />
         </div>
       </Card>
     </div>

@@ -68,7 +68,7 @@ export function UpcomingTrainsList({ trains, onNavigate }: UpcomingTrainsListPro
           {trains.map((train) => (
             <div
               key={train.code}
-              className="rounded-lg border-2 border-border p-2 transition-all hover:border-primary hover:bg-primary/10 cursor-pointer"
+              className="rounded-lg border-2 border-border p-4 transition-all hover:border-primary hover:bg-primary/10 cursor-pointer"
               onClick={() => onNavigate(`/trains/${train.code}`)}
             >
               <div className="flex items-start justify-between mb-3">
