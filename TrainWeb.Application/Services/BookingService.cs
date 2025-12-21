@@ -49,8 +49,7 @@ namespace TrainWeb.Application.Services
         {
             var bookingEntities = await BookingRepository.GetAllAsync();
 
-            return bookingEntities.Select(bookingEntity =>
-            {
+            return bookingEntities.Select(bookingEntity => {
                 return bookingEntity.ToDomain(null, null);
             }).ToImmutableList();
         }
