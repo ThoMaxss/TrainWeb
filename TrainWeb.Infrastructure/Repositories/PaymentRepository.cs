@@ -1,71 +1,59 @@
 ﻿using Google.Cloud.Firestore;
-using TrainWeb.Domain.Entities;
 using TrainWeb.Application.Interfaces;
+using TrainWeb.Domain.Entities;
 using TrainWeb.Infrastructure.Persistence;
 
 namespace TrainWeb.Infrastructure.Repositories
 {
     public class PaymentRepository : FirestoreRepository<PaymentEntity>, IPaymentRepository
     {
-        private const string CollectionName = "Payments";
+        private const string CollectionName = "payments"; 
 
         public PaymentRepository(FirestoreDbContext context) : base(context) { }
 
-        public async Task<PaymentEntity?> GetByIdAsync(string id)
-        {
-            return await GetByIdAsync(CollectionName, id);
-        }
+        public Task<PaymentEntity?> GetByIdAsync(string id)
+            => GetByIdAsync(CollectionName, id);
 
-        public async Task<IEnumerable<PaymentEntity>> GetAllAsync()
-        {
-            return await GetAllAsync(CollectionName);
-        }
+        public Task<IEnumerable<PaymentEntity>> GetAllAsync()
+            => GetAllAsync(CollectionName);
 
         public async Task<IEnumerable<PaymentEntity>?> GetByBookingIdAsync(string bookingId)
         {
-            var query = FirestoreDb.Collection(CollectionName).WhereEqualTo("BookingId", bookingId);
+            var snapshot = await FirestoreDb.Collection(CollectionName)
+                .WhereEqualTo("bookingId", bookingId)
+                .GetSnapshotAsync();
 
-            var snapshot = await query.GetSnapshotAsync();
-
-            return snapshot.Documents.Select(doc => doc.ConvertTo<PaymentEntity>()).ToList();
+            return snapshot.Documents.Select(d => d.ConvertTo<PaymentEntity>()).ToList();
         }
 
         public async Task<PaymentEntity?> GetPendingByBookingIdAsync(string bookingId)
         {
-            var query = await FirestoreDb.Collection(CollectionName).WhereEqualTo("BookingId", bookingId).WhereEqualTo("Status",1).GetSnapshotAsync();
+            var snapshot = await FirestoreDb.Collection(CollectionName)
+                .WhereEqualTo("bookingId", bookingId)
+                .WhereEqualTo("status", "pending") 
+                .Limit(1)
+                .GetSnapshotAsync();
 
-            var snapshot = query.Documents.FirstOrDefault();
-
-            if(snapshot == null)
-            {
-                return null;
-            }    
-
-            return snapshot.Exists ? snapshot.ConvertTo<PaymentEntity>() : null;
+            var doc = snapshot.Documents.FirstOrDefault();
+            return doc == null ? null : doc.ConvertTo<PaymentEntity>();
         }
 
         public async Task<IEnumerable<PaymentEntity>?> GetByUserIdAsync(string userId)
         {
-            var query = FirestoreDb.Collection(CollectionName).WhereEqualTo("UserId", userId);
+            var snapshot = await FirestoreDb.Collection(CollectionName)
+                .WhereEqualTo("userId", userId)
+                .GetSnapshotAsync();
 
-            var snapshot = await query.GetSnapshotAsync();
-
-            return snapshot.Documents.Select(doc => doc.ConvertTo<PaymentEntity>()).ToList();
+            return snapshot.Documents.Select(d => d.ConvertTo<PaymentEntity>()).ToList();
         }
 
-        public async Task AddAsync(PaymentEntity paymentEntity)
-        {
-            await AddAsync(CollectionName, paymentEntity.Id, paymentEntity);
-        }
+        public Task AddAsync(PaymentEntity paymentEntity)
+            => AddAsync(CollectionName, paymentEntity.Id, paymentEntity);
 
-        public async Task UpdateAsync(string id, PaymentEntity paymentEntity)
-        {
-            await UpdateAsync(CollectionName, id, paymentEntity);
-        }
+        public Task UpdateAsync(string id, PaymentEntity paymentEntity)
+            => UpdateAsync(CollectionName, id, paymentEntity);
 
-        public async Task DeleteAsync(string id)
-        {
-            await DeleteAsync(CollectionName, id);
-        }
+        public Task DeleteAsync(string id)
+            => DeleteAsync(CollectionName, id);
     }
 }

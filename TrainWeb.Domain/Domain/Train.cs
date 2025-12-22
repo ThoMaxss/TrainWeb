@@ -1,23 +1,18 @@
-﻿using Google.Cloud.Firestore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TrainWeb.Domain.Domain
+﻿namespace TrainWeb.Domain.Domain
 {
     public class Train
     {
-        public string? Id { get; }
-        public string? Name { get; }
-        public string? Type { get; }
+        public string Id { get; }
+        public string Name { get; }
+        public string Type { get; }
+        public DateTime CreatedAt { get; }
 
-        public Train(string? id, string? name, string? type)
+        public Train(string id, string name, string type, DateTime? createdAt = null)
         {
             Id = id;
             Name = name;
             Type = type;
+            CreatedAt = createdAt ?? DateTime.UtcNow;
         }
     }
 }

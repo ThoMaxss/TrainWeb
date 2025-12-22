@@ -6,21 +6,34 @@ namespace TrainWeb.Domain.Entities
     [FirestoreData]
     public class TrainEntity
     {
-        [FirestoreProperty] 
-        public string Id { get; set; }
-        [FirestoreProperty] 
-        public string Name { get; set; }
-        [FirestoreProperty] 
-        public string Type { get; set; }
+        [FirestoreDocumentId]
+        public string Id { get; set; } = default!;
 
-        public Train ToDomain() => new Train(Id, Name, Type);
+        [FirestoreProperty("name")]
+        public string Name { get; set; } = default!;
+
+        [FirestoreProperty("type")]
+        public string Type { get; set; } = default!;
+
+        [FirestoreProperty("createdAt")]
+        public Timestamp CreatedAt { get; set; } = Timestamp.GetCurrentTimestamp();
+
+        public Train ToDomain() => new Train(
+            id: Id,
+            name: Name,
+            type: Type,
+            createdAt: CreatedAt.ToDateTime()
+        );
 
         public static TrainEntity FromDomain(Train train) => new TrainEntity
         {
-            Id = train.Id ?? Guid.NewGuid().ToString(),
-            Name = train.Name,
-            Type = train.Type,
+            Id = string.IsNullOrWhiteSpace(train.Id) ? Guid.NewGuid().ToString() : train.Id!,
+            Name = train.Name ?? "",
+            Type = train.Type ?? "",
+
+            CreatedAt = Timestamp.FromDateTime(
+                DateTime.SpecifyKind(train.CreatedAt, DateTimeKind.Utc)
+            )
         };
     }
 }
-

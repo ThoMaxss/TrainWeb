@@ -1,55 +1,75 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Google.Cloud.Firestore;
+using TrainWeb.Domain.Domain;
 
 namespace TrainWeb.Domain.Entities
 {
-    using global::TrainWeb.Domain.Domain;
-    using Google.Cloud.Firestore;
-
-    namespace TrainWeb.Domain.Entities
+    [FirestoreData]
+    public class TripEntity
     {
-        [FirestoreData]
-        public class TripEntity
+        [FirestoreDocumentId]
+        public string Id { get; set; } = default!;
+
+        [FirestoreProperty("trainId")]
+        public string TrainId { get; set; } = default!;
+
+        [FirestoreProperty("trainName")]
+        public string TrainName { get; set; } = default!;
+
+        [FirestoreProperty("trainType")]
+        public string TrainType { get; set; } = default!;
+
+        [FirestoreProperty("departure")]
+        public Timestamp Departure { get; set; } = Timestamp.GetCurrentTimestamp();
+
+        [FirestoreProperty("arrival")]
+        public Timestamp Arrival { get; set; } = Timestamp.GetCurrentTimestamp();
+
+        [FirestoreProperty("originStationId")]
+        public string OriginStationId { get; set; } = default!;
+
+        [FirestoreProperty("originStationName")]
+        public string OriginStationName { get; set; } = default!;
+
+        [FirestoreProperty("destinationStationId")]
+        public string DestinationStationId { get; set; } = default!;
+
+        [FirestoreProperty("destinationStationName")]
+        public string DestinationStationName { get; set; } = default!;
+
+        [FirestoreProperty("seatsAvailable")]
+        public int SeatsAvailable { get; set; }
+
+        public Trip ToDomain() => new Trip(
+            id: Id,
+            trainId: TrainId,
+            trainName: TrainName,
+            trainType: TrainType,
+            departure: Departure.ToDateTime(),
+            arrival: Arrival.ToDateTime(),
+            originStationId: OriginStationId,
+            originStationName: OriginStationName,
+            destinationStationId: DestinationStationId,
+            destinationStationName: DestinationStationName,
+            seatsAvailable: SeatsAvailable
+        );
+
+        public static TripEntity FromDomain(Trip t) => new TripEntity
         {
-            [FirestoreProperty] 
-            public string Id { get; set; }
-            [FirestoreProperty] 
-            public string? TrainId { get; set; }
-            [FirestoreProperty] 
-            public DateTime Departure { get; set; }
-            [FirestoreProperty] 
-            public DateTime Arrival { get; set; }
-            [FirestoreProperty] 
-            public string? OriginStation { get; set; }
-            [FirestoreProperty] 
-            public string? DestinationStation { get; set; }
-            [FirestoreProperty] 
-            public int? SeatsAvailable { get; set; }
+            Id = string.IsNullOrWhiteSpace(t.Id) ? Guid.NewGuid().ToString() : t.Id,
 
-            public Trip ToDomain(Train? train) => new Trip(
-                Id,
-                train,
-                Departure,
-                Arrival,
-                OriginStation,
-                DestinationStation,
-                SeatsAvailable
-            );
+            TrainId = t.TrainId,
+            TrainName = t.TrainName,
+            TrainType = t.TrainType,
 
-            public static TripEntity FromDomain(Trip trip) => new TripEntity
-            {
-                Id = trip.Id ?? Guid.NewGuid().ToString(),
-                TrainId = trip.Train?.Id,
-                Departure = trip.Departure ?? DateTime.UtcNow,
-                Arrival = trip.Arrival ?? DateTime.UtcNow,
-                OriginStation = trip.OriginStation,
-                DestinationStation = trip.DestinationStation,
-                SeatsAvailable = trip.SeatsAvailable ?? 0
-            };
-        }
+            Departure = Timestamp.FromDateTime(DateTime.SpecifyKind(t.Departure, DateTimeKind.Utc)),
+            Arrival = Timestamp.FromDateTime(DateTime.SpecifyKind(t.Arrival, DateTimeKind.Utc)),
+
+            OriginStationId = t.OriginStationId,
+            OriginStationName = t.OriginStationName,
+            DestinationStationId = t.DestinationStationId,
+            DestinationStationName = t.DestinationStationName,
+
+            SeatsAvailable = t.SeatsAvailable
+        };
     }
-
 }

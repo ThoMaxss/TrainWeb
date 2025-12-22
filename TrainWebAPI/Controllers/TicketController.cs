@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Threading.Tasks;
 using TrainWeb.Application.DTOS;
-using TrainWeb.Application.Extensions;
 using TrainWeb.Application.Services;
-using TrainWeb.Domain.Domain;
 using TrainWeb.Domain.Enum;
 
 namespace TrainWeb.API.Controllers
@@ -11,83 +11,94 @@ namespace TrainWeb.API.Controllers
     [Route("api/[controller]")]
     public class TicketController : ControllerBase
     {
-        private TicketService TicketService { get; }
+        private readonly TicketService _ticketService;
 
         public TicketController(TicketService ticketService)
         {
-            TicketService = ticketService;
+            _ticketService = ticketService;
         }
-        ///Create/Get/List/Update/Delete ticket/ticket-type
-        ///Buy ticket/Get QR code ticket
+
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] string id)
         {
-            var ticket = await TicketService.GetById(id);
+            var ticket = await _ticketService.GetByIdAsync(id);
             if (ticket == null) return NotFound("Ticket Not Found");
+
             return Ok(ticket.ToDto());
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var tickets = await TicketService.GetAllAsync();
-            return Ok(tickets.Select(ticket => ticket.ToDto()));
+            var tickets = await _ticketService.GetAllAsync();
+            return Ok(tickets.Select(t => t.ToDto()));
+        }
+
+        // GET /api/ticket/booking/{bookingId}
+        [HttpGet("booking/{bookingId}")]
+        public async Task<IActionResult> GetByBookingId([FromRoute] string bookingId)
+        {
+            var tickets = await _ticketService.GetByBookingIdAsync(bookingId);
+            return Ok(tickets.Select(t => t.ToDto()));
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] TicketDto ticketDto)
         {
-            var createdTicket = await TicketService.AddAsync(ticketDto.FromDto());
-            return Ok(createdTicket?.ToDto());
+            var created = await _ticketService.AddAsync(ticketDto.FromDto());
+            return Ok(created.ToDto());
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(
-            [FromRoute] string id,
-            [FromBody] TicketDto ticketDto
-        )
+        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] TicketDto ticketDto)
         {
-            var ticket = await TicketService.GetById(id);
-            if (ticket == null)
-            {
-                return NotFound("Ticket Not Found");
-            }
-            ticketDto.Id = ticket.Id;
-            var updatedTicket = await TicketService.UpdateAsync(id, ticketDto.FromDto());
-            return Ok(updatedTicket?.ToDto());
+            var existing = await _ticketService.GetByIdAsync(id);
+            if (existing == null) return NotFound("Ticket Not Found");
+
+            ticketDto.Id = id;
+            var updated = await _ticketService.UpdateAsync(id, ticketDto.FromDto());
+            if (updated == null) return NotFound("Ticket Not Found");
+
+            return Ok(updated.ToDto());
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(
-            [FromRoute] string id
-        )
+        public async Task<IActionResult> Delete([FromRoute] string id)
         {
-            var ticket = await TicketService.GetById(id);
-            if (ticket == null)
-            {
-                return NotFound("Ticket Not Found");
-            }
-            await TicketService.DeleteAsync(id);
+            var existing = await _ticketService.GetByIdAsync(id);
+            if (existing == null) return NotFound("Ticket Not Found");
+
+            await _ticketService.DeleteAsync(id);
+            return Ok();
+        }
+
+        // Mark used
+        [HttpPost("{id}/use")]
+        public async Task<IActionResult> Use([FromRoute] string id)
+        {
+            await _ticketService.UsedTicketAsync(id);
+            return Ok();
+        }
+
+        // Mark cancelled
+        [HttpPost("{id}/cancel")]
+        public async Task<IActionResult> Cancel([FromRoute] string id)
+        {
+            await _ticketService.CancelledTicketAsync(id);
             return Ok();
         }
 
         [HttpGet("{id}/qrcode")]
-        public async Task<IActionResult> GetQrCode(
-            [FromRoute] string id
-        )
+        public async Task<IActionResult> GetQrCode([FromRoute] string id)
         {
-            var ticket = await TicketService.GetById(id);
-            if (ticket == null)
-            {
-                return NotFound("Ticket Not Found");
-            }
+            var ticket = await _ticketService.GetByIdAsync(id);
+            if (ticket == null) return NotFound("Ticket Not Found");
 
-            if(ticket.Status != TicketStatus.Active)
-            {
+            if (ticket.Status != TicketStatus.Active)
                 return BadRequest("Ticket Has Been Used Or Cancelled");
-            }
-            var qrCodeImage = await TicketService.GetQrCodeTicket(id);
-            return File(qrCodeImage, "image/png");
+
+            var qrBytes = await _ticketService.GetQrCodeTicket(id);
+            return File(qrBytes, "image/png");
         }
     }
 }

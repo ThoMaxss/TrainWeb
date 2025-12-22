@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using TrainWeb.Application.Interfaces;
+﻿using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Domain;
 using TrainWeb.Domain.Entities;
 using TrainWeb.Domain.Enum;
@@ -9,178 +8,146 @@ namespace TrainWeb.Application.Services
 {
     public class BookingService
     {
-        private IBookingRepository BookingRepository { get; }
-        private UserService UserService { get; }
-        private TicketService TicketService { get; }
-        private SeatService SeatService { get; }
-        private IPaymentRepository PaymentRepository { get; }
-
+        private readonly IBookingRepository _bookingRepo;
+        private readonly SeatService _seatService;
+        private readonly IPaymentRepository _paymentRepo;
+        private readonly TicketService _ticketService;
+        private readonly TicketTypeService _ticketTypeService; 
         public BookingService(
-            IBookingRepository bookingRepository, 
-            UserService userService, 
-            TicketService ticketService,
+            IBookingRepository bookingRepo,
             SeatService seatService,
-            IPaymentRepository paymentRepository)
+            IPaymentRepository paymentRepo,
+            TicketService ticketService,
+            TicketTypeService ticketTypeService 
+        )
         {
-            BookingRepository = bookingRepository;
-            UserService = userService;
-            TicketService = ticketService;
-            SeatService = seatService;
-            PaymentRepository = paymentRepository;
+            _bookingRepo = bookingRepo;
+            _seatService = seatService;
+            _paymentRepo = paymentRepo;
+            _ticketService = ticketService;
+            _ticketTypeService = ticketTypeService;
         }
 
-        public async Task<Booking?> GetById(string id)
+        public async Task<Booking?> GetByIdAsync(string id)
         {
-            var bookingEntity = await BookingRepository.GetByIdAsync(id);
+            var entity = await _bookingRepo.GetByIdAsync(id);
+            if (entity == null) throw new NotFoundException("Booking Not Found");
+            return entity.ToDomain();
+        }
 
-            if (bookingEntity == null)
+        public async Task<IReadOnlyList<Booking>> GetAllAsync()
+        {
+            var entities = await _bookingRepo.GetAllAsync();
+            return entities.Select(e => e.ToDomain()).ToList();
+        }
+
+        public async Task<IReadOnlyList<Booking>> GetByUserIdAsync(string userId)
+        {
+            var entities = await _bookingRepo.GetByUserIdAsync(userId);
+            return entities.Select(e => e.ToDomain()).ToList();
+        }
+
+        public async Task<Booking> CreateAsync(string userId, string tripId, string seatId, string? ticketTypeId)
+        {
+            var seat = await _seatService.GetByIdAsync(tripId, seatId);
+            if (seat == null) throw new NotFoundException("Seat Not Found");
+            if (seat.IsAvailable == false)
+                throw new BadRequestException("Ghế không còn khả dụng.");
+
+            var active = await _bookingRepo.GetActiveBookingsByTripSeatAsync(tripId, seatId);
+            if (active.Any())
+                throw new BadRequestException("Ghế này đã được đặt.");
+
+            //base amount lấy từ seat.Price
+            var baseAmount = seat.Price;
+
+            //áp discount nếu có ticketTypeId
+            double finalAmount = baseAmount;
+            if (!string.IsNullOrWhiteSpace(ticketTypeId))
             {
-                throw new NotFoundException("Book Not Found");
+                var type = await _ticketTypeService.GetByIdAsync(ticketTypeId);
+                if (type == null) throw new NotFoundException("TicketType Not Found");
+
+                // type.Discount: 0.1 = 10%
+                finalAmount = baseAmount * (1 - type.Discount);
             }
 
-            var user = await UserService.GetUserByIdAsync(bookingEntity.UserId);
+            var booking = new Booking(
+                id: null,
+                userId: userId,
+                tripId: tripId,
+                seatId: seatId,
+                ticketTypeId: ticketTypeId,             
+                amount: finalAmount,                    
+                status: BookingStatus.Reserved,
+                paymentStatus: PaymentStatus.Pending,
+                paymentId: null,
+                ticketId: null,
+                ticketStatus: null,
+                createdAt: DateTime.UtcNow,
+                expiresAt: DateTime.UtcNow.AddMinutes(15)
+            );
 
-            var ticket = await TicketService.GetById(bookingEntity.TicketId);
+            booking.SeatSummary = new Dictionary<string, object>
+            {
+                { "seatNumber", seat.SeatNumber ?? "" },
+                { "type", seat.Type.ToString() },
+                { "price", seat.Price }
+            };
 
-            return bookingEntity.ToDomain(user, ticket);
+            var entity = BookingEntity.FromDomain(booking);
+            await _bookingRepo.AddAsync(entity);
+
+            await _seatService.MarkSeatAsUnavailable(tripId, seatId);
+
+            return entity.ToDomain();
         }
 
-        public async Task<ImmutableList<Booking>> GetAllAsync()
+        public async Task SucceedBookingAsync(string bookingId)
         {
-            var bookingEntities = await BookingRepository.GetAllAsync();
+            var entity = await _bookingRepo.GetByIdAsync(bookingId);
+            if (entity == null) throw new NotFoundException("Booking Not Found");
 
-            return bookingEntities.Select(bookingEntity => {
-                return bookingEntity.ToDomain(null, null);
-            }).ToImmutableList();
-        }
+            // idempotent
+            if (string.Equals(entity.Status, "paid", StringComparison.OrdinalIgnoreCase))
+                return;
 
-        public async Task<ImmutableList<Booking>> GetByUserIdAsync(string userId)
-        {
-            var bookingEntities = await BookingRepository.GetByUserIdAsync(userId);
+            entity.Status = BookingStatus.Paid.ToString().ToLowerInvariant();           // "paid"
+            entity.PaymentStatus = PaymentStatus.Success.ToString().ToLowerInvariant(); // "success"
+            await _bookingRepo.UpdateAsync(bookingId, entity);
 
-            var user = await UserService.GetUserByIdAsync(userId);
-
-            return bookingEntities.Select(bookingEntity =>
-            {
-                var ticket = bookingEntity.TicketId != null
-                    ? TicketService.GetById(bookingEntity.TicketId).Result
-                    : null;
-                return bookingEntity.ToDomain(user, ticket);
-            }).ToImmutableList();
-        }
-
-        public async Task<Booking?> AddAsync(Booking booking)
-        {
-            var ticket = booking.Ticket?.Id != null
-                ? await TicketService.GetById(booking.Ticket.Id)
-                : null;
-
-            // Check if seat is already booked
-            if (ticket?.Seat?.Id != null)
-            {
-                // Check if seat is available
-                var seat = await SeatService.GetById(ticket.Seat.Id);
-                if (seat?.IsAvailable == false)
-                {
-                    throw new BadRequestException("Ghế này không còn khả dụng. Vui lòng chọn ghế khác.");
-                }
-
-                // Check all bookings to see if this seat is already taken
-                var allBookings = await BookingRepository.GetAllAsync();
-                foreach (var existingBooking in allBookings)
-                {
-                    if (existingBooking.Status == BookingStatus.Reserved || 
-                        existingBooking.Status == BookingStatus.Paid)
-                    {
-                        if (existingBooking.TicketId != null)
-                        {
-                            var existingTicket = await TicketService.GetById(existingBooking.TicketId);
-                            if (existingTicket?.Seat?.Id == ticket.Seat.Id)
-                            {
-                                throw new BadRequestException("Ghế này đã được đặt. Vui lòng chọn ghế khác.");
-                            }
-                        }
-                    }
-                }
-
-                // Mark seat as unavailable
-                await SeatService.MarkSeatAsUnavailable(ticket.Seat.Id);
-            }
-
-            booking.Price = ticket?.Seat?.Price - ticket?.TicketType?.Discount;
-            booking.Status = BookingStatus.Reserved;
-            var bookingEntity = BookingEntity.FromDomain(booking);
-            await BookingRepository.AddAsync(bookingEntity);
-
-            var user = bookingEntity.UserId != null
-                ? await UserService.GetUserByIdAsync(bookingEntity.UserId)
-                : null;
-            
-
-            return bookingEntity.ToDomain(user, ticket);
-        }
-
-        public async Task<Booking?> UpdateAsync(string id, Booking booking)
-        {
-            var bookingEntity = BookingEntity.FromDomain(booking);
-            await BookingRepository.UpdateAsync(id, bookingEntity);
-
-            var user = bookingEntity.UserId != null
-                ? await UserService.GetUserByIdAsync(bookingEntity.UserId)
-                : null;
-            var ticket = bookingEntity.TicketId != null
-                ? await TicketService.GetById(bookingEntity.TicketId)
-                : null;
-            return bookingEntity.ToDomain(user, ticket);
-        }
-
-        public async Task SucceedBookingAsync(string id)
-        {
-            var bookingEntity = await BookingRepository.GetByIdAsync(id);
-            if (bookingEntity == null)
-            {
-                throw new NotFoundException("Booking Not Found");
-            }
-            bookingEntity.Status = BookingStatus.Paid;
-            await BookingRepository.UpdateAsync(id, bookingEntity);
-
-            var payment = await PaymentRepository.GetPendingByBookingIdAsync(id);
-            if(payment != null)
-            {
-                payment.Status = PaymentStatus.Success;
-                await PaymentRepository.UpdateAsync(payment.Id, payment);
-            }
-
-        }
-
-        public async Task CancelledBookingAsync(string id)
-        {
-            var bookingEntity = await BookingRepository.GetByIdAsync(id);
-            if (bookingEntity == null)
-            {
-                throw new NotFoundException("Booking Not Found");
-            }
-
-            // Release the seat
-            if (bookingEntity.TicketId != null)
-            {
-                var ticket = await TicketService.GetById(bookingEntity.TicketId);
-                if (ticket?.Seat?.Id != null)
-                {
-                    await SeatService.MarkSeatAsAvailable(ticket.Seat.Id);
-                }
-            }
-
-            bookingEntity.Status = BookingStatus.Cancelled;
-            await BookingRepository.UpdateAsync(id, bookingEntity);
-
-            var payment = await PaymentRepository.GetPendingByBookingIdAsync(id);
+            var payment = await _paymentRepo.GetPendingByBookingIdAsync(bookingId);
             if (payment != null)
             {
-                payment.Status = PaymentStatus.Failed;
-                await PaymentRepository.UpdateAsync(payment.Id, payment);
+                payment.Status = PaymentStatus.Success.ToString().ToLowerInvariant();   // "success"
+                await _paymentRepo.UpdateAsync(payment.Id, payment);
             }
 
+            // ✅ tạo ticket sau khi thanh toán thành công
+            var ticket = await _ticketService.CreateForBookingAsync(bookingId);
+
+            entity.TicketId = ticket.Id;
+            entity.TicketStatus = ticket.Status.ToString().ToLowerInvariant();          // "active"
+            await _bookingRepo.UpdateAsync(bookingId, entity);
+        }
+
+        public async Task CancelBookingAsync(string bookingId)
+        {
+            var entity = await _bookingRepo.GetByIdAsync(bookingId);
+            if (entity == null) throw new NotFoundException("Booking Not Found");
+
+            await _seatService.MarkSeatAsAvailable(entity.TripId, entity.SeatId);
+
+            entity.Status = BookingStatus.Cancelled.ToString().ToLowerInvariant();       // "cancelled"
+            entity.PaymentStatus = PaymentStatus.Failed.ToString().ToLowerInvariant();   // "failed"
+            await _bookingRepo.UpdateAsync(bookingId, entity);
+
+            var payment = await _paymentRepo.GetPendingByBookingIdAsync(bookingId);
+            if (payment != null)
+            {
+                payment.Status = PaymentStatus.Failed.ToString().ToLowerInvariant();     // "failed"
+                await _paymentRepo.UpdateAsync(payment.Id, payment);
+            }
         }
     }
 }

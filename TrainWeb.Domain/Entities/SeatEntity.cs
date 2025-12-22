@@ -7,18 +7,23 @@ namespace TrainWeb.Domain.Entities
     [FirestoreData]
     public class SeatEntity
     {
-        [FirestoreProperty]
-        public required string Id { get; set; }
-        [FirestoreProperty]
+        [FirestoreDocumentId]
+        public string Id { get; set; } = default!;
+
+        [FirestoreProperty("tripId")]
         public string? TripId { get; set; }
-        [FirestoreProperty]
+
+        [FirestoreProperty("seatNumber")]
         public string? SeatNumber { get; set; }
-        [FirestoreProperty]
-        public SeatType Type { get; set; }
-        [FirestoreProperty]
-        public bool IsAvailable { get; set; }
-        [FirestoreProperty]
-        public double? Price { get; set; }
+
+        [FirestoreProperty("type")]
+        public SeatType Type { get; set; } = SeatType.Hard;
+
+        [FirestoreProperty("isAvailable")]
+        public bool IsAvailable { get; set; } = true;
+
+        [FirestoreProperty("price")]
+        public double Price { get; set; } = 0;
 
         public Seat ToDomain(Trip? trip) => new Seat(
             Id,
@@ -29,7 +34,8 @@ namespace TrainWeb.Domain.Entities
             Price
         );
 
-        public static SeatEntity FromDomain(Seat seat) => new SeatEntity {
+        public static SeatEntity FromDomain(Seat seat) => new SeatEntity
+        {
             Id = seat.Id ?? Guid.NewGuid().ToString(),
             TripId = seat.Trip?.Id,
             SeatNumber = seat.SeatNumber,

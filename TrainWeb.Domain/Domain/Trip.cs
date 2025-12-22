@@ -1,30 +1,48 @@
-﻿using Google.Cloud.Firestore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TrainWeb.Domain.Domain
+﻿namespace TrainWeb.Domain.Domain
 {
     public class Trip
     {
-        public string? Id { get; }
-        public Train? Train { get; }
-        public DateTime? Departure { get; }
-        public DateTime? Arrival { get; }
-        public string? OriginStation { get; }
-        public string? DestinationStation { get; }
-        public int? SeatsAvailable { get; }
+        public string Id { get; }
 
-        public Trip(string? id, Train? train, DateTime? departure, DateTime? arrival, string? originStation, string? destinationStation, int? seatsAvailable)
+        public string TrainId { get; }
+        public string TrainName { get; }
+        public string TrainType { get; }
+
+        public DateTime Departure { get; }
+        public DateTime Arrival { get; }
+
+        public string OriginStationId { get; }
+        public string OriginStationName { get; }
+
+        public string DestinationStationId { get; }
+        public string DestinationStationName { get; }
+
+        public int SeatsAvailable { get; }
+
+        public Trip(
+            string id,
+            string trainId,
+            string trainName,
+            string trainType,
+            DateTime departure,
+            DateTime arrival,
+            string originStationId,
+            string originStationName,
+            string destinationStationId,
+            string destinationStationName,
+            int seatsAvailable
+        )
         {
             Id = id;
-            Train = train;
+            TrainId = trainId;
+            TrainName = trainName;
+            TrainType = trainType;
             Departure = departure;
             Arrival = arrival;
-            OriginStation = originStation;
-            DestinationStation = destinationStation;
+            OriginStationId = originStationId;
+            OriginStationName = originStationName;
+            DestinationStationId = destinationStationId;
+            DestinationStationName = destinationStationName;
             SeatsAvailable = seatsAvailable;
         }
     }

@@ -1,70 +1,67 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading.Tasks;
 using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Domain;
-using TrainWeb.Domain.Entities.TrainWeb.Domain.Entities;
+using TrainWeb.Domain.Entities;
 
 namespace TrainWeb.Application.Services
 {
     public class TripService
     {
-        ITripRepository TripRepository { get; }
-        TrainService TrainService { get; }
-        public TripService(ITripRepository tripRepository, TrainService trainService)
+        private readonly ITripRepository _repo;
+
+        public TripService(ITripRepository tripRepository)
         {
-            TripRepository = tripRepository;
-            TrainService = trainService;
+            _repo = tripRepository;
         }
-        public async Task<Trip?> GetById(string id)
+
+        public async Task<Trip?> GetByIdAsync(string id)
         {
-            var tripEntity = await TripRepository.GetByIdAsync(id);
-
-            if (tripEntity == null)
-            {
-                return null;
-            }    
-
-            var train = tripEntity.TrainId != null
-                ? await TrainService.GetById(tripEntity.TrainId)
-                : null;
-            return tripEntity?.ToDomain(train);
+            var entity = await _repo.GetByIdAsync(id);
+            return entity?.ToDomain();
         }
 
         public async Task<ImmutableList<Trip>> GetAllAsync()
         {
-            var tripEntities = await TripRepository.GetAllAsync();
-
-            return tripEntities.Select(tripEntity =>
-            {
-                var train = tripEntity.TrainId != null
-                    ? TrainService.GetById(tripEntity.TrainId).Result
-                    : null;
-                return tripEntity.ToDomain(train);
-            }).ToImmutableList();
+            var entities = await _repo.GetAllAsync();
+            return entities.Select(e => e.ToDomain()).ToImmutableList();
         }
 
-        public async Task<Trip?> AddAsync(Trip trip)
+        public async Task<Trip> AddAsync(Trip trip)
         {
-            var tripEntity = TripEntity.FromDomain(trip);
-            await TripRepository.AddAsync(tripEntity);
-            var train = tripEntity.TrainId != null
-                ? await TrainService.GetById(tripEntity.TrainId)
-                : null;
-            return tripEntity?.ToDomain(train);
+            var entity = TripEntity.FromDomain(trip);
+            await _repo.AddAsync(entity);
+
+            var created = await _repo.GetByIdAsync(entity.Id);
+            return (created ?? entity).ToDomain();
         }
 
         public async Task<Trip?> UpdateAsync(string id, Trip trip)
         {
-            var tripEntity = TripEntity.FromDomain(trip);
-            await TripRepository.UpdateAsync(id, tripEntity);
-            var train = tripEntity.TrainId != null
-                ? await TrainService.GetById(tripEntity.TrainId)
-                : null;
-            return tripEntity?.ToDomain(train);
+            var normalized = new Trip(
+                id: id,
+                trainId: trip.TrainId,
+                trainName: trip.TrainName,
+                trainType: trip.TrainType,
+                departure: trip.Departure,
+                arrival: trip.Arrival,
+                originStationId: trip.OriginStationId,
+                originStationName: trip.OriginStationName,
+                destinationStationId: trip.DestinationStationId,
+                destinationStationName: trip.DestinationStationName,
+                seatsAvailable: trip.SeatsAvailable
+            );
+
+            var entity = TripEntity.FromDomain(normalized);
+            await _repo.UpdateAsync(id, entity);
+
+            var updated = await _repo.GetByIdAsync(id);
+            return updated?.ToDomain();
         }
 
-        public async Task DeleteAsync(string id)
-        {
-            await TripRepository.DeleteAsync(id);
-        }
+        public Task DeleteAsync(string id)
+            => _repo.DeleteAsync(id);
     }
 }

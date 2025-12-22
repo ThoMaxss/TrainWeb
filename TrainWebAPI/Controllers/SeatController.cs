@@ -1,74 +1,79 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Threading.Tasks;
 using TrainWeb.Application.DTOS;
 using TrainWeb.Application.Services;
 
 namespace TrainWeb.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/trips/{tripId}/seats")]
     public class SeatController : ControllerBase
     {
-        private SeatService SeatService;
+        private readonly SeatService _seatService;
 
         public SeatController(SeatService seatService)
         {
-            SeatService = seatService;
+            _seatService = seatService;
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get([FromRoute] string id)
+        [HttpGet("{seatId}")]
+        public async Task<IActionResult> Get(string tripId, string seatId)
         {
-            var seat = await SeatService.GetById(id);
+            var seat = await _seatService.GetByIdAsync(tripId, seatId);
             if (seat == null) return NotFound("Seat Not Found");
             return Ok(seat.ToDto());
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetByTrip(string tripId)
         {
-            var seats = await SeatService.GetAllAsync();
-            return Ok(seats.Select(seat => seat.ToDto()));
-        }
-
-        [HttpGet("trip/{tripId}")]
-        public async Task<IActionResult> GetByTripId([FromRoute] string tripId)
-        {
-            var seats = await SeatService.GetByTripIdAsync(tripId);
-            return Ok(seats.Select(seat => seat.ToDto()));
+            var seats = await _seatService.GetByTripIdAsync(tripId);
+            return Ok(seats.Select(s => s.ToDto()));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] SeatDto seatDto)
+        public async Task<IActionResult> Create(string tripId, [FromBody] SeatDto dto)
         {
-            var createdSeat = await SeatService.AddAsync(seatDto.FromDto());
-            if (createdSeat == null)
-            {
-                return Problem("Failed to create seat.");
-            }
-            return Ok(createdSeat.ToDto());
+            if (dto == null) return BadRequest("Invalid payload");
+            dto.TripId = tripId;
+
+            var created = await _seatService.AddAsync(tripId, dto.FromDto());
+            return Ok(created.ToDto());
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] SeatDto seatDto)
+        [HttpPut("{seatId}")]
+        public async Task<IActionResult> Update(string tripId, string seatId, [FromBody] SeatDto dto)
         {
-            var seat = await SeatService.GetById(id);
+            if (dto == null) return BadRequest("Invalid payload");
+            dto.Id = seatId;
+            dto.TripId = tripId;
 
-            if (seat == null)
-            {
-                return NotFound("Seat Not Found");
-            }
+            var updated = await _seatService.UpdateAsync(tripId, seatId, dto.FromDto());
+            if (updated == null) return NotFound("Seat Not Found");
 
-            seatDto.Id = seat.Id;
-
-            var updatedSeat = await SeatService.UpdateAsync(id, seatDto.FromDto());
-
-            return Ok(updatedSeat?.ToDto());
+            return Ok(updated.ToDto());
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] string id)
+        [HttpDelete("{seatId}")]
+        public async Task<IActionResult> Delete(string tripId, string seatId)
         {
-            await SeatService.DeleteAsync(id);
+            var existing = await _seatService.GetByIdAsync(tripId, seatId);
+            if (existing == null) return NotFound("Seat Not Found");
+
+            await _seatService.DeleteAsync(tripId, seatId);
+            return Ok();
+        }
+
+        [HttpPatch("{seatId}/availability")]
+        public async Task<IActionResult> UpdateAvailability(string tripId, string seatId, [FromQuery] bool isAvailable)
+        {
+            var existing = await _seatService.GetByIdAsync(tripId, seatId);
+            if (existing == null) return NotFound("Seat Not Found");
+
+            if (isAvailable) await _seatService.MarkSeatAsAvailable(tripId, seatId);
+            else await _seatService.MarkSeatAsUnavailable(tripId, seatId);
+
             return Ok();
         }
     }

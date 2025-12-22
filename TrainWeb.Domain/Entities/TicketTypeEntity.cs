@@ -1,34 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TrainWeb.Domain.Enum;
-
-using Google.Cloud.Firestore;
-using System.Xml.Linq;
+﻿using Google.Cloud.Firestore;
 using TrainWeb.Domain.Domain;
-using System.Net.Sockets;
 
 namespace TrainWeb.Domain.Entities
 {
     [FirestoreData]
     public class TicketTypeEntity
     {
-        [FirestoreProperty]
-        public string Id { get; set; }
-        [FirestoreProperty] 
-        public string? Name { get; set; }
-        [FirestoreProperty]
+        [FirestoreDocumentId]
+        public string Id { get; set; } = default!;
+
+        [FirestoreProperty("name")]
+        public string Name { get; set; } = default!;
+
+        [FirestoreProperty("discount")]
         public double Discount { get; set; }
+
+        [FirestoreProperty("status")]
+        public string Status { get; set; } = "active";
+
+        [FirestoreProperty("createdAt")]
+        public Timestamp CreatedAt { get; set; } = Timestamp.GetCurrentTimestamp();
 
         public TicketType ToDomain() => new TicketType(Id, Name, Discount);
 
-        public static TicketTypeEntity FromDomain(TicketType ticketType) => new TicketTypeEntity
+        public static TicketTypeEntity FromDomain(TicketType t) => new TicketTypeEntity
         {
-            Id = ticketType.Id ?? Guid.NewGuid().ToString(),
-            Name = ticketType.Name,
-            Discount = ticketType.Discount ?? 0,
+            Id = t.Id,
+            Name = t.Name,
+            Discount = t.Discount,
+
+            Status = "active",
+
+            CreatedAt = Timestamp.GetCurrentTimestamp()
         };
     }
 }

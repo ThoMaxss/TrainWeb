@@ -1,31 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TrainWeb.Domain.Domain;
+﻿using TrainWeb.Domain.Entities;
 
 namespace TrainWeb.Application.DTOS
 {
     public static class SeatDtoExtension
     {
-        public static SeatDto ToDto(this Seat @this) => new SeatDto
+        public static SeatDto ToDto(this SeatEntity e) => new SeatDto
         {
-            Id = @this.Id,
-            Trip = @this.Trip?.ToDto(),
-            SeatNumber = @this.SeatNumber,
-            Type = @this.Type,
-            IsAvailable = @this.IsAvailable,
-            Price = @this.Price
+            Id = e.Id,
+            TripId = e.TripId,
+            SeatNumber = e.SeatNumber,
+            Type = e.Type,
+            IsAvailable = e.IsAvailable,
+            Price = e.Price
         };
 
-        public static Seat FromDto(this SeatDto @this) => new Seat(
-            @this.Id,
-            @this.Trip?.FromDto(),
-            @this.SeatNumber,
-            @this.Type,
-            @this.IsAvailable,
-            @this.Price
-        );
+        public static SeatEntity FromDto(this SeatDto d) => new SeatEntity
+        {
+            Id = d.Id ?? "",
+            TripId = d.TripId,
+            SeatNumber = d.SeatNumber,
+            Type = d.Type,
+            IsAvailable = d.IsAvailable,
+            Price = d.Price
+        };
     }
 }

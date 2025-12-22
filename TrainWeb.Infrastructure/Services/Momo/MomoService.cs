@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿using Microsoft.Extensions.Configuration;
+using System.Globalization;
+using System.Net;
+using System.Text;
 using System.Text.Json;
 using TrainWeb.Domain.Domain;
-using Microsoft.Extensions.Configuration;
 using TrainWeb.Infrastructure.Repositories;
 using static Google.Cloud.Firestore.V1.StructuredAggregationQuery.Types.Aggregation.Types;
 using static Google.Cloud.Firestore.V1.StructuredQuery.Types;
@@ -23,7 +25,7 @@ namespace TrainWeb.Infrastructure.Services.Momo
             var secretKey = Configuration["Momo:SecretKey"];
             var requestId = Guid.NewGuid().ToString();
             // Ensure amount uses invariant culture to avoid comma/locale issues
-            var amount = (payment.Amount ?? 0).ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var amount = payment.Amount.ToString(CultureInfo.InvariantCulture);
             var redirectUrl = Configuration["Momo:RedirectUrl"]; //Thay bằng URL của FE // Chạy lệnh 'ngrok http https://localhost:7128' khi chạy local
             var ipnUrl = Configuration["Momo:IpnUrl"]; // Chạy lệnh 'ngrok http https://localhost:7128' khi chạy local
             var orderInfo = "Thanh toán vé tàu";
@@ -73,7 +75,16 @@ namespace TrainWeb.Infrastructure.Services.Momo
             var response = await httpClient.PostAsync(endpoint, content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            return JsonSerializer.Deserialize<MomoPaymentResponse>(responseContent);
+            var momoResponse = JsonSerializer.Deserialize<MomoPaymentResponse>(responseContent);
+            if (momoResponse is null)
+            {
+                return new MomoPaymentResponse
+                {
+                    resultCode = -1,
+                    message = "Failed to parse MoMo response."
+                };
+            }
+            return momoResponse;
         }
     }
 }

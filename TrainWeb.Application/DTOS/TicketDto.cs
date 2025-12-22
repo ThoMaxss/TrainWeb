@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TrainWeb.Domain.Domain;
-using TrainWeb.Domain.Enum;
+﻿using TrainWeb.Domain.Enum;
 
 namespace TrainWeb.Application.DTOS
 {
     public sealed class TicketDto
     {
         public string? Id { get; set; }
-        public SeatDto? Seat { get; set; }
-        public TicketTypeDto? TicketType { get; set; }
+
+        public string? BookingId { get; set; }
+        public string? TicketNumber { get; set; }
+        public string? QrCode { get; set; }
+
         public TicketStatus? Status { get; set; }
+
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? ActiveAt { get; set; }
     }
 }

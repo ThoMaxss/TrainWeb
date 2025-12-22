@@ -105,7 +105,7 @@ namespace TrainWebAPI.Controllers
                     userId = user.Id,
                     email = user.Email,
                     name = user.Name,
-                    role = user.Role?.ToString(),
+                    role = user.Role?.ToString().ToLower(),
                     emailVerified = emailVerified
                 });
             }

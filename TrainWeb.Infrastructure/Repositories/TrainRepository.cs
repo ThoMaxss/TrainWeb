@@ -6,33 +6,31 @@ namespace TrainWeb.Infrastructure.Repositories
 {
     public class TrainRepository : FirestoreRepository<TrainEntity>, ITrainRepository
     {
-        private const string CollectionName = "Trains";
+        private const string CollectionName = "trains";
 
         public TrainRepository(FirestoreDbContext context) : base(context) { }
 
-        public async Task<TrainEntity?> GetByIdAsync(string id)
-        {
-            return await GetByIdAsync(CollectionName, id);
-        }
+        public Task<TrainEntity?> GetByIdAsync(string id)
+            => GetByIdAsync(CollectionName, id);
 
-        public async Task<IEnumerable<TrainEntity>> GetAllAsync()
-        {
-            return await GetAllAsync(CollectionName);
-        }
+        public Task<IEnumerable<TrainEntity>> GetAllAsync()
+            => GetAllAsync(CollectionName);
 
         public async Task AddAsync(TrainEntity trainEntity)
         {
+            if (string.IsNullOrWhiteSpace(trainEntity.Id))
+                trainEntity.Id = Guid.NewGuid().ToString();
+
             await AddAsync(CollectionName, trainEntity.Id, trainEntity);
         }
 
-        public async Task UpdateAsync(string id, TrainEntity trainEntity)
+        public Task UpdateAsync(string id, TrainEntity trainEntity)
         {
-            await UpdateAsync(CollectionName, id, trainEntity);
+            trainEntity.Id = id;
+            return UpdateAsync(CollectionName, id, trainEntity);
         }
 
-        public async Task DeleteAsync(string id)
-        {
-            await DeleteAsync(CollectionName, id);
-        }
+        public Task DeleteAsync(string id)
+            => DeleteAsync(CollectionName, id);
     }
 }
