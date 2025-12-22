@@ -26,10 +26,23 @@ namespace TrainWeb.Infrastructure.Repositories
             return snapshot.Documents.Select(d =>
             {
                 var e = d.ConvertTo<TicketEntity>();
-                // nếu TicketEntity có [FirestoreDocumentId] thì không cần set Id
-                // còn nếu không có thì set Id = d.Id ở đây
+                e.Id = d.Id;
                 return e;
             }).ToList();
+        }
+        public async Task<TicketEntity?> GetFirstByBookingIdAsync(string bookingId)
+        {
+            var snapshot = await FirestoreDb.Collection(CollectionName)
+                .WhereEqualTo("bookingId", bookingId)
+                .Limit(1)
+                .GetSnapshotAsync();
+
+            var doc = snapshot.Documents.FirstOrDefault();
+            if (doc == null) return null;
+
+            var e = doc.ConvertTo<TicketEntity>();
+            e.Id = doc.Id;
+            return e;
         }
 
         public async Task<TicketEntity?> GetByTicketNumberAsync(string ticketNumber)
@@ -40,7 +53,11 @@ namespace TrainWeb.Infrastructure.Repositories
                 .GetSnapshotAsync();
 
             var doc = snapshot.Documents.FirstOrDefault();
-            return doc == null ? null : doc.ConvertTo<TicketEntity>();
+            if (doc == null) return null;
+
+            var e = doc.ConvertTo<TicketEntity>();
+            e.Id = doc.Id; 
+            return e;
         }
 
         public Task AddAsync(TicketEntity ticketEntity)

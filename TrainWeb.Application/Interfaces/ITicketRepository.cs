@@ -8,6 +8,7 @@ namespace TrainWeb.Application.Interfaces
         Task<IEnumerable<TicketEntity>> GetAllAsync();
 
         Task<IEnumerable<TicketEntity>> GetByBookingIdAsync(string bookingId);
+        Task<TicketEntity?> GetFirstByBookingIdAsync(string bookingId);
         Task<TicketEntity?> GetByTicketNumberAsync(string ticketNumber);
 
         Task AddAsync(TicketEntity ticketEntity);
