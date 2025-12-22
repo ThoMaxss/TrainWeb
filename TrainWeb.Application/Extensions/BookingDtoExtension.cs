@@ -1,40 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TrainWeb.Application.DTOS;
 using TrainWeb.Domain.Domain;
+using TrainWeb.Domain.Enum;
 
 namespace TrainWeb.Application.Extensions
 {
     public static class BookingDtoExtension
     {
-        public static BookingDto? ToDto(this Booking? @this)
+        public static BookingDto ToDto(this Booking b) => new BookingDto
         {
-            if (@this == null) return null;
+            Id = b.Id,
+            UserId = b.UserId,
+            TripId = b.TripId,
+            SeatId = b.SeatId,
+            TicketTypeId = b.TicketTypeId, 
+            Amount = b.Amount,
+            Status = b.Status,
+            PaymentStatus = b.PaymentStatus,
+            PaymentId = b.PaymentId,
+            TicketId = b.TicketId,
+            TicketStatus = b.TicketStatus,
+            CreatedAt = b.CreatedAt,
+            ExpiresAt = b.ExpiresAt,
+            SeatSummary = b.SeatSummary,
+            TripSummary = b.TripSummary
+        };
 
-            return new BookingDto
-            {
-                Id = @this.Id,
-                User = @this.User?.ToDto(),   
-                Ticket = @this.Ticket?.ToDto(),
-                Trip = @this.Ticket?.Seat?.Trip?.ToDto(),  // Map Booking → Ticket → Seat → Trip
-                Seat = @this.Ticket?.Seat?.ToDto(),        // Map Booking → Ticket → Seat
-                Price = @this.Price,
-                Status = @this.Status,
-                CreatedAt = @this.CreatedAt,
-            };
-        }
-
-        public static Booking FromDto(this BookingDto @this) => new Booking(
-            @this.Id,
-            @this.User?.FromDto(), 
-            @this.Ticket?.FromDto(),
-            @this.Price,
-            @this.Status,
-            @this.CreatedAt
-        );
+        public static Booking FromDto(this BookingDto d) => new Booking(
+            id: d.Id,
+            userId: d.UserId ?? throw new ArgumentException("UserId is required"),
+            tripId: d.TripId ?? throw new ArgumentException("TripId is required"),
+            seatId: d.SeatId ?? throw new ArgumentException("SeatId is required"),
+            ticketTypeId: d.TicketTypeId,                     
+            amount: d.Amount ?? 0,                             
+            status: d.Status ?? BookingStatus.Reserved,
+            paymentStatus: d.PaymentStatus ?? PaymentStatus.Pending,
+            paymentId: d.PaymentId,
+            ticketId: d.TicketId,
+            ticketStatus: d.TicketStatus,
+            createdAt: d.CreatedAt ?? DateTime.UtcNow,
+            expiresAt: d.ExpiresAt
+        )
+        {
+            SeatSummary = d.SeatSummary,
+            TripSummary = d.TripSummary
+        };
     }
-
 }

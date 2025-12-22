@@ -1,44 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Google.Cloud.Firestore;
 using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Entities;
 using TrainWeb.Infrastructure.Persistence;
-using TrainWeb.Infrastructure.Repositories;
 
 namespace TrainWeb.Infrastructure.Repositories
 {
     public class TicketRepository : FirestoreRepository<TicketEntity>, ITicketRepository
     {
-        private const string CollectionName = "Tickets";
+        private const string CollectionName = "tickets";
 
         public TicketRepository(FirestoreDbContext context) : base(context) { }
 
-        public async Task<TicketEntity?> GetByIdAsync(string id)
+        public Task<TicketEntity?> GetByIdAsync(string id)
+            => GetByIdAsync(CollectionName, id);
+
+        public Task<IEnumerable<TicketEntity>> GetAllAsync()
+            => GetAllAsync(CollectionName);
+
+        public async Task<IEnumerable<TicketEntity>> GetByBookingIdAsync(string bookingId)
         {
-            return await GetByIdAsync(CollectionName, id);
+            var snapshot = await FirestoreDb.Collection(CollectionName)
+                .WhereEqualTo("bookingId", bookingId)
+                .GetSnapshotAsync();
+
+            return snapshot.Documents.Select(d =>
+            {
+                var e = d.ConvertTo<TicketEntity>();
+                // nếu TicketEntity có [FirestoreDocumentId] thì không cần set Id
+                // còn nếu không có thì set Id = d.Id ở đây
+                return e;
+            }).ToList();
         }
 
-        public async Task<IEnumerable<TicketEntity>> GetAllAsync()
+        public async Task<TicketEntity?> GetByTicketNumberAsync(string ticketNumber)
         {
-            return await GetAllAsync(CollectionName);
+            var snapshot = await FirestoreDb.Collection(CollectionName)
+                .WhereEqualTo("ticketNumber", ticketNumber)
+                .Limit(1)
+                .GetSnapshotAsync();
+
+            var doc = snapshot.Documents.FirstOrDefault();
+            return doc == null ? null : doc.ConvertTo<TicketEntity>();
         }
 
-        public async Task AddAsync(TicketEntity ticketEntity)
-        {
-            await AddAsync(CollectionName, ticketEntity.Id, ticketEntity);
-        }
+        public Task AddAsync(TicketEntity ticketEntity)
+            => AddAsync(CollectionName, ticketEntity.Id, ticketEntity);
 
-        public async Task UpdateAsync(string id, TicketEntity ticketEntity)
-        {
-            await UpdateAsync(CollectionName, id, ticketEntity);
-        }
+        public Task UpdateAsync(string id, TicketEntity ticketEntity)
+            => UpdateAsync(CollectionName, id, ticketEntity);
 
-        public async Task DeleteAsync(string id)
-        {
-            await DeleteAsync(CollectionName, id);
-        }
+        public Task DeleteAsync(string id)
+            => DeleteAsync(CollectionName, id);
     }
 }

@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TrainWeb.Domain.Entities;
-using TrainWeb.Infrastructure.Repositories;
+﻿using TrainWeb.Domain.Entities;
 
 namespace TrainWeb.Application.Interfaces
 {
-    public interface ISeatRepository : IRepository<SeatEntity>
+    public interface ISeatRepository
     {
-        Task<SeatEntity?> GetByIdAsync(string id);
-        Task<IEnumerable<SeatEntity>> GetAllAsync();
+        Task<SeatEntity?> GetByIdAsync(string tripId, string seatId);
         Task<IEnumerable<SeatEntity>> GetByTripIdAsync(string tripId);
-        Task AddAsync(SeatEntity seatEntity);
-        Task UpdateAsync(string id, SeatEntity seatEntity);
-        Task DeleteAsync(string id);
+
+        Task AddAsync(string tripId, SeatEntity seatEntity);
+        Task UpdateAsync(string tripId, string seatId, SeatEntity seatEntity);
+        Task DeleteAsync(string tripId, string seatId);
+
+        Task UpdateAvailabilityAsync(string tripId, string seatId, bool isAvailable);
     }
 }

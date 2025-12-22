@@ -1,50 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Google.Cloud.Firestore;
 using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Entities;
 using TrainWeb.Infrastructure.Persistence;
-using TrainWeb.Infrastructure.Repositories;
 
 namespace TrainWeb.Infrastructure.Repositories
 {
-    public class SeatRepository : FirestoreRepository<SeatEntity>, ISeatRepository
+    public class SeatRepository : ISeatRepository
     {
-        private const string CollectionName = "Seats";
+        private readonly FirestoreDb _db;
 
-        public SeatRepository(FirestoreDbContext context) : base(context) { }
+        private const string Trips = "trips";
+        private const string Seats = "seats";
 
-        public async Task<SeatEntity?> GetByIdAsync(string id)
+        public SeatRepository(FirestoreDbContext context)
         {
-            return await GetByIdAsync(CollectionName, id);
+            _db = context.Db ?? throw new ArgumentNullException(nameof(context.Db));
         }
 
-        public async Task<IEnumerable<SeatEntity>> GetAllAsync()
+        private CollectionReference SeatsCol(string tripId)
+            => _db.Collection(Trips).Document(tripId).Collection(Seats);
+
+        public async Task<SeatEntity?> GetByIdAsync(string tripId, string seatId)
         {
-            return await GetAllAsync(CollectionName);
+            var snap = await SeatsCol(tripId).Document(seatId).GetSnapshotAsync();
+            if (!snap.Exists) return null;
+
+            var e = snap.ConvertTo<SeatEntity>();
+            e.Id = snap.Id;
+            e.TripId = tripId;
+            return e;
         }
 
         public async Task<IEnumerable<SeatEntity>> GetByTripIdAsync(string tripId)
         {
-            var allSeats = await GetAllAsync(CollectionName);
-            return allSeats.Where(s => s.TripId == tripId);
+            var snap = await SeatsCol(tripId).GetSnapshotAsync();
+            return snap.Documents.Select(d =>
+            {
+                var e = d.ConvertTo<SeatEntity>();
+                e.Id = d.Id;
+                e.TripId = tripId;
+                return e;
+            }).ToList();
         }
 
-        public async Task AddAsync(SeatEntity seatEntity)
-        {
-            await AddAsync(CollectionName, seatEntity.Id, seatEntity);
-        }
+        public Task AddAsync(string tripId, SeatEntity seatEntity)
+            => SeatsCol(tripId).Document(seatEntity.Id).SetAsync(seatEntity);
 
-        public async Task UpdateAsync(string id, SeatEntity seatEntity)
-        {
-            await UpdateAsync(CollectionName, id, seatEntity);
-        }
+        public Task UpdateAsync(string tripId, string seatId, SeatEntity seatEntity)
+            => SeatsCol(tripId).Document(seatId).SetAsync(seatEntity, SetOptions.MergeAll);
 
-        public async Task DeleteAsync(string id)
-        {
-            await DeleteAsync(CollectionName, id);
-        }
+        public Task DeleteAsync(string tripId, string seatId)
+            => SeatsCol(tripId).Document(seatId).DeleteAsync();
+
+        public Task UpdateAvailabilityAsync(string tripId, string seatId, bool isAvailable)
+            => SeatsCol(tripId).Document(seatId).UpdateAsync(new Dictionary<string, object>
+            {
+                { "isAvailable", isAvailable }
+            });
     }
 }

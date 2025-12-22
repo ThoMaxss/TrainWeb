@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TrainWeb.Domain.Entities;
-using TrainWeb.Infrastructure.Repositories;
+﻿using TrainWeb.Domain.Entities;
 
 namespace TrainWeb.Application.Interfaces
 {
-    public interface IPaymentRepository : IRepository<PaymentEntity>
+    public interface IPaymentRepository
     {
         Task<PaymentEntity?> GetByIdAsync(string id);
         Task<IEnumerable<PaymentEntity>> GetAllAsync();

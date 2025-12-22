@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TrainWeb.Application.DTOS;
 using TrainWeb.Application.Services;
@@ -17,18 +20,22 @@ namespace TrainWeb.API.Controllers
         private BookingService BookingService { get; }
         private IConfiguration Configuration { get; }
 
-        public PaymentController(PaymentService paymentService, IConfiguration configuration, MomoService momoService, BookingService bookingService)
+        public PaymentController(
+            PaymentService paymentService,
+            IConfiguration configuration,
+            MomoService momoService,
+            BookingService bookingService)
         {
             PaymentService = paymentService;
             Configuration = configuration;
             MomoService = momoService;
             BookingService = bookingService;
         }
-        //1 api xac nhan thanh toan
+
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] string id)
         {
-            var payment = await PaymentService.GetById(id);
+            var payment = await PaymentService.GetByIdAsync(id);
             if (payment == null) return NotFound("Payment Not Found");
             return Ok(payment.ToDto());
         }
@@ -36,45 +43,42 @@ namespace TrainWeb.API.Controllers
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetByUserId([FromRoute] string userId)
         {
-            var payments = await PaymentService.GetByUserId(userId);
+            var payments = await PaymentService.GetByUserIdAsync(userId);
             if (payments == null || !payments.Any()) return NotFound("Payments Not Found");
-            return Ok(payments.Select(payment => payment.ToDto()));
+            return Ok(payments.Select(p => p.ToDto()));
         }
 
-        [HttpPost()]
+        [HttpPost]
         public async Task<IActionResult> Pay([FromBody] PaymentDto paymentDto)
         {
             var createdPayment = await PaymentService.AddAsync(paymentDto.FromDto());
 
-            if (createdPayment == null) return BadRequest("Payment Not Created");
-
             switch (createdPayment.Method)
             {
                 case PaymentMethod.Momo:
-                    // For demo, return mock MoMo URL instead of calling real MoMo
-                    // (which requires valid merchant credentials)
-                    var mockPayUrl = $"http://localhost:3001/booking/momo-mock?amount={createdPayment.Amount}&orderId={createdPayment.Id}&orderInfo=Thanh+toan+ve+tau&returnUrl={Uri.EscapeDataString("http://localhost:3001/booking/success")}";
+                    // Mock URL cho demo
+                    var mockPayUrl =
+                        $"http://localhost:3001/booking/momo-mock?amount={createdPayment.Amount}" +
+                        $"&orderId={createdPayment.Id}" +
+                        $"&orderInfo=Thanh+toan+ve+tau" +
+                        $"&returnUrl={Uri.EscapeDataString("http://localhost:3001/booking/success")}";
+
                     Console.WriteLine($"💳 Returning mock MoMo URL for testing: {mockPayUrl}");
-                    // Return plain text URL (frontend expects string, not JSON)
+
+                    // frontend expect plain text url
                     return Content(mockPayUrl, "text/plain");
-                    
-                    // For real MoMo payment, uncomment below:
-                    // var response = await MomoService.CreateMomoPaymentAsync(createdPayment);
-                    // Console.WriteLine($"MoMo Response: resultCode={response.resultCode}, message={response.message}");
-                    // if(response.resultCode != 0)
-                    // {
-                    //     return BadRequest($"Payment Not Created. MoMo: resultCode={response.resultCode}, message={response.message}");
-                    // }    
-                    // return Ok(response.payUrl);
+
                 case PaymentMethod.VnPay:
-                    break;
+                    // TODO: implement VNPay
+                    return Ok(createdPayment.ToDto());
+
                 case PaymentMethod.Visa:
-                    break;
+                    // TODO: implement Visa
+                    return Ok(createdPayment.ToDto());
+
                 default:
                     return Ok(createdPayment.ToDto());
             }
-
-            return Ok(createdPayment?.ToDto());
         }
 
         [HttpPost("{id}/success")]
@@ -87,13 +91,14 @@ namespace TrainWeb.API.Controllers
         [HttpPost("momo/ipn")]
         public async Task<IActionResult> ReceiveMomoIPN([FromBody] MomoIPNRequest request)
         {
-            if(VerifyMomoSignature(request) == false)
-            {
+            if (!VerifyMomoSignature(request))
                 return BadRequest(new { message = "Invalid signature" });
-            }
+
+            // Lưu ý: request.OrderId đang là paymentId (theo code Pay mock bạn set orderId=createdPayment.Id)
+            var payment = await PaymentService.GetByIdAsync(request.OrderId);
+
             if (request.ResultCode == 0)
             {
-                var payment = await PaymentService.GetById(request.OrderId);
                 if (payment != null && payment.Status != PaymentStatus.Success)
                 {
                     await PaymentService.SuccessPaymentAsync(request.OrderId);
@@ -101,13 +106,13 @@ namespace TrainWeb.API.Controllers
             }
             else
             {
-                var payment = await PaymentService.GetById(request.OrderId);
-                if (payment == null || payment.Booking.Id == null)
-                {
-                    return BadRequest(new { message = "Payment or Booking not found" });
-                }
+                // Fail -> cancel booking nếu có bookingId
+                var bookingId = payment?.BookingId ?? payment?.Booking?.Id;
 
-                await BookingService.CancelledBookingAsync(payment.Booking.Id);
+                if (string.IsNullOrWhiteSpace(bookingId))
+                    return BadRequest(new { message = "Payment or Booking not found" });
+
+                await BookingService.CancelBookingAsync(bookingId);
             }
 
             return Ok(new { message = "IPN received" });
@@ -115,7 +120,14 @@ namespace TrainWeb.API.Controllers
 
         private bool VerifyMomoSignature(MomoIPNRequest request)
         {
-            var rawSignature = $"accessKey={Configuration["MoMo:AccessKey"]}" +
+            var secretKey = Configuration["MoMo:SecretKey"];
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                throw new InvalidOperationException("MoMo:SecretKey configuration is missing.");
+            }
+
+            var rawSignature =
+                $"accessKey={Configuration["MoMo:AccessKey"]}" +
                 $"&amount={request.Amount}" +
                 $"&extraData={request.ExtraData}" +
                 $"&message={request.Message}" +
@@ -128,9 +140,13 @@ namespace TrainWeb.API.Controllers
                 $"&responseTime={request.ResponseTime}" +
                 $"&resultCode={request.ResultCode}";
 
-            
-            var computedSignature = MomoHelper.CreateSignature(rawSignature, Configuration["MoMo:SecretKey"]);
-            return computedSignature == request.Signature.ToLower();
+            var computedSignature = MomoHelper.CreateSignature(rawSignature, secretKey);
+
+            return string.Equals(
+                computedSignature?.ToLowerInvariant(),
+                request.Signature?.ToLowerInvariant(),
+                StringComparison.Ordinal
+            );
         }
     }
 }

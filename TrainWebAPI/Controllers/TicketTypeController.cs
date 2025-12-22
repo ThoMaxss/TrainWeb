@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Threading.Tasks;
 using TrainWeb.Application.DTOS;
 using TrainWeb.Application.Extensions;
 using TrainWeb.Application.Services;
@@ -9,63 +11,72 @@ namespace TrainWeb.API.Controllers
     [Route("api/[controller]")]
     public class TicketTypeController : ControllerBase
     {
-        private TicketTypeService TicketTypeService { get; }
+        private readonly TicketTypeService _ticketTypeService;
 
         public TicketTypeController(TicketTypeService ticketTypeService)
         {
-            TicketTypeService = ticketTypeService;
+            _ticketTypeService = ticketTypeService;
         }
-        ///Create/Get/List/Update/Delete ticket/ticket-type
-        ///Buy ticket/Get QR code ticket
+
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] string id)
         {
-            var ticketType = await TicketTypeService.GetById(id);
+            var ticketType = await _ticketTypeService.GetByIdAsync(id);
             if (ticketType == null) return NotFound("Ticket Type Not Found");
+
             return Ok(ticketType.ToDto());
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var ticketTypes = await TicketTypeService.GetAllAsync();
-            return Ok(ticketTypes.Select(ticketType => ticketType.ToDto()));
+            var ticketTypes = await _ticketTypeService.GetAllAsync();
+            return Ok(ticketTypes.Select(t => t.ToDto()));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] TicketTypeDto ticketTypeDto)
+        public async Task<IActionResult> Create([FromBody] TicketTypeDto dto)
         {
-            var createdTicketType = await TicketTypeService.AddAsync(ticketTypeDto.FromDto());
-            return Ok(createdTicketType?.ToDto());
+            if (dto == null) return BadRequest("Invalid payload");
+            if (string.IsNullOrWhiteSpace(dto.Name)) return BadRequest("Name is required");
+
+            // dto.DiscountPercent: 0..100
+            if (dto.DiscountPercent < 0 || dto.DiscountPercent > 100)
+                return BadRequest("DiscountPercent must be between 0 and 100");
+
+            dto.Id = null; 
+
+            var created = await _ticketTypeService.AddAsync(dto.FromDto());
+            return Ok(created?.ToDto());
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(
-            [FromRoute] string id,
-            [FromBody] TicketTypeDto ticketTypeDto
-        )
+        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] TicketTypeDto dto)
         {
-            var ticketType = await TicketTypeService.GetById(id);
-            if (ticketType == null)
-            {
-                return NotFound("Ticket Type Not Found");
-            }
-            ticketTypeDto.Id = ticketType.Id;
-            var updatedTicketType = await TicketTypeService.UpdateAsync(id, ticketTypeDto.FromDto());
-            return Ok(updatedTicketType?.ToDto());
+            if (dto == null) return BadRequest("Invalid payload");
+            if (string.IsNullOrWhiteSpace(dto.Name)) return BadRequest("Name is required");
+
+            if (dto.DiscountPercent < 0 || dto.DiscountPercent > 100)
+                return BadRequest("DiscountPercent must be between 0 and 100");
+
+            var existing = await _ticketTypeService.GetByIdAsync(id);
+            if (existing == null) return NotFound("Ticket Type Not Found");
+
+            dto.Id = id; 
+
+            var updated = await _ticketTypeService.UpdateAsync(id, dto.FromDto());
+            if (updated == null) return NotFound("Ticket Type Not Found");
+
+            return Ok(updated.ToDto());
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(
-            [FromRoute] string id
-        )
+        public async Task<IActionResult> Delete([FromRoute] string id)
         {
-            var ticketType = await TicketTypeService.GetById(id);
-            if (ticketType == null)
-            {
-                return NotFound("Ticket Type Not Found");
-            }
-            await TicketTypeService.DeleteAsync(id);
+            var existing = await _ticketTypeService.GetByIdAsync(id);
+            if (existing == null) return NotFound("Ticket Type Not Found");
+
+            await _ticketTypeService.DeleteAsync(id);
             return Ok();
         }
     }

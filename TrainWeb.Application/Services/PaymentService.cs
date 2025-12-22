@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
+using System.Linq;
 using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Domain;
 using TrainWeb.Domain.Entities;
@@ -9,122 +11,139 @@ namespace TrainWeb.Application.Services
 {
     public class PaymentService
     {
-        IPaymentRepository PaymentRepository { get; }
-        BookingService BookingService { get; }
+        private readonly IPaymentRepository _paymentRepo;
+        private readonly BookingService _bookingService;
+
         public PaymentService(IPaymentRepository paymentRepository, BookingService bookingService)
         {
-            PaymentRepository = paymentRepository;
-            BookingService = bookingService;
+            _paymentRepo = paymentRepository;
+            _bookingService = bookingService;
         }
-       //Pao cao doanh thu
-       //PT giao dich
-        public async Task<Payment?> GetById(string id)
+
+        public async Task<Payment?> GetByIdAsync(string id)
         {
-            var paymentEntity = await PaymentRepository.GetByIdAsync(id);
+            var paymentEntity = await _paymentRepo.GetByIdAsync(id);
+            if (paymentEntity == null) return null;
 
-            if(paymentEntity == null)
-            {
-                return null;
-            }
-
-            var booking = paymentEntity.BookingId != null 
-                ? await BookingService.GetById(paymentEntity.BookingId)
+            var booking = paymentEntity.BookingId != null
+                ? await _bookingService.GetByIdAsync(paymentEntity.BookingId)
                 : null;
 
-            return paymentEntity?.ToDomain(booking);
+            return paymentEntity.ToDomain(booking);
         }
 
-        public async Task<ImmutableList<Payment>?> GetByBookingId(string bookingId)
+        public async Task<ImmutableList<Payment>> GetByBookingIdAsync(string bookingId)
         {
-            var paymentEntities = await PaymentRepository.GetByBookingIdAsync(bookingId);
+            var paymentEntities = await _paymentRepo.GetByBookingIdAsync(bookingId)
+                                ?? Enumerable.Empty<PaymentEntity>();
 
-            var booking = await BookingService.GetById(bookingId);
+            var booking = await _bookingService.GetByIdAsync(bookingId);
 
-            return paymentEntities?.Select(paymentEntity => paymentEntity.ToDomain(booking)).ToImmutableList();
+            return paymentEntities
+                .Select(e => e.ToDomain(booking))
+                .ToImmutableList();
         }
 
-        public async Task<Payment?> GetPendingByBookingId(string bookingId)
+        public async Task<Payment?> GetPendingByBookingIdAsync(string bookingId)
         {
-            var paymentEntity = await PaymentRepository.GetPendingByBookingIdAsync(bookingId);
+            var paymentEntity = await _paymentRepo.GetPendingByBookingIdAsync(bookingId);
+            if (paymentEntity == null) return null;
 
-            var booking = await BookingService.GetById(bookingId);
-
-            return paymentEntity?.ToDomain(booking);
+            var booking = await _bookingService.GetByIdAsync(bookingId);
+            return paymentEntity.ToDomain(booking);
         }
 
         public async Task<ImmutableList<Payment>> GetAllAsync()
         {
-            var paymentEntities = await PaymentRepository.GetAllAsync();
+            var paymentEntities = await _paymentRepo.GetAllAsync();
 
-            return paymentEntities.Select(paymentEntity =>
+            var result = ImmutableList.CreateBuilder<Payment>();
+            foreach (var pe in paymentEntities)
             {
-                var booking = paymentEntity.BookingId != null
-                    ? BookingService.GetById(paymentEntity.BookingId).Result
+                var booking = pe.BookingId != null
+                    ? await _bookingService.GetByIdAsync(pe.BookingId)
                     : null;
-                return paymentEntity.ToDomain(booking);
-            }).ToImmutableList();
+
+                result.Add(pe.ToDomain(booking));
+            }
+
+            return result.ToImmutable();
         }
 
-        public async Task<ImmutableList<Payment>> GetByUserId(string userId)
+        public async Task<ImmutableList<Payment>> GetByUserIdAsync(string userId)
         {
-            var paymentEntities = await PaymentRepository.GetByUserIdAsync(userId);
-            return paymentEntities?.Select(paymentEntity =>
+            var paymentEntities = await _paymentRepo.GetByUserIdAsync(userId)
+                                ?? Enumerable.Empty<PaymentEntity>();
+
+            var result = ImmutableList.CreateBuilder<Payment>();
+            foreach (var pe in paymentEntities)
             {
-                var booking = paymentEntity.BookingId != null
-                    ? BookingService.GetById(paymentEntity.BookingId).Result
+                var booking = pe.BookingId != null
+                    ? await _bookingService.GetByIdAsync(pe.BookingId)
                     : null;
-                return paymentEntity.ToDomain(booking);
-            }).ToImmutableList() ?? ImmutableList<Payment>.Empty;
+
+                result.Add(pe.ToDomain(booking));
+            }
+
+            return result.ToImmutable();
         }
 
-        public async Task<Payment?> AddAsync(Payment payment)
+        public async Task<Payment> AddAsync(Payment payment)
         {
-            var booking = await BookingService.GetById(payment.Booking?.Id!);
+            var bookingId = !string.IsNullOrWhiteSpace(payment.BookingId)
+                ? payment.BookingId
+                : payment.Booking?.Id;
+
+            if (string.IsNullOrWhiteSpace(bookingId))
+                throw new BadRequestException("BookingId is required");
+
+            var booking = await _bookingService.GetByIdAsync(bookingId);
             if (booking == null)
-            {
                 throw new BadRequestException("Booking Not Found");
-            }
 
-            payment.Amount = booking.Price;
-            var paymentEntity = PaymentEntity.FromDomain(payment);
+            payment.Amount = booking.Amount;
 
-            await PaymentRepository.AddAsync(paymentEntity);
+            var normalized = new Payment(
+                id: payment.Id,
+                booking: booking,
+                bookingId: bookingId,
+                amount: payment.Amount,
+                method: payment.Method,                 
+                status: payment.Status,                
+                createdAt: payment.CreatedAt            
+            );
 
-            return paymentEntity.ToDomain(booking);
+            var entity = PaymentEntity.FromDomain(normalized);
+            await _paymentRepo.AddAsync(entity);
+
+            return entity.ToDomain(booking);
         }
 
-        public async Task SuccessPaymentAsync(string id)
+        public async Task SuccessPaymentAsync(string paymentId)
         {
-            var paymentEntity = await PaymentRepository.GetByIdAsync(id);
-
+            var paymentEntity = await _paymentRepo.GetByIdAsync(paymentId);
             if (paymentEntity == null || paymentEntity.BookingId == null)
-            {
                 throw new NotFoundException("Payment Or Booking Not Found");
-            }
-            paymentEntity.Status = PaymentStatus.Success;
 
-            await PaymentRepository.UpdateAsync(id, paymentEntity);
+            paymentEntity.Status = PaymentStatus.Success.ToString().ToLowerInvariant();
+            await _paymentRepo.UpdateAsync(paymentId, paymentEntity);
 
-            var existingBooking = await BookingService.GetById(paymentEntity.BookingId!);
-
-            existingBooking!.Status = BookingStatus.Paid;
-
-            var updatedBooking = await BookingService.UpdateAsync(existingBooking.Id!, existingBooking);
+            await _bookingService.SucceedBookingAsync(paymentEntity.BookingId);
         }
 
         public async Task<Payment?> UpdateAsync(string id, Payment payment)
         {
-            var paymentEntity = PaymentEntity.FromDomain(payment);
-            await PaymentRepository.UpdateAsync(id, paymentEntity);
-            var booking = paymentEntity.BookingId != null
-                ? await BookingService.GetById(paymentEntity.BookingId)
+            var entity = PaymentEntity.FromDomain(payment);
+            await _paymentRepo.UpdateAsync(id, entity);
+
+            var booking = entity.BookingId != null
+                ? await _bookingService.GetByIdAsync(entity.BookingId)
                 : null;
-            return paymentEntity.ToDomain(booking);
+
+            return entity.ToDomain(booking);
         }
 
-        public async Task DeleteAsync(string id)
-        {
-            await PaymentRepository.DeleteAsync(id);
-        }
+        public Task DeleteAsync(string id)
+            => _paymentRepo.DeleteAsync(id);
     }
 }

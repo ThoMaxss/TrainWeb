@@ -7,35 +7,112 @@ namespace TrainWeb.Domain.Entities
     [FirestoreData]
     public class BookingEntity
     {
-        [FirestoreProperty]
-        public string Id { get; set; }
-        [FirestoreProperty]
-        public string? UserId { get; set; }
+        [FirestoreDocumentId]
+        public string Id { get; set; } = default!;
 
-        [FirestoreProperty]
+        [FirestoreProperty("userId")]
+        public string UserId { get; set; } = default!;
+
+        [FirestoreProperty("tripId")]
+        public string TripId { get; set; } = default!;
+
+        [FirestoreProperty("seatId")]
+        public string SeatId { get; set; } = default!;
+
+        [FirestoreProperty("ticketTypeId")]
+        public string? TicketTypeId { get; set; } // ✅ giảm giá
+
+        [FirestoreProperty("amount")]
+        public double Amount { get; set; }
+
+        // lowercase string để query ổn định
+        [FirestoreProperty("status")]
+        public string Status { get; set; } = "reserved"; // reserved/paid/cancelled
+
+        [FirestoreProperty("paymentStatus")]
+        public string PaymentStatus { get; set; } = "pending"; // pending/success/failed
+
+        [FirestoreProperty("paymentId")]
+        public string? PaymentId { get; set; }
+
+        [FirestoreProperty("ticketId")]
         public string? TicketId { get; set; }
 
-        [FirestoreProperty]
-        public double? Price { get; set; }
-        [FirestoreProperty]
-        public BookingStatus Status { get; set; }
+        [FirestoreProperty("ticketStatus")]
+        public string? TicketStatus { get; set; }
 
-        [FirestoreProperty]
-        public DateTime CreatedAt { get; set; }
+        [FirestoreProperty("createdAt")]
+        public Timestamp CreatedAt { get; set; } = Timestamp.GetCurrentTimestamp();
 
-        public Booking ToDomain(User? user, Ticket? ticket)
+        [FirestoreProperty("expiresAt")]
+        public Timestamp? ExpiresAt { get; set; }
+
+        [FirestoreProperty("seatSummary")]
+        public Dictionary<string, object>? SeatSummary { get; set; }
+
+        [FirestoreProperty("tripSummary")]
+        public Dictionary<string, object>? TripSummary { get; set; }
+
+        // ===== Mapping =====
+        public Booking ToDomain()
         {
-            return new Booking(Id, user, ticket, Price, Status, CreatedAt);
+            var bookingStatus = System.Enum.TryParse<BookingStatus>(Status, true, out var bs)
+                ? bs
+                : BookingStatus.Reserved;
+
+            var payStatus = System.Enum.TryParse<PaymentStatus>(PaymentStatus, true, out var ps)
+                ? ps
+                : global::TrainWeb.Domain.Enum.PaymentStatus.Pending;
+
+            return new Booking(
+                id: Id,
+                userId: UserId,
+                tripId: TripId,
+                seatId: SeatId,
+                ticketTypeId: TicketTypeId,          
+                amount: Amount,
+                status: bookingStatus,
+                paymentStatus: payStatus,
+                paymentId: PaymentId,
+                ticketId: TicketId,
+                ticketStatus: TicketStatus,
+                createdAt: CreatedAt.ToDateTime(),
+                expiresAt: ExpiresAt?.ToDateTime()
+            )
+            {
+                SeatSummary = SeatSummary,
+                TripSummary = TripSummary
+            };
         }
 
-        public static BookingEntity FromDomain(Booking booking) => new BookingEntity
+        public static BookingEntity FromDomain(Booking booking)
         {
-            Id = booking.Id ?? Guid.NewGuid().ToString(),
-            UserId = booking.User?.Id,
-            TicketId = booking.Ticket?.Id,
-            Price = booking.Price,
-            Status = booking.Status ?? BookingStatus.Reserved,
-            CreatedAt = DateTime.UtcNow
-        };
+            return new BookingEntity
+            {
+                Id = booking.Id ?? Guid.NewGuid().ToString(),
+                UserId = booking.UserId,
+                TripId = booking.TripId,
+                SeatId = booking.SeatId,
+
+                TicketTypeId = booking.TicketTypeId, 
+
+                Amount = booking.Amount,
+
+                Status = booking.Status.ToString().ToLowerInvariant(),
+                PaymentStatus = booking.PaymentStatus.ToString().ToLowerInvariant(),
+
+                PaymentId = booking.PaymentId,
+                TicketId = booking.TicketId,
+                TicketStatus = booking.TicketStatus,
+
+                CreatedAt = Timestamp.FromDateTime(DateTime.SpecifyKind(booking.CreatedAt, DateTimeKind.Utc)),
+                ExpiresAt = booking.ExpiresAt == null
+                    ? null
+                    : Timestamp.FromDateTime(DateTime.SpecifyKind(booking.ExpiresAt.Value, DateTimeKind.Utc)),
+
+                SeatSummary = booking.SeatSummary,
+                TripSummary = booking.TripSummary
+            };
+        }
     }
 }

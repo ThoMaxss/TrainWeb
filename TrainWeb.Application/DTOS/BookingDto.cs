@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TrainWeb.Domain.Enum;
+﻿using TrainWeb.Domain.Enum;
 
 namespace TrainWeb.Application.DTOS
 {
@@ -11,20 +6,25 @@ namespace TrainWeb.Application.DTOS
     {
         public string? Id { get; set; }
 
-        public UserDto? User { get; set; }
+        public string? UserId { get; set; }
+        public string? TripId { get; set; }
+        public string? SeatId { get; set; }
 
-        public TripDto? Trip { get; set; }
+        public string? TicketTypeId { get; set; } 
 
-        public SeatDto? Seat { get; set; }
-
-        public TicketDto? Ticket { get; set; }
-
-        public double? Price { get; set; }
+        public double? Amount { get; set; }
 
         public BookingStatus? Status { get; set; }
+        public PaymentStatus? PaymentStatus { get; set; }
+
+        public string? PaymentId { get; set; }
+        public string? TicketId { get; set; }
+        public string? TicketStatus { get; set; }
 
         public DateTime? CreatedAt { get; set; }
+        public DateTime? ExpiresAt { get; set; }
 
+        public Dictionary<string, object>? SeatSummary { get; set; }
+        public Dictionary<string, object>? TripSummary { get; set; }
     }
 }
-
