@@ -11,15 +11,12 @@ namespace TrainWeb.Application.Extensions
             Name = user.Name,
             Email = user.Email,
             Role = user.Role,
-            CreatedAt = user.CreatedAt
-        };
+            CreatedAt = user.CreatedAt,
 
-        public static User FromDto(this UserDto dto) => new User(
-            dto.Id,
-            dto.Name,
-            dto.Email,
-            dto.Role,
-            dto.CreatedAt ?? DateTime.UtcNow
-        );
+            CCCD = user.CCCD,
+            Phone = user.Phone,
+            AvatarURL = user.AvatarURL,
+            IsEmailVerified = user.IsEmailVerified
+        };
     }
 }

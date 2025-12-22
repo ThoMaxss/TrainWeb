@@ -11,7 +11,7 @@ import { Train, Menu, X, Search, LogOut } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils/utils";
 import { useAuth } from "@/components/auth/AuthContext";
-import { UserRole, USER_ROLE_LABELS } from "@/types";
+import { USER_ROLE_LABELS, type UserRole } from "@/types";
 import { navAdmin, navCommon, navStaff, navUser, accountMenu } from "@/config/nav";
 
 export function Header() {
@@ -19,28 +19,30 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+
   const { user, role, isAuthenticated, logout } = useAuth();
 
+  // ✅ fallback role (role có thể null khi chưa load)
+  const roleKey: UserRole = (role ?? "passenger") as UserRole;
+
   const roleNav = useMemo(() => {
-    if (role === UserRole.Admin) return navAdmin;
-    if (role === UserRole.Staff) return navStaff;
+    if (roleKey === "admin") return navAdmin;
+    if (roleKey === "staff") return navStaff;
     return navUser;
-  }, [role]);
+  }, [roleKey]);
 
   const navItems = useMemo(() => {
     // Admin và Staff không dùng navCommon (Trang chủ, Tìm kiếm, Vé của tôi)
-    if (role === UserRole.Admin || role === UserRole.Staff) {
-      return roleNav;
-    }
-    // User thường vẫn dùng navCommon
+    if (roleKey === "admin" || roleKey === "staff") return roleNav;
+    // Passenger vẫn dùng navCommon
     return [...navCommon, ...roleNav];
-  }, [roleNav, role]);
+  }, [roleNav, roleKey]);
 
   const getProfileUrl = useMemo(() => {
-    if (role === UserRole.Admin) return '/profile/admin';
-    if (role === UserRole.Staff) return '/profile/staff';
-    return '/profile';
-  }, [role]);
+    if (roleKey === "admin") return "/profile/admin";
+    if (roleKey === "staff") return "/profile/staff";
+    return "/profile";
+  }, [roleKey]);
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -115,7 +117,7 @@ export function Header() {
           </Button>
 
           <ThemeToggle variant="simple" />
-          
+
           {isAuthenticated && <NotificationBell />}
 
           {isAuthenticated && user ? (
@@ -144,15 +146,16 @@ export function Header() {
                   <div className="absolute right-0 top-full mt-2 w-64 rounded-lg border bg-card shadow-lg z-50 py-1">
                     <div className="px-3 py-2 border-b">
                       <p className="text-sm font-medium">{user.name ?? user.email}</p>
-                      <p className="text-xs text-muted-foreground">{USER_ROLE_LABELS[role ?? UserRole.Passenger]}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {USER_ROLE_LABELS[roleKey]}
+                      </p>
                     </div>
+
                     {accountMenu.map((item) => {
                       // Điều chỉnh href cho profile dựa trên role
                       let href = item.href;
-                      if (item.href === '/profile') {
-                        if (role === UserRole.Admin) href = '/profile/admin';
-                        else if (role === UserRole.Staff) href = '/profile/staff';
-                      }
+                      if (item.href === "/profile") href = getProfileUrl;
+
                       return (
                         <Link
                           key={item.href}
@@ -164,6 +167,7 @@ export function Header() {
                         </Link>
                       );
                     })}
+
                     <button
                       onClick={() => {
                         logout();
@@ -245,7 +249,7 @@ export function Header() {
                 </div>
                 <div>
                   <p className="font-medium text-sm">{user.name ?? user.email}</p>
-                  <p className="text-xs text-muted-foreground">{USER_ROLE_LABELS[role ?? UserRole.Passenger]}</p>
+                  <p className="text-xs text-muted-foreground">{USER_ROLE_LABELS[roleKey]}</p>
                 </div>
               </div>
               <div className="flex gap-2">

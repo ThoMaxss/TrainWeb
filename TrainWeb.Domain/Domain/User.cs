@@ -1,9 +1,4 @@
-﻿using Google.Cloud.Firestore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using TrainWeb.Domain.Enum;
 
 namespace TrainWeb.Domain.Domain
@@ -15,7 +10,11 @@ namespace TrainWeb.Domain.Domain
         public string? Email { get; }
         public UserRole? Role { get; }
         public DateTime? CreatedAt { get; }
-        public bool? IsEmailVerified { get; } 
+        public bool? IsEmailVerified { get; }
+
+        public string? CCCD { get; }
+        public string? Phone { get; }
+        public string? AvatarURL { get; }
 
         public User(
             string? id,
@@ -23,14 +22,21 @@ namespace TrainWeb.Domain.Domain
             string? email,
             UserRole? role,
             DateTime? createdAt,
-            bool? isEmailVerified = false) 
+            bool? isEmailVerified = false,
+            string? cccd = null,
+            string? phone = null,
+            string? avatarURL = null)
         {
             Id = id;
             Name = name;
             Email = email;
             Role = role;
             CreatedAt = createdAt;
-            IsEmailVerified = isEmailVerified; 
+            IsEmailVerified = isEmailVerified;
+
+            CCCD = cccd;
+            Phone = phone;
+            AvatarURL = avatarURL;
         }
     }
 }

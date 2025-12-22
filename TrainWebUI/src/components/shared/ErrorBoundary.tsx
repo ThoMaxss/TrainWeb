@@ -1,9 +1,17 @@
-'use client';
+"use client";
 
-import React, { Component, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import React, { Component, ReactNode } from "react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+
+declare global {
+  interface Window {
+    errorTracker?: {
+      captureException: (error: Error, context?: { errorInfo?: React.ErrorInfo }) => void;
+    };
+  }
+}
 
 interface Props {
   children: ReactNode;
@@ -27,12 +35,12 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught:', error, errorInfo);
+    console.error("ErrorBoundary caught:", error, errorInfo);
     this.setState({ error, errorInfo });
-    
+
     // Optional: Send to error tracking service (Sentry, etc.)
-    if (typeof window !== 'undefined' && (window as any).errorTracker) {
-      (window as any).errorTracker.captureException(error, { errorInfo });
+    if (typeof window !== "undefined" && window.errorTracker) {
+      window.errorTracker.captureException(error, { errorInfo });
     }
   }
 
@@ -43,9 +51,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
+      if (this.props.fallback) return this.props.fallback;
 
       return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -55,13 +61,13 @@ export class ErrorBoundary extends Component<Props, State> {
             <p className="text-muted-foreground mb-6">
               Ứng dụng gặp sự cố không mong muốn. Vui lòng thử lại.
             </p>
-            
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+
+            {process.env.NODE_ENV === "development" && this.state.error && (
               <details className="text-left mb-6 p-4 bg-muted rounded-lg text-sm">
                 <summary className="cursor-pointer font-medium mb-2">Chi tiết lỗi</summary>
                 <pre className="overflow-auto text-xs">
                   {this.state.error.toString()}
-                  {'\n\n'}
+                  {"\n\n"}
                   {this.state.errorInfo?.componentStack}
                 </pre>
               </details>
@@ -72,7 +78,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <RefreshCw className="h-4 w-4" />
                 Tải lại trang
               </Button>
-              <Button variant="outline" onClick={() => window.location.href = '/'}>
+              <Button variant="outline" onClick={() => (window.location.href = "/")}>
                 Về trang chủ
               </Button>
             </div>

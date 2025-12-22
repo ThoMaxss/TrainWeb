@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useAuth } from './AuthContext';
-import { UserRole } from '@/types';
+import React from "react";
+import { useAuth } from "./AuthContext";
+import type { UserRole } from "@/types";
 
 interface ConditionalRenderProps {
   children: React.ReactNode;
@@ -16,110 +16,89 @@ interface ConditionalRenderProps {
  * Conditional component that shows/hides content based on user role
  * Use this for UI elements that should be visible/hidden based on permissions
  */
-export function ConditionalRender({ 
-  children, 
-  requiredRole, 
+export function ConditionalRender({
+  children,
+  requiredRole,
   requireAuth = false,
   fallback = null,
-  className
+  className,
 }: ConditionalRenderProps) {
   const { isAuthenticated, hasRole, isLoading } = useAuth();
 
   // Show loading placeholder to prevent flicker
   if (isLoading) {
     return (
-      <div className={`animate-pulse bg-muted rounded ${className}`} style={{ minHeight: '2rem' }}>
+      <div className={`animate-pulse bg-muted rounded ${className || ""}`} style={{ minHeight: "2rem" }}>
         <span className="sr-only">Đang tải...</span>
       </div>
     );
   }
 
   // Check authentication requirement
-  if (requireAuth && !isAuthenticated) {
-    return <>{fallback}</>;
-  }
+  if (requireAuth && !isAuthenticated) return <>{fallback}</>;
 
   // Check role requirement
-  if (requiredRole && !hasRole(requiredRole)) {
-    return <>{fallback}</>;
-  }
+  if (requiredRole && !hasRole(requiredRole)) return <>{fallback}</>;
 
   return <div className={className}>{children}</div>;
 }
 
 // Specialized conditional renders for different roles
-export function AdminOnly({ 
-  children, 
-  fallback = null, 
-  className 
-}: { 
-  children: React.ReactNode; 
-  fallback?: React.ReactNode; 
+export function AdminOnly({
+  children,
+  fallback = null,
+  className,
+}: {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
   className?: string;
 }) {
   return (
-    <ConditionalRender 
-      requiredRole={UserRole.Admin} 
-      fallback={fallback}
-      className={className}
-    >
+    <ConditionalRender requiredRole="admin" fallback={fallback} className={className}>
       {children}
     </ConditionalRender>
   );
 }
 
-export function StaffOnly({ 
-  children, 
-  fallback = null, 
-  className 
-}: { 
-  children: React.ReactNode; 
-  fallback?: React.ReactNode; 
+export function StaffOnly({
+  children,
+  fallback = null,
+  className,
+}: {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
   className?: string;
 }) {
+  // staff + admin
   return (
-    <ConditionalRender 
-      requiredRole={[UserRole.Staff, UserRole.Admin]} 
-      fallback={fallback}
-      className={className}
-    >
+    <ConditionalRender requiredRole={["staff", "admin"]} fallback={fallback} className={className}>
       {children}
     </ConditionalRender>
   );
 }
 
-export function AuthenticatedOnly({ 
-  children, 
-  fallback = null, 
-  className 
-}: { 
-  children: React.ReactNode; 
-  fallback?: React.ReactNode; 
+export function AuthenticatedOnly({
+  children,
+  fallback = null,
+  className,
+}: {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
   className?: string;
 }) {
   return (
-    <ConditionalRender 
-      requireAuth={true} 
-      fallback={fallback}
-      className={className}
-    >
+    <ConditionalRender requireAuth fallback={fallback} className={className}>
       {children}
     </ConditionalRender>
   );
 }
 
-export function GuestOnly({ 
-  children, 
-  className 
-}: { 
-  children: React.ReactNode; 
-  className?: string;
-}) {
+export function GuestOnly({ children, className }: { children: React.ReactNode; className?: string }) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className={`animate-pulse bg-muted rounded ${className}`} style={{ minHeight: '2rem' }}>
+      <div className={`animate-pulse bg-muted rounded ${className || ""}`} style={{ minHeight: "2rem" }}>
         <span className="sr-only">Đang tải...</span>
       </div>
     );

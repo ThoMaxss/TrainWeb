@@ -1,5 +1,6 @@
 ﻿using TrainWeb.Application.Interfaces;
 using TrainWeb.Domain.Domain;
+using TrainWeb.Domain.Enum;
 
 namespace TrainWeb.Application.Services
 {
@@ -21,10 +22,46 @@ namespace TrainWeb.Application.Services
             return user;
         }
 
-        public async Task<User?> UpdateUserAsync(string id, User user)
+        public async Task<User?> UpdateMeAsync(string uid, string? name, string? cccd, string? phone, string? avatarUrl)
         {
-            await _userRepository.UpdateAsync(id, user);
-            return user;
+            var current = await _userRepository.GetByIdAsync(uid);
+            if (current == null) return null;
+
+            var updated = new User(
+                id: current.Id,
+                name: string.IsNullOrWhiteSpace(name) ? current.Name : name,
+                email: current.Email,
+                role: current.Role ?? UserRole.Passenger,                 // ✅ fallback
+                createdAt: current.CreatedAt,
+                isEmailVerified: current.IsEmailVerified,
+                cccd: string.IsNullOrWhiteSpace(cccd) ? current.CCCD : cccd,
+                phone: string.IsNullOrWhiteSpace(phone) ? current.Phone : phone,
+                avatarURL: string.IsNullOrWhiteSpace(avatarUrl) ? current.AvatarURL : avatarUrl
+            );
+
+            await _userRepository.UpdateAsync(uid, updated);
+            return updated;
+        }
+
+        public async Task<User?> AdminUpdateAsync(string id, string? name, string? cccd, string? phone, string? avatarUrl, UserRole? role)
+        {
+            var current = await _userRepository.GetByIdAsync(id);
+            if (current == null) return null;
+
+            var updated = new User(
+                id: current.Id,
+                name: string.IsNullOrWhiteSpace(name) ? current.Name : name,
+                email: current.Email,
+                role: role ?? current.Role ?? UserRole.Passenger,         
+                createdAt: current.CreatedAt,
+                isEmailVerified: current.IsEmailVerified,
+                cccd: string.IsNullOrWhiteSpace(cccd) ? current.CCCD : cccd,
+                phone: string.IsNullOrWhiteSpace(phone) ? current.Phone : phone,
+                avatarURL: string.IsNullOrWhiteSpace(avatarUrl) ? current.AvatarURL : avatarUrl
+            );
+
+            await _userRepository.UpdateAsync(id, updated);
+            return updated;
         }
 
         public Task DeleteUserAsync(string id)
