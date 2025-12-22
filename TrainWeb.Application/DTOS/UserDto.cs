@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TrainWeb.Domain.Enum;
 
 namespace TrainWeb.Application.DTOS
@@ -14,5 +10,11 @@ namespace TrainWeb.Application.DTOS
         public string? Email { get; set; }
         public UserRole? Role { get; set; }
         public DateTime? CreatedAt { get; set; }
+
+        public string? CCCD { get; set; }
+        public string? Phone { get; set; }
+        public string? AvatarURL { get; set; }
+
+        public bool? IsEmailVerified { get; set; }
     }
 }

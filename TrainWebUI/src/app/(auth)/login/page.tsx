@@ -1,65 +1,81 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { useAuth } from '@/components/auth/AuthContext';
-import { login as apiLogin } from '@/lib/api/auth';
-import { UserRole, LoginRequest, UserDto } from '@/types';
-import { H1, Body, Small } from '@/components/ui/typography';
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+
+import { auth } from "@/lib/firebase";
+import { getProfile } from "@/lib/api/auth";
+import { useAuth } from "@/components/auth/AuthContext";
+import { H1, Body, Small } from "@/components/ui/typography";
+
+import type { MeResponse } from "@/types";
 
 export default function LoginPage() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useAuth();
+
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  // Get return URL from query params
-  const returnUrl = searchParams.get('returnUrl');
+  const returnUrl = searchParams.get("returnUrl");
+
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
+
     try {
-      // Real API login
-      const loginPayload: LoginRequest = {
-        email: formData.email,
-        password: formData.password,
-      };
-      const authResponse = await apiLogin(loginPayload);
-      
-      // Convert AuthResponse to UserDto (AuthResponse doesn't include id/name)
-      const userDto: UserDto = { 
-        id: authResponse.email || formData.email,
-        name: (authResponse.email || formData.email).split('@')[0] || 'User',
-        email: authResponse.email || formData.email, 
-        role: authResponse.role === 'Admin' ? UserRole.Admin : 
-              authResponse.role === 'Staff' ? UserRole.Staff : UserRole.Passenger,
-        createdAt: new Date().toISOString(),
-        token: authResponse.token,
-      };
-      
-      login(userDto);
-      
-      // Redirect to returnUrl if provided, otherwise use role-based routing
-      if (returnUrl) {
-        console.log("✅ Login successful, redirecting to:", returnUrl);
-        router.push(returnUrl);
-      } else {
-        switch (userDto.role) {
-          case UserRole.Admin: router.push('/admin-dashboard'); break;
-          case UserRole.Staff: router.push('/staff-dashboard'); break;
-          case UserRole.Passenger: router.push('/search'); break;
-          default: router.push('/');
-        }
+      // 1) Firebase Client login
+      const cred = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+
+      // 2) Ensure token exists for apiFetch (apiFetch tự lấy auth.currentUser.getIdToken())
+      await cred.user.getIdToken();
+
+      // 3) Call BE to get profile/role (GET /api/User/me)
+      const me: MeResponse = await getProfile();
+
+      // 4) Optional: update AuthContext immediately
+      // NOTE: context của bạn đang dùng shape { id, email, name, role, createdAt, email_verified }
+      if (typeof login === "function") {
+        login({
+          id: me.id,
+          email: me.email,
+          name: me.name,
+          role: me.role,
+          createdAt: me.createdAt ?? null,
+          email_verified: me.email_verified,
+        });
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Đăng nhập thất bại.');
+
+      // 5) Redirect
+      if (returnUrl) {
+        router.push(returnUrl);
+        return;
+      }
+
+      switch (me.role) {
+        case "admin":
+          router.push("/admin-dashboard");
+          break;
+        case "staff":
+          router.push("/staff-dashboard");
+          break;
+        default:
+          router.push("/search");
+          break;
+      }
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Đăng nhập thất bại. Vui lòng kiểm tra email/mật khẩu.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -68,19 +84,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        
-        {/* Main Form Container */}
         <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
-          
-          {/* Header */}
           <div className="text-center py-8 px-6 bg-background">
             <H1 className="mb-2">Đăng nhập</H1>
-            <Body className="text-muted-foreground">
-              Đăng nhập vào tài khoản GoRail của bạn
-            </Body>
+            <Body className="text-muted-foreground">Đăng nhập vào tài khoản GoRail của bạn</Body>
           </div>
 
-          {/* Form */}
           <div className="px-6 py-8 bg-card">
             {error && (
               <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
@@ -89,8 +98,6 @@ export default function LoginPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              
-              {/* Email Field */}
               <div className="space-y-2">
                 <label htmlFor="login-email" className="block text-sm font-semibold text-foreground">
                   Email
@@ -112,7 +119,6 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Password Field */}
               <div className="space-y-2">
                 <label htmlFor="login-password" className="block text-sm font-semibold text-foreground">
                   Mật khẩu
@@ -133,46 +139,41 @@ export default function LoginPage() {
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowPassword((v) => !v)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" aria-hidden="true" />
+                    ) : (
+                      <Eye className="w-5 h-5" aria-hidden="true" />
+                    )}
                   </button>
                 </div>
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
               >
-                {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                {loading ? "Đang đăng nhập..." : "Đăng nhập"}
               </button>
 
-
-
-              {/* Links */}
               <div className="space-y-4 text-center">
                 <Body className="text-muted-foreground">
-                  Chưa có tài khoản? {' '}
+                  Chưa có tài khoản?{" "}
                   <Link href="/register" className="text-primary hover:text-primary/80 font-semibold transition-colors">
                     Đăng ký ngay
                   </Link>
                 </Body>
 
-                <Link 
-                  href="/forgot-password" 
-                  className="block text-primary hover:text-primary/80 font-semibold transition-colors"
-                >
+                <Link href="/forgot-password" className="block text-primary hover:text-primary/80 font-semibold transition-colors">
                   Quên mật khẩu?
                 </Link>
               </div>
-
             </form>
           </div>
-
         </div>
       </div>
     </div>

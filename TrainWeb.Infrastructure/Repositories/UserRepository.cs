@@ -34,15 +34,30 @@ namespace TrainWeb.Infrastructure.Repositories
 
         public async Task AddAsync(User user)
         {
+            if (string.IsNullOrWhiteSpace(user.Id))
+                throw new ArgumentException("User.Id must be Firebase UID");
+
             var entity = UserEntity.FromDomain(user);
+            entity.Id = user.Id;
+
             await AddAsync(CollectionName, entity.Id, entity);
         }
 
         public async Task UpdateAsync(string id, User user)
         {
-            var entity = UserEntity.FromDomain(user);
-            entity.Id = id;
-            await UpdateAsync(CollectionName, id, entity);
+            var current = await GetByIdAsync(CollectionName, id);
+            if (current == null)
+                throw new KeyNotFoundException($"User '{id}' not found");
+
+            // map từ domain sang entity
+            var updated = UserEntity.FromDomain(user);
+            updated.Id = id;
+
+            updated.CreatedAt = current.CreatedAt;
+
+            updated.IsEmailVerified = current.IsEmailVerified || updated.IsEmailVerified;
+
+            await UpdateAsync(CollectionName, id, updated);
         }
 
         public Task DeleteAsync(string id)

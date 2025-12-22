@@ -1,26 +1,42 @@
-// API Configuration based on backend documentation
+"use client";
+
+import { auth } from "@/lib/firebase";
+
+// API Configuration
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'https://localhost:7128',
-  API_ROOT: '/api',
-  TIMEOUT: 30000, // Increased to 30s for complex nested queries (getAllBookings)
-  HEADERS: {
-    'Content-Type': 'application/json',
-  },
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || "https://localhost:7128",
+  API_ROOT: "/api",
+  TIMEOUT: 30000,
 };
 
-// Import enums from types instead of redefining them
-// This ensures we use the correct numeric enums from backend
-export { UserRole, SeatType, BookingStatus, PaymentMethod, PaymentStatus } from '@/types';
+// ❌ Không nên re-export enums từ "@/types" ở config nữa
+// vì bạn đã chuyển role sang string ("admin/staff/passenger").
+// Nếu cần enums khác (BookingStatus, PaymentStatus...) thì export ở file index types riêng.
+// export { UserRole, SeatType, BookingStatus, PaymentMethod, PaymentStatus } from "@/types";
+
+// ---- Error type (để UI/AuthContext xử lý 401 cho sạch) ----
+export class ApiError extends Error {
+  status: number;
+  url: string;
+  body?: string;
+
+  constructor(status: number, url: string, message: string, body?: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.url = url;
+    this.body = body;
+  }
+}
 
 // Health check function
 export async function checkApiHealth(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/health`, {
-      method: 'GET',
-      headers: API_CONFIG.HEADERS,
-      signal: AbortSignal.timeout(5000), // 5 second timeout for health check
+    const res = await fetch(`${API_CONFIG.BASE_URL}/health`, {
+      method: "GET",
+      signal: AbortSignal.timeout(5000),
     });
-    return response.ok;
+    return res.ok;
   } catch {
     return false;
   }
@@ -29,198 +45,194 @@ export async function checkApiHealth(): Promise<boolean> {
 // Retry configuration
 const RETRY_CONFIG = {
   maxRetries: 3,
-  initialDelay: 1000, // 1 second
-  maxDelay: 10000, // 10 seconds
+  initialDelay: 1000,
+  maxDelay: 10000,
   backoffMultiplier: 2,
   retryableStatuses: [408, 429, 500, 502, 503, 504],
 };
 
-// Helper: exponential backoff with jitter
 function calculateBackoffDelay(attempt: number): number {
   const exponentialDelay = Math.min(
     RETRY_CONFIG.initialDelay * Math.pow(RETRY_CONFIG.backoffMultiplier, attempt),
     RETRY_CONFIG.maxDelay
   );
-  // Add jitter: random value between 0.5x and 1.5x the delay
   const jitter = exponentialDelay * (0.5 + Math.random());
   return Math.floor(jitter);
 }
 
-// Helper: sleep for a given duration
 function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Token refresh mechanism
-let refreshPromise: Promise<string> | null = null;
-
-async function refreshToken(): Promise<string> {
-  if (refreshPromise) return refreshPromise;
-
-  refreshPromise = (async () => {
-    try {
-      const storedUser = localStorage.getItem('gorail_user');
-      if (!storedUser) throw new Error('No stored user');
-
-      const userData = JSON.parse(storedUser);
-      const refreshToken = userData.refreshToken;
-      
-      if (!refreshToken) {
-        throw new Error('No refresh token available');
-      }
-
-      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.API_ROOT}/Auth/refresh`, {
-        method: 'POST',
-        headers: API_CONFIG.HEADERS,
-        body: JSON.stringify({ refreshToken }),
-      });
-
-      if (!response.ok) throw new Error('Token refresh failed');
-
-      const newTokenData = await response.json();
-      
-      // Update stored user with new token
-      const updatedUser = {
-        ...userData,
-        token: newTokenData.token,
-        refreshToken: newTokenData.refreshToken || refreshToken,
-      };
-      localStorage.setItem('gorail_user', JSON.stringify(updatedUser));
-      
-      return newTokenData.token;
-    } catch (error) {
-      // Clear invalid session
-      localStorage.removeItem('gorail_user');
-      window.location.href = '/login';
-      throw error;
-    } finally {
-      refreshPromise = null;
-    }
-  })();
-
-  return refreshPromise;
+function isFailedToFetch(error: unknown): boolean {
+  return error instanceof TypeError && error.message === "Failed to fetch";
 }
 
-// Base fetch function with error handling, retry logic, and token refresh
+function isTimeoutError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "TimeoutError";
+}
+
+async function safeReadText(res: Response): Promise<string> {
+  try {
+    return await res.text();
+  } catch {
+    return "";
+  }
+}
+
+function isFormDataBody(body: unknown): body is FormData {
+  return typeof FormData !== "undefined" && body instanceof FormData;
+}
+
+async function getFirebaseIdToken(forceRefresh = false): Promise<string | null> {
+  const user = auth.currentUser;
+  if (!user) return null;
+  try {
+    return await user.getIdToken(forceRefresh);
+  } catch {
+    return null;
+  }
+}
+
+// ---- Base fetch with: Firebase token + retry + (401 refresh token 1 lần) ----
 export async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {},
-  retryCount: number = 0
+  retryCount = 0,
+  didRefreshToken = false
 ): Promise<T> {
-  const DEBUG = process.env.NEXT_PUBLIC_DEBUG === 'true';
+  const DEBUG = process.env.NEXT_PUBLIC_DEBUG === "true";
   const url = `${API_CONFIG.BASE_URL}${API_CONFIG.API_ROOT}${endpoint}`;
-  if (DEBUG) console.log(`🔗 API Call: ${options.method || 'GET'} ${url} at ${new Date().toISOString()}`);
-  
-  // Get auth token from localStorage
-  let token: string | null = null;
-  if (typeof window !== 'undefined') {
-    // Use the new GoRail namespace key
-    const storedUser = localStorage.getItem('gorail_user');
-    if (storedUser) {
-      try {
-        const userData = JSON.parse(storedUser);
-        token = userData.token || null;
-        if (DEBUG) console.log(`🔐 Using auth token: ${token ? 'YES' : 'NO'}`);
-      } catch {
-        // Ignore parse errors
-        if (DEBUG) console.log(`🔐 No auth token found`);
-      }
-    } else {
-      if (DEBUG) console.log(`🔐 No stored user found`);
-    }
-  }
-  
+
+  if (DEBUG) console.log(`🔗 API Call: ${options.method || "GET"} ${url}`);
+
   try {
-      if (DEBUG) console.log(`⏱️ Starting fetch with ${API_CONFIG.TIMEOUT}ms timeout...`);
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          ...API_CONFIG.HEADERS,
-          ...(token && { Authorization: `Bearer ${token}` }),
-          ...options.headers,
-        },
-        // Add timeout and credentials
-        signal: AbortSignal.timeout(API_CONFIG.TIMEOUT),
-      });
-      if (DEBUG) console.log(`📡 Response received: ${response.status} ${response.statusText} at ${new Date().toISOString()}`);
+    const headers = new Headers(options.headers || {});
 
-      // Handle different response types based on backend documentation
-      if (response.status === 404) {
-        if (DEBUG) console.warn(`⚠️ Resource not found: ${url}`);
-        return null as T;
-      }
-      
-      // Handle 401 with token refresh
-      if (response.status === 401) {
-        if (typeof window !== 'undefined' && retryCount === 0) {
-          try {
-            const newToken = await refreshToken();
-            // Retry with new token
-            return apiFetch<T>(endpoint, options, retryCount + 1);
-          } catch {
-            throw new Error('Unauthorized');
+    // ✅ Chỉ set Content-Type JSON khi body không phải FormData
+    if (!isFormDataBody(options.body)) {
+      if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+    } else {
+      headers.delete("Content-Type");
+    }
+
+    // ✅ Attach Firebase ID token (nếu có)
+    const idToken = await getFirebaseIdToken(false);
+    if (idToken) headers.set("Authorization", `Bearer ${idToken}`);
+
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      signal: AbortSignal.timeout(API_CONFIG.TIMEOUT),
+    });
+
+    if (DEBUG) console.log(`📡 Response: ${response.status} ${response.statusText}`);
+
+    // ✅ 404: không nên return null “cứng” vì làm vỡ type (T)
+    // -> để caller tự xử lý bằng try/catch (hoặc bạn tạo apiFetchNullable riêng).
+    if (response.status === 404) {
+      const text = await safeReadText(response);
+      throw new ApiError(404, url, "Not Found", text);
+    }
+
+    // ✅ 401: thử refresh token đúng 1 lần
+    if (response.status === 401) {
+      const hasUser = !!auth.currentUser;
+
+      if (hasUser && !didRefreshToken) {
+        const fresh = await getFirebaseIdToken(true);
+        if (fresh) {
+          const retryHeaders = new Headers(headers);
+          retryHeaders.set("Authorization", `Bearer ${fresh}`);
+
+          const retryRes = await fetch(url, {
+            ...options,
+            headers: retryHeaders,
+            signal: AbortSignal.timeout(API_CONFIG.TIMEOUT),
+          });
+
+          if (retryRes.ok) {
+            if (retryRes.status === 204) return undefined as T;
+
+            const ct = retryRes.headers.get("content-type") || "";
+            if (ct.includes("text/plain")) return (await safeReadText(retryRes)) as unknown as T;
+            return (await retryRes.json()) as T;
           }
+
+          const retryText = await safeReadText(retryRes);
+          throw new ApiError(retryRes.status, url, "Unauthorized", retryText);
         }
-        throw new Error('Unauthorized');
       }
 
-      // Retry logic for specific status codes
-      if (RETRY_CONFIG.retryableStatuses.includes(response.status) && retryCount < RETRY_CONFIG.maxRetries) {
+      const text = await safeReadText(response);
+      throw new ApiError(401, url, "Unauthorized", text);
+    }
+
+    // Retry for retryable statuses
+    if (
+      RETRY_CONFIG.retryableStatuses.includes(response.status) &&
+      retryCount < RETRY_CONFIG.maxRetries
+    ) {
+      const delay = calculateBackoffDelay(retryCount);
+      if (DEBUG) {
+        console.log(
+          `🔄 Retrying after ${delay}ms (attempt ${retryCount + 1}/${RETRY_CONFIG.maxRetries})...`
+        );
+      }
+      await sleep(delay);
+      return apiFetch<T>(endpoint, options, retryCount + 1, didRefreshToken);
+    }
+
+    if (!response.ok) {
+      const errorText = await safeReadText(response);
+      throw new ApiError(
+        response.status,
+        url,
+        errorText || `HTTP error! status: ${response.status}`,
+        errorText
+      );
+    }
+
+    // ✅ No Content
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    // text/plain (vd: momo url)
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("text/plain")) {
+      return (await safeReadText(response)) as unknown as T;
+    }
+
+    return (await response.json()) as T;
+  } catch (error: unknown) {
+    // Network errors
+    if (isFailedToFetch(error)) {
+      if (retryCount < RETRY_CONFIG.maxRetries) {
         const delay = calculateBackoffDelay(retryCount);
-        if (DEBUG) console.log(`🔄 Retrying after ${delay}ms (attempt ${retryCount + 1}/${RETRY_CONFIG.maxRetries})...`);
         await sleep(delay);
-        return apiFetch<T>(endpoint, options, retryCount + 1);
+        return apiFetch<T>(endpoint, options, retryCount + 1, didRefreshToken);
       }
+      throw new ApiError(
+        0,
+        url,
+        "Backend server is not accessible. Please check if the server is running."
+      );
+    }
 
-      if (!response.ok) {
-        // For error responses that return strings
-        const errorText = await response.text();
-        throw new Error(errorText || `HTTP error! status: ${response.status}`);
+    // Timeout
+    if (isTimeoutError(error)) {
+      if (retryCount < RETRY_CONFIG.maxRetries) {
+        const delay = calculateBackoffDelay(retryCount);
+        await sleep(delay);
+        return apiFetch<T>(endpoint, options, retryCount + 1, didRefreshToken);
       }
+      throw new ApiError(0, url, "Request timed out. Please try again.");
+    }
 
-      // Handle empty responses (DELETE operations)
-      if (response.status === 200 && response.headers.get('content-length') === '0') {
-        return undefined as T;
-      }
-
-      // Handle text/plain responses (e.g., MoMo payment URLs)
-      const contentType = response.headers.get('content-type') || '';
-      if (contentType.includes('text/plain')) {
-        const text = await response.text();
-        return text as T;
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      // Network errors - retry if under max attempts
-      if (error instanceof TypeError && error.message === 'Failed to fetch') {
-        if (retryCount < RETRY_CONFIG.maxRetries) {
-          const delay = calculateBackoffDelay(retryCount);
-          if (DEBUG) console.log(`🔄 Network error, retrying after ${delay}ms (attempt ${retryCount + 1}/${RETRY_CONFIG.maxRetries})...`);
-          await sleep(delay);
-          return apiFetch<T>(endpoint, options, retryCount + 1);
-        }
-        
-        console.error('❌ Backend server is not running at:', API_CONFIG.BASE_URL);
-        console.error('💡 Please start your backend server on https://localhost:7128');
-        throw new Error('Backend server is not accessible. Please check if the server is running.');
-      }
-      
-      // Timeout errors - retry if under max attempts
-      if (error instanceof DOMException && error.name === 'TimeoutError') {
-        if (retryCount < RETRY_CONFIG.maxRetries) {
-          const delay = calculateBackoffDelay(retryCount);
-          if (DEBUG) console.log(`🔄 Timeout, retrying after ${delay}ms (attempt ${retryCount + 1}/${RETRY_CONFIG.maxRetries})...`);
-          await sleep(delay);
-          return apiFetch<T>(endpoint, options, retryCount + 1);
-        }
-        
-        console.error('⏱️ Request timeout after', API_CONFIG.TIMEOUT, 'ms');
-        throw new Error('Request timed out. Please try again.');
-      }
-      
-      console.error('API Error:', error);
-      throw error;
+    // Other errors
+    if (error instanceof ApiError) throw error;
+    if (error instanceof Error) throw new ApiError(0, url, error.message);
+    throw new ApiError(0, url, "Unknown error");
   }
 }
