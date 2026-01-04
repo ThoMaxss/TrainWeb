@@ -263,7 +263,7 @@ export default function TicketDetailPage() {
               Không tìm thấy vé
             </h2>
             <p className="text-muted-foreground mb-5">
-              Vé với ID "{id}" không tồn tại hoặc đã bị xóa.
+              Vé với ID {'\u201C'}{id}{'\u201D'} không tồn tại hoặc đã bị xóa.
             </p>
             <Button onClick={() => router.push('/my-tickets')} className="w-full">
               Quay lại danh sách vé

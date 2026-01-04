@@ -1,5 +1,6 @@
 // Service Worker for PWA
-const CACHE_NAME = 'gorail-v1';
+// Bump the cache name when we change assets so clients update and avoid serving stale bundles
+const CACHE_NAME = 'gorail-v2';
 const urlsToCache = [
   '/',
   '/search',
@@ -34,36 +35,49 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
+  try {
+    const url = new URL(event.request.url);
 
-        // Clone the request
+    // Do not intercept cross-origin requests (e.g., backend API on different port)
+    if (url.origin !== self.location.origin) {
+      return; // Let the network handle it
+    }
+
+    // For non-GET requests, bypass cache and hit network
+    if (event.request.method !== 'GET') {
+      event.respondWith(fetch(event.request));
+      return;
+    }
+
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        if (response) return response;
+
         const fetchRequest = event.request.clone();
+        return fetch(fetchRequest)
+          .then((networkResponse) => {
+            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+              return networkResponse;
+            }
 
-        return fetch(fetchRequest).then((response) => {
-          // Check if valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-
-          // Clone the response
-          const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME)
-            .then((cache) => {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseToCache);
             });
-
-          return response;
-        }).catch(() => {
-          // Return offline page if available
-          return caches.match('/');
-        });
+            return networkResponse;
+          })
+          .catch(() => {
+            // Only fall back to app shell for navigations (HTML documents)
+            if (event.request.mode === 'navigate') {
+              return caches.match('/');
+            }
+            // For other requests (e.g., JSON, images), signal failure
+            return Response.error();
+          });
       })
-  );
+    );
+  } catch (err) {
+    // In case of any unexpected error in SW, don't block the request
+    // Allow browser to perform default fetch
+  }
 });

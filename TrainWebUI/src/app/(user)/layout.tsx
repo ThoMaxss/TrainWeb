@@ -10,13 +10,13 @@ export default function UserLayout({
   children: React.ReactNode
 }) {
   return (
-    <UserGuard showFallback={true}>
-      <div className="min-h-screen bg-card">
-        <Header />
+    <div className="min-h-screen bg-card">
+      <Header />
+      <UserGuard showFallback={true}>
         <main className="container mx-auto px-2 py-5">
           {children}
         </main>
-      </div>
-    </UserGuard>
+      </UserGuard>
+    </div>
   );
 }

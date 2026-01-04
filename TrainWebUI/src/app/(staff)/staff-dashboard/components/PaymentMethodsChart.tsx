@@ -36,11 +36,11 @@ export function PaymentMethodsChart({ data, formatCurrency }: PaymentMethodsChar
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie
-              data={data as any}
+              data={data}
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ method, percent }: any) =>
+              label={({ method, percent }: { method: string; percent?: number }) =>
                 `${method} ${((percent || 0) * 100).toFixed(0)}%`
               }
               outerRadius={80}
@@ -52,9 +52,9 @@ export function PaymentMethodsChart({ data, formatCurrency }: PaymentMethodsChar
               ))}
             </Pie>
             <RechartsTooltip
-              formatter={(value: number, name: string, props: any) => [
-                `${value}% (${formatCurrency(props.payload.amount)})`, 
-                "Tỷ lệ"
+              formatter={(value: number, name: string, props: { payload?: { amount?: number } } = {}) => [
+                `${value}% (${formatCurrency(props.payload?.amount ?? 0)})`,
+                "Tỷ lệ",
               ]}
             />
           </PieChart>

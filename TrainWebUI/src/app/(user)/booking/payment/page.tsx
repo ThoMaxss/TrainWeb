@@ -109,7 +109,7 @@ export default function PaymentPage() {
                 console.log("📦 Using fallback booking data:", { seats, tripId });
                 seatsToUse = seats || [];
                 // Create demo bookings for display purposes
-                bookingsToUse = (seats || []).map((seat: any, idx: number) => ({
+                bookingsToUse = (seats || []).map((seat: { id?: string }, idx: number) => ({
                   id: bookingIds[idx] || `demo-${Date.now()}-${idx}`,
                   seat: seat,
                   status: BookingStatus.Reserved,
@@ -132,7 +132,7 @@ export default function PaymentPage() {
               .map((bookingData: BookingDto | null) => {
                 if (!bookingData) return null;
                 // Prefer seat from ticket if backend returns nested ticket
-                const seatSource = bookingData.ticket?.seat ?? (bookingData as any).seat;
+                const seatSource = bookingData.ticket?.seat ?? (bookingData as { seat?: unknown }).seat;
                 const seat = seatSource;
                 if (seat && seat.id) {
                   const seatLabel = typeof seat.type === 'string'
@@ -264,13 +264,31 @@ export default function PaymentPage() {
 
       // Mark payment as successful
       await successPayment(paymentResult.id!);
-      
-      // Mark all bookings as successful (paid)
-      const updatePromises = bookings.map(booking =>
-        successBooking(booking.id!)
-      );
-      await Promise.all(updatePromises);
-      
+
+      // Important: call successBooking once per booking and make client-side idempotency guard
+      for (const booking of bookings) {
+        try {
+          // If sessionStorage indicates it's already handled, skip. successBooking sets flag itself.
+          const paidFlag = typeof window !== 'undefined' ? sessionStorage.getItem(`paid:${booking.id}`) : null;
+          if (paidFlag === 'true') {
+            console.log(`[Payment] Booking ${booking.id} already marked paid on client`);
+            continue;
+          }
+
+          await successBooking(booking.id!);
+
+          // Refetch booking to get ticketId (backend will have created ticket)
+          try {
+            await getBookingById(booking.id!);
+          } catch (err) {
+            console.warn(`Failed to fetch booking ${booking.id} after success call`, err);
+          }
+        } catch (err) {
+          console.error(`Failed to mark booking ${booking.id} as success:`, err);
+          // Do not abort other bookings; log and continue. UI will show an error on redirect if needed.
+        }
+      }
+
       console.log("✅ Payment successful, redirecting to success page");
       // Navigate to success page with booking IDs and payment result
       const bookingIdsString = bookings.map(b => b.id).join(",");

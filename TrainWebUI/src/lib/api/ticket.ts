@@ -1,11 +1,11 @@
 import { apiFetch, API_CONFIG } from './config';
-import { TicketEntity as TicketDto, TicketStatus, parseTicketStatus, type SeatDto, type TicketTypeDto } from '@/types';
+import { TicketEntity as TicketDto, TicketStatus, parseTicketStatus } from '@/types';
 import { SEAT_TYPE_LABELS } from '@/types/seat';
 
 // Define local request types to match backend contract
 type CreateTicketRequest = {
-  seat?: { id: string; [key: string]: any };
-  ticketType?: { id: string; [key: string]: any };
+  seat?: { id: string; [key: string]: unknown };
+  ticketType?: { id: string; [key: string]: unknown };
   status: TicketStatus;
 };
 
@@ -13,17 +13,6 @@ type UpdateTicketRequest = Partial<CreateTicketRequest>;
 
 const BASE = '/Ticket'; // PascalCase theo API doc
 
-/**
- * Get all tickets
- * Backend response includes nested seat and ticketType objects
- * Response example:
- * {
- *   "id": "50f48818-6107-40ba-989b-4a544a77ed4f",
- *   "seat": { "id": "...", "seatNumber": "A1", "type": "Hard", "price": 100000, ... },
- *   "ticketType": { "id": "...", "name": null, "discount": 0 },
- *   "status": "Active"
- * }
- */
 export async function getAllTickets(): Promise<TicketDto[]> {
   const tickets = await apiFetch<TicketDto[]>(`${BASE}`);
   

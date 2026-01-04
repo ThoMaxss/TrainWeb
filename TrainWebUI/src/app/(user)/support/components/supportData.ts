@@ -1,8 +1,9 @@
+import React from 'react';
 import { Ticket, CreditCard, RefreshCw, Users, ShieldCheck, BookOpen } from "lucide-react";
 
 export interface SupportTopic {
   id: string;
-  icon: any;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   title: string;
   description: string;
   link: string;

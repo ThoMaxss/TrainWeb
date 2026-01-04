@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
@@ -56,17 +57,19 @@ namespace TrainWeb.API.Controllers
             switch (createdPayment.Method)
             {
                 case PaymentMethod.Momo:
-                    // Mock URL cho demo
-                    var mockPayUrl =
-                        $"http://localhost:3001/booking/momo-mock?amount={createdPayment.Amount}" +
-                        $"&orderId={createdPayment.Id}" +
-                        $"&orderInfo=Thanh+toan+ve+tau" +
-                        $"&returnUrl={Uri.EscapeDataString("http://localhost:3001/booking/success")}";
+                    // Gọi MoMo thật nếu đã cấu hình
+                    var momoResponse = await MomoService.CreateMomoPaymentAsync(createdPayment);
 
-                    Console.WriteLine($"💳 Returning mock MoMo URL for testing: {mockPayUrl}");
+                    if (momoResponse != null && momoResponse.resultCode == 0 && !string.IsNullOrWhiteSpace(momoResponse.payUrl))
+                    {
+                        // Frontend expect plain text URL
+                        return Content(momoResponse.payUrl, "text/plain");
+                    }
 
-                    // frontend expect plain text url
-                    return Content(mockPayUrl, "text/plain");
+                    // Nếu MoMo chưa cấu hình hoặc lỗi, trả thông tin để FE hiển thị
+                    var message = momoResponse?.message ?? "MoMo payment initialization failed";
+                    var code = momoResponse?.resultCode ?? -1;
+                    return StatusCode(StatusCodes.Status502BadGateway, new { message, resultCode = code });
 
                 case PaymentMethod.VnPay:
                     // TODO: implement VNPay

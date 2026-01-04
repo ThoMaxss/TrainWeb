@@ -64,10 +64,21 @@ export default function NotificationsPage() {
 
       if (cached) {
         const parsed = JSON.parse(cached);
-        const notifications = parsed.map((n: any) => ({
-          ...n,
-          timestamp: new Date(n.timestamp),
-        }));
+        const notifications = parsed.map((n: unknown) => {
+          const record = n as Record<string, unknown>;
+          const ts = record.timestamp;
+          return {
+            id: String(record.id ?? ""),
+            category: (record.category as Notification['category']) ?? 'system',
+            title: String(record.title ?? ""),
+            message: String(record.message ?? ""),
+            timestamp: new Date(String(ts ?? Date.now())),
+            isRead: Boolean(record.isRead ?? false),
+            isCritical: Boolean(record.isCritical ?? false),
+            actionType: (record.actionType as Notification['actionType']) ?? undefined,
+            actionId: record.actionId ? String(record.actionId) : undefined,
+          } as Notification;
+        });
         setNotifications(notifications);
       } else {
         // Mock data - replace with API call
@@ -658,7 +669,7 @@ interface NotificationCardProps {
   selectionMode: boolean;
   categoryConfig: {
     label: string;
-    icon: any;
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     color: string;
     bgColor: string;
     borderColor: string;

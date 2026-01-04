@@ -101,7 +101,7 @@ export function PassengerForm({
             </Label>
             <RadioGroup
               value={passenger.gender}
-              onValueChange={(value: any) => onUpdate("gender", value)}
+              onValueChange={(value: string) => onUpdate("gender", value)}
               className="mt-1.5 flex gap-3"
             >
               <div className="flex items-center space-x-2">

@@ -28,7 +28,7 @@ export function PaymentMethodsPieChart({ data }: PaymentMethodsChartProps) {
         <ResponsiveContainer width="100%" height={200}>
           <PieChart>
             <Pie
-              data={data as any}
+              data={data}
               cx="50%"
               cy="50%"
               innerRadius={50}
@@ -46,7 +46,7 @@ export function PaymentMethodsPieChart({ data }: PaymentMethodsChartProps) {
                 border: `1px solid var(--color-border)`,
                 borderRadius: "8px",
               }}
-              formatter={(value: any) => `${value.toLocaleString("vi-VN")}₫`}
+              formatter={(value: number) => `${value.toLocaleString("vi-VN")}₫`}
             />
           </PieChart>
         </ResponsiveContainer>

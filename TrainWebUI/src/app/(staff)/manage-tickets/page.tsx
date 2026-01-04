@@ -30,8 +30,8 @@ export default function ManageTicketsPage() {
       const data = await getAllBookings()
       setBookingsCache(data)
       return data
-    } catch (e: any) {
-      setError(e?.message || "Không thể tải danh sách đặt vé")
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Không thể tải danh sách đặt vé")
       return []
     } finally {
       setIsLoading(false)

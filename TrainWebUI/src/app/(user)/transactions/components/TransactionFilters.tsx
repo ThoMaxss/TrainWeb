@@ -30,7 +30,7 @@ export function TransactionFilters({
   return (
     <div className="space-y-4">
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as any)}>
+      <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as "all" | "success" | "failed" | "pending") }>
         <TabsList className="grid w-full grid-cols-4 bg-muted/50">
           <TabsTrigger value="all" className="gap-2">
             Tất cả

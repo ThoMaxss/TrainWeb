@@ -24,9 +24,11 @@ export async function generateGroupPdfTicket(
 
   passengers.forEach((p, i) => {
     const seat = seats[i];
-    const passengerName = (p as any).fullName || p.name || "";
-    const seatType = (seat as any).seatType || seat.type || "";
-    const coach = (seat as any).coachNumber ? `Toa ${(seat as any).coachNumber}, ` : "";
+    const passengerName = ((p as unknown) as { fullName?: string }).fullName || p.name || "";
+    const seatType = ((seat as unknown) as { seatType?: string; type?: string }).seatType || seat.type || "";
+    const coach = (((seat as unknown) as { coachNumber?: number }).coachNumber)
+      ? `Toa ${((seat as unknown) as { coachNumber?: number }).coachNumber}, `
+      : "";
     doc.text(
       `${i + 1}. ${passengerName} - ${coach}Ghế ${seat.seatNumber} (${seatType})`,
       20,
@@ -61,9 +63,11 @@ export async function generateIndividualTickets(
     doc.setFontSize(18).text("VÉ TÀU ĐIỆN TỬ", 105, 20, { align: "center" });
     doc.setFontSize(12).text(`Mã vé: ${ticketId}-${i + 1}`, 105, 28, { align: "center" });
 
-    const passengerName = (p as any).fullName || p.name || "";
-    const seatType = (seat as any).seatType || seat.type || "";
-    const coach = (seat as any).coachNumber ? `Toa ${(seat as any).coachNumber}, ` : "";
+    const passengerName = ((p as unknown) as { fullName?: string }).fullName || p.name || "";
+    const seatType = ((seat as unknown) as { seatType?: string; type?: string }).seatType || seat.type || "";
+    const coach = (((seat as unknown) as { coachNumber?: number }).coachNumber)
+      ? `Toa ${((seat as unknown) as { coachNumber?: number }).coachNumber}, `
+      : "";
     doc.setFontSize(14).text(`${passengerName}`, 20, 50);
     doc.setFontSize(12).text(`${coach}Ghế ${seat.seatNumber} (${seatType})`, 20, 60);
     doc.text(`Tàu: ${trainId}`, 20, 70);

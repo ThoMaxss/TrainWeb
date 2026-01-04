@@ -1,10 +1,17 @@
 // types/user.ts
 
 /**
- * BE đang chuẩn hoá role lowercase trong claim/policy:
- * "passenger" | "staff" | "admin"
+ * Runtime and type-safe user roles.
+ * We export both a runtime `UserRole` object (so code can do `UserRole.Staff`)
+ * and a `UserRole` type (union of literal strings) for type annotations.
  */
-export type UserRole = "passenger" | "staff" | "admin";
+export const UserRole = {
+  Passenger: "passenger",
+  Staff: "staff",
+  Admin: "admin",
+} as const;
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
 export interface UserProfile {
   /** Firestore Id = Firebase UID */
@@ -52,6 +59,35 @@ export interface UpdateMeRequest {
   cccd?: string;
   phone?: string;
   avatarURL?: string;
+}
+
+/**
+ * Request payload when a user registers (FE -> BE)
+ */
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+  role?: UserRole;
+}
+
+/**
+ * DTOs used across the app
+ */
+export interface UserEntity {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  createdAt?: string | null;
+}
+
+export interface UserDto extends UserEntity {
+  token?: string | null;
+  isEmailVerified?: boolean | null;
+  cccd?: string | null;
+  phone?: string | null;
+  avatarURL?: string | null;
 }
 
 /**

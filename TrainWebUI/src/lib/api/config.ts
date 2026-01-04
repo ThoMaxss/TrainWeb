@@ -9,6 +9,12 @@ export const API_CONFIG = {
   TIMEOUT: 30000,
 };
 
+const DEBUG = process.env.NEXT_PUBLIC_DEBUG === "true";
+
+if (typeof window !== "undefined" && DEBUG) {
+  console.log(`[api] BASE_URL resolved to: ${API_CONFIG.BASE_URL}`);
+}
+
 // ❌ Không nên re-export enums từ "@/types" ở config nữa
 // vì bạn đã chuyển role sang string ("admin/staff/passenger").
 // Nếu cần enums khác (BookingStatus, PaymentStatus...) thì export ở file index types riêng.
@@ -101,7 +107,6 @@ export async function apiFetch<T>(
   retryCount = 0,
   didRefreshToken = false
 ): Promise<T> {
-  const DEBUG = process.env.NEXT_PUBLIC_DEBUG === "true";
   const url = `${API_CONFIG.BASE_URL}${API_CONFIG.API_ROOT}${endpoint}`;
 
   if (DEBUG) console.log(`🔗 API Call: ${options.method || "GET"} ${url}`);
@@ -206,6 +211,23 @@ export async function apiFetch<T>(
 
     return (await response.json()) as T;
   } catch (error: unknown) {
+    // DEV: record last API failure details on window for quick debugging
+    try {
+      if (typeof window !== "undefined") {
+        const detail = {
+          attemptedUrl: url,
+          expectedBase: API_CONFIG.BASE_URL,
+          time: new Date().toISOString(),
+          message: (error instanceof Error ? error.message : String(error)),
+        };
+        // store and emit event
+        // @ts-expect-error - augmenting global for debugging in development only
+        window.__GORAIL_LAST_API_ERROR = detail;
+        try {
+          window.dispatchEvent(new CustomEvent("gorail:lastApiError", { detail }));
+        } catch {}
+      }
+    } catch {}
     // Network errors
     if (isFailedToFetch(error)) {
       if (retryCount < RETRY_CONFIG.maxRetries) {
@@ -216,7 +238,7 @@ export async function apiFetch<T>(
       throw new ApiError(
         0,
         url,
-        "Backend server is not accessible. Please check if the server is running."
+        `Backend server at ${API_CONFIG.BASE_URL} is not accessible. Please check if the server is running.`
       );
     }
 

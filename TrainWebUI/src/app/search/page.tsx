@@ -2,6 +2,7 @@
 
 import { useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Header } from "@/components/shared/Header";
 import { SearchSection } from "@/components/shared/SearchSection";
 import { TrainResults } from "@/app/(user)/components/TrainResults";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -37,6 +38,8 @@ function SearchPageContent() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
+
       {/* Search Section */}
       <div className="bg-gradient-to-br from-primary/5 via-background to-background border-b">
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">

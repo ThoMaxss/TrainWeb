@@ -42,7 +42,7 @@ export function RouteRevenueBarChart({ data }: RouteRevenueChartProps) {
                 border: `1px solid var(--color-border)`,
                 borderRadius: "8px",
               }}
-              formatter={(value: any, name: string) => {
+              formatter={(value: number, name: string) => {
                 if (name === "revenue") return [`${value.toLocaleString("vi-VN")}₫`, "Doanh thu"]
                 return [value, "Vé bán"]
               }}

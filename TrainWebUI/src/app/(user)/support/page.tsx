@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import React from 'react';
 import {
   Search,
   HelpCircle,
@@ -34,7 +35,7 @@ interface FAQ {
 
 interface SupportTopic {
   id: string;
-  icon: any;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   title: string;
   description: string;
   link: string;

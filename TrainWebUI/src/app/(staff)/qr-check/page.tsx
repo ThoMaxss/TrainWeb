@@ -56,7 +56,18 @@ export default function QRCheckPage() {
   // Video/Canvas/Scanner
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const scannerRef = useRef<any>(null)
+  type QrScannerInstance = {
+    start: () => Promise<void>
+    stop: () => Promise<void>
+    destroy?: () => void
+    hasFlash?: () => Promise<boolean>
+    listCameras?: (force?: boolean) => Promise<Array<{ id: string; label: string }>>
+    setCamera?: (id: string) => Promise<void>
+    turnFlashOn?: () => Promise<void>
+    turnFlashOff?: () => Promise<void>
+  }
+
+  const scannerRef = useRef<QrScannerInstance | null>(null)
 
   const [cameras, setCameras] = useState<Array<{ id: string; label: string }>>([])
   const [activeCameraId, setActiveCameraId] = useState<string | null>(null)
@@ -161,8 +172,8 @@ export default function QRCheckPage() {
       const data = await getAllBookings()
       setBookingsCache(data)
       return data
-    } catch (e: any) {
-      setError(e?.message || "Không thể tải danh sách vé")
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Không thể tải danh sách vé")
       return []
     } finally {
       setIsLoading(false)
@@ -207,7 +218,10 @@ export default function QRCheckPage() {
     const bookings = await ensureBookingsLoaded()
     const booking =
       bookings.find((b) => (b.id || "").toUpperCase() === code) ||
-      (bookings as any).find((b: any) => (b.bookingCode || "").toUpperCase() === code)
+      bookings.find((b) => {
+        const bc = (b as Record<string, unknown>).bookingCode;
+        return typeof bc === 'string' && bc.toUpperCase() === code;
+      })
 
     if (!booking) {
       setNotification({ type: "error", message: `Không tìm thấy vé với mã "${code}".` })
@@ -287,12 +301,14 @@ export default function QRCheckPage() {
       const { default: QrScanner } = await import("qr-scanner")
       const result = await QrScanner.scanImage(file, {
         returnDetailedScanResult: true,
-      } as any)
-      const text = (result as any)?.data ?? (result as any) ?? ""
+      } as unknown)
+      const resObj = result as unknown
+      const text = (resObj as { data?: string })?.data ?? String(resObj ?? "")
       if (!text) throw new Error("Không đọc được QR từ ảnh.")
       handleDecodedText(String(text))
-    } catch (err: any) {
-      setNotification({ type: "error", message: err?.message || "Không đọc được QR từ ảnh." })
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      setNotification({ type: "error", message: msg || "Không đọc được QR từ ảnh." })
     }
   }
 
@@ -362,8 +378,8 @@ export default function QRCheckPage() {
 
         const qr = new QrScanner(
           videoRef.current,
-          (res: any) => {
-            const text = typeof res === "string" ? res : res?.data
+          (res: unknown) => {
+            const text = typeof res === "string" ? res : (res as { data?: string })?.data
             if (!text || isPaused) return
             handleDecodedText(String(text))
           },
@@ -398,9 +414,10 @@ export default function QRCheckPage() {
           const hasFlash = await qr.hasFlash?.()
           if (!canceled) setTorchAvailable(!!hasFlash)
         } catch {}
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err)
         setPermissionError(
-          err?.message || "Không thể truy cập camera. Hãy dùng HTTPS (hoặc localhost) và cho phép quyền camera."
+          msg || "Không thể truy cập camera. Hãy dùng HTTPS (hoặc localhost) và cho phép quyền camera."
         )
         setIsScanning(false)
       }
@@ -423,14 +440,16 @@ export default function QRCheckPage() {
   // ===== Controls =====
   const refreshScanner = async () => {
     if (!scannerRef.current) return
-    try {
-      await scannerRef.current.stop()
-      await scannerRef.current.start().catch((err: any) => {
-        // Suppress "play() interrupted" warnings
-        if (err?.name !== 'AbortError' && !err?.message?.includes('play()')) {
-          throw err;
-        }
-      })
+      try {
+        await scannerRef.current!.stop()
+        await scannerRef.current!.start().catch((err: unknown) => {
+          // Suppress "play() interrupted" warnings
+          const name = (err as { name?: string })?.name
+          const message = (err as { message?: string })?.message
+          if (name !== 'AbortError' && !String(message).includes('play()')) {
+            throw err
+          }
+        })
       setIsScanning(true)
       setIsPaused(false)
     } catch {
@@ -473,10 +492,12 @@ export default function QRCheckPage() {
   const resumeScanner = async () => {
     if (!scannerRef.current) return
     try {
-      await scannerRef.current.start().catch((err: any) => {
+      await scannerRef.current.start().catch((err: unknown) => {
         // Suppress "play() interrupted" warnings
-        if (err?.name !== 'AbortError' && !err?.message?.includes('play()')) {
-          throw err;
+        const name = (err as { name?: string })?.name
+        const message = (err as { message?: string })?.message
+        if (name !== 'AbortError' && !String(message).includes('play()')) {
+          throw err
         }
       })
       setIsScanning(true)

@@ -85,7 +85,7 @@ export function CustomerFeedback({ feedbackList, onNavigate }: CustomerFeedbackP
               </div>
               
               <p className="text-sm text-foreground line-clamp-3 mb-3 leading-relaxed">
-                "{feedback.comment}"
+                {'\u201C'}{feedback.comment}{'\u201D'}
               </p>
               
               <div className="flex items-center justify-between">

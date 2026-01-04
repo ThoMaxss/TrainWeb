@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils/utils";
 import { useAuth } from "@/components/auth/AuthContext";
 import { USER_ROLE_LABELS, type UserRole } from "@/types";
 import { navAdmin, navCommon, navStaff, navUser, accountMenu } from "@/config/nav";
+import { API_CONFIG } from '@/lib/api/config';
 
 export function Header() {
   const pathname = usePathname();
@@ -21,6 +22,7 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   const { user, role, isAuthenticated, logout } = useAuth();
+  const [lastApiError, setLastApiError] = useState<{ attemptedUrl: string; expectedBase: string; time: string; message: string } | null>(null);
 
   // ✅ fallback role (role có thể null khi chưa load)
   const roleKey: UserRole = (role ?? "passenger") as UserRole;
@@ -64,6 +66,25 @@ export function Header() {
   useEffect(() => {
     document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
   }, [mobileMenuOpen]);
+
+  // Listen to runtime API failure events for dev debugging
+  useEffect(() => {
+    function handle(e: Event) {
+      // Use typed access to the global debug var
+      const win = window as unknown as { __GORAIL_LAST_API_ERROR?: { attemptedUrl: string; expectedBase: string; time: string; message: string } };
+      const d = e instanceof CustomEvent ? e.detail : win.__GORAIL_LAST_API_ERROR;
+      if (d) setLastApiError(d);
+    }
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("gorail:lastApiError", handle as EventListener);
+      // seed initial value
+      // Seed initial value from global debug var if present
+      const win = window as unknown as { __GORAIL_LAST_API_ERROR?: { attemptedUrl: string; expectedBase: string; time: string; message: string } };
+      if (win.__GORAIL_LAST_API_ERROR) setLastApiError(win.__GORAIL_LAST_API_ERROR);
+    }
+    return () => window.removeEventListener("gorail:lastApiError", handle as EventListener);
+  }, []);
 
   return (
     <header className="sticky top-0 z-[30] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -117,6 +138,21 @@ export function Header() {
           </Button>
 
           <ThemeToggle variant="simple" />
+
+          {/* DEV: show resolved API base url when debugging */}
+          { (process.env.NEXT_PUBLIC_DEBUG === 'true' || process.env.NODE_ENV !== 'production') && (
+            <div className="hidden md:flex items-center px-2 py-1 ml-2 rounded bg-muted text-xs text-muted-foreground">
+              <span className="mr-2">api:</span>
+              <span className="font-mono text-xs">{API_CONFIG.BASE_URL}</span>
+            </div>
+          )}
+          {lastApiError && (process.env.NODE_ENV !== 'production') && (
+            <div title={`Last API error: ${lastApiError.message}`} className="ml-3 hidden md:flex items-center gap-2 px-2 py-1 rounded bg-destructive/10 text-destructive text-xs">
+              <span className="font-mono">{new URL(lastApiError.attemptedUrl).host}</span>
+              <span className="text-muted-foreground">→</span>
+              <span className="font-mono text-foreground">{new URL(lastApiError.expectedBase).host}</span>
+            </div>
+          )}
 
           {isAuthenticated && <NotificationBell />}
 

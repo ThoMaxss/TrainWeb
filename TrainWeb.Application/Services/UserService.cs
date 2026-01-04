@@ -16,6 +16,9 @@ namespace TrainWeb.Application.Services
         public Task<User?> GetUserByIdAsync(string id)
             => _userRepository.GetByIdAsync(id);
 
+        public Task<IReadOnlyList<User>> GetAllAsync()
+            => _userRepository.GetAllAsync();
+
         public async Task<User?> CreateUserAsync(User user)
         {
             await _userRepository.AddAsync(user);
