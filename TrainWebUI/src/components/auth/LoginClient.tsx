@@ -122,12 +122,12 @@ export default function LoginClient() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="login-email" className="block text-sm font-medium text-foreground mb-2">Email</label>
+          <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <Mail className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
+              <Mail className="w-5 h-5 text-gray-400" aria-hidden="true" />
             </div>
             <input
               id="login-email"
@@ -135,7 +135,7 @@ export default function LoginClient() {
               value={formData.email}
               onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
               placeholder="example@gorail.vn"
-              className="w-full bg-background border border-input rounded-lg py-3 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full border border-gray-300 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               required
               autoComplete="email"
             />
@@ -143,13 +143,12 @@ export default function LoginClient() {
         </div>
 
         <div>
-          <div className="flex items-center justify-between">
-            <label htmlFor="login-password" className="block text-sm font-medium text-foreground mb-2">Mật khẩu</label>
-            <Link href="/forgot-password" className="text-xs text-primary hover:text-primary/80 font-medium">Quên mật khẩu?</Link>
+          <div className="flex items-center justify-between mb-1">
+            <label htmlFor="login-password" className="block text-sm font-medium text-gray-700">Mật khẩu</label>
           </div>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <Lock className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
+              <Lock className="w-5 h-5 text-gray-400" aria-hidden="true" />
             </div>
             <input
               id="login-password"
@@ -157,14 +156,14 @@ export default function LoginClient() {
               value={formData.password}
               onChange={(e) => setFormData((p) => ({ ...p, password: e.target.value }))}
               placeholder="••••••••"
-              className="w-full bg-background border border-input rounded-lg py-3 pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full border border-gray-300 rounded-lg py-2.5 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               required
               autoComplete="current-password"
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
               tabIndex={-1}
             >
@@ -173,24 +172,26 @@ export default function LoginClient() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3">
-          <label className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center justify-between">
+          <label className="flex items-center text-sm text-gray-600">
             <input
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-4 h-4 rounded border-input"
+              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-2"
             />
             Ghi nhớ đăng nhập
           </label>
 
-          <Link href="/forgot-password" className="text-xs text-primary hover:text-primary/80 font-medium">Quên mật khẩu?</Link>
+          <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500 font-medium">
+            Quên mật khẩu?
+          </Link>
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-primary-foreground font-semibold py-3.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           <div className="flex items-center justify-center gap-2">
             {loading && <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />}

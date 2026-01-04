@@ -20,7 +20,7 @@ export function QuickLinksCard({ onNavigate }: QuickLinksCardProps) {
               <BarChart3 className="h-6 w-6 text-primary-foreground" />
             </div>
             <div className="flex-1 text-left">
-              <p className="font-medium text-secondary/90 dark:text-secondary/30">Dashboard</p>
+              <p className="font-medium text-secondary/90 dark:text-secondary/30">Bảng điều khiển</p>
               <p className="text-sm text-secondary dark:text-secondary/30">Tổng quan hệ thống</p>
             </div>
             <ChevronRight className="h-5 w-5 text-secondary dark:text-secondary/30" />

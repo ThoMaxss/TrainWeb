@@ -37,18 +37,18 @@ function SearchPageContent() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       <Header />
 
       {/* Search Section */}
-      <div className="bg-gradient-to-br from-primary/5 via-background to-background border-b">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
+      <div className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <SearchSection />
         </div>
       </div>
 
       {/* Results Section */}
-      <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <TrainResults searchParams={debouncedParams} onViewDetail={handleViewDetail} />
       </div>
     </div>

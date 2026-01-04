@@ -6,7 +6,7 @@ export function LoadingState() {
     <div className="space-y-3">
       <div className="grid gap-3 md:grid-cols-2">
         {[1, 2, 3, 4].map((i) => (
-          <Card key={i} className="border-0 shadow-md">
+          <Card key={i} className="border border-border shadow-sm">
             <div className="p-2">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2 flex-1">

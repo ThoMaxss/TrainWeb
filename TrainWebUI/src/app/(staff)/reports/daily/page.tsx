@@ -11,7 +11,7 @@ export default function DailyReportsPage() {
   const report = getDailyReportMock(new Date());
   return (
     <div className="flex h-screen flex-col bg-background">
-      <div className="border-b bg-background/95 backdrop-blur-sm">
+      <div className="bg-background">
         <div className="container mx-auto px-4 py-4">
         <PageHeader
           title="Báo cáo hàng ngày"

@@ -45,10 +45,10 @@ export function StepIndicator({ steps }: StepIndicatorProps) {
             </div>
             {/* Connector line */}
             {index < steps.length - 1 && (
-              <div className="flex-1 h-0.5 bg-gray-300 -mt-10 mx-2">
+              <div className="flex-1 h-0.5 bg-muted -mt-10 mx-2">
                 <div
                   className={`h-full transition-all ${
-                    step.status === "completed" ? "bg-primary" : "bg-gray-300"
+                    step.status === "completed" ? "bg-primary" : "bg-muted"
                   }`}
                   style={{ width: step.status === "completed" ? "100%" : "0%" }}
                 />

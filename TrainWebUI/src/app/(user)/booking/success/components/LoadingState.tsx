@@ -3,8 +3,8 @@ import { Card } from "@/components/ui/card"
 
 export function LoadingState() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-muted to-primary/5">
-      <div className="bg-gradient-to-r from-success to-success/80">
+    <div className="min-h-screen bg-background">
+      <div className="bg-success">
         <div className="container mx-auto px-2 py-12">
           <div className="max-w-4xl mx-auto text-center space-y-3">
             <Skeleton className="h-16 w-16 rounded-full mx-auto" />
@@ -16,7 +16,7 @@ export function LoadingState() {
 
       <div className="container mx-auto px-2 py-5">
         <div className="max-w-4xl mx-auto">
-          <Card className="border-0 shadow-xl">
+          <Card className="border border-border shadow-sm">
             <div className="p-2 space-y-3">
               <Skeleton className="h-6 w-32" />
               <Skeleton className="h-20 w-full" />

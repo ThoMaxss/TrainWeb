@@ -86,7 +86,24 @@ namespace TrainWebAPI.Controllers
                 return Unauthorized(new { error = "Missing uid claim" });
 
             var user = await UserService.GetUserByIdAsync(uid);
-            if (user == null) return NotFound("User Not Found");
+            
+            // Auto-create user if not exists (Sync Firebase -> Firestore)
+            if (user == null)
+            {
+                var email = User.FindFirst(ClaimTypes.Email)?.Value ?? "";
+                var name = User.FindFirst(ClaimTypes.Name)?.Value ?? "New User";
+                
+                user = new User(
+                    id: uid,
+                    name: name,
+                    email: email,
+                    role: UserRole.Passenger,
+                    createdAt: DateTime.UtcNow,
+                    isEmailVerified: false
+                );
+                
+                await UserService.CreateUserAsync(user);
+            }
 
             return Ok(user.ToDto());
         }

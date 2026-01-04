@@ -87,17 +87,17 @@ export function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-[30] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-14 lg:h-16 items-center justify-between px-4 gap-4">
+    <header className="sticky top-0 z-[30] w-full border-b border-gray-200 bg-white shadow-sm">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8 gap-4">
         <Link
           href="/"
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0"
+          className="flex items-center gap-2.5 hover:opacity-90 transition-opacity flex-shrink-0"
           aria-label="GoRail - Home"
         >
-          <div className="flex h-9 w-9 lg:h-10 lg:w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary">
-            <Train className="h-5 w-5 lg:h-6 lg:w-6 text-primary-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+            <Train className="h-6 w-6" />
           </div>
-          <H3 className="hidden sm:block text-base lg:text-lg">GoRail</H3>
+          <span className="hidden sm:block text-xl font-bold text-gray-900 tracking-tight">GoRail</span>
         </Link>
 
         <nav className="hidden lg:flex items-center justify-center gap-2 flex-1 max-w-2xl mx-auto" role="navigation">
@@ -138,21 +138,6 @@ export function Header() {
           </Button>
 
           <ThemeToggle variant="simple" />
-
-          {/* DEV: show resolved API base url when debugging */}
-          { (process.env.NEXT_PUBLIC_DEBUG === 'true' || process.env.NODE_ENV !== 'production') && (
-            <div className="hidden md:flex items-center px-2 py-1 ml-2 rounded bg-muted text-xs text-muted-foreground">
-              <span className="mr-2">api:</span>
-              <span className="font-mono text-xs">{API_CONFIG.BASE_URL}</span>
-            </div>
-          )}
-          {lastApiError && (process.env.NODE_ENV !== 'production') && (
-            <div title={`Last API error: ${lastApiError.message}`} className="ml-3 hidden md:flex items-center gap-2 px-2 py-1 rounded bg-destructive/10 text-destructive text-xs">
-              <span className="font-mono">{new URL(lastApiError.attemptedUrl).host}</span>
-              <span className="text-muted-foreground">→</span>
-              <span className="font-mono text-foreground">{new URL(lastApiError.expectedBase).host}</span>
-            </div>
-          )}
 
           {isAuthenticated && <NotificationBell />}
 

@@ -18,7 +18,7 @@
   /* UI Colors */
   --color-background: #FFFFFF;
   --color-foreground: #1F2937;
-  --color-card: #F9FAFB;
+  --color-card: #FFFFFF;
   --color-card-foreground: #1F2937;
   --color-muted: #F3F4F6;
   --color-muted-foreground: #6B7280;
@@ -29,9 +29,9 @@
   /* Status Colors - Refined for better contrast & vibrancy */
   --color-destructive: #EF4444;
   --color-destructive-foreground: #FFFFFF;
-  --color-success: #10B981; /* Emerald-500: More modern than Green */
+  --color-success: #10B981; /* Emerald-500 */
   --color-warning: #F59E0B; /* Amber-500 */
-  --color-info: #06B6D4; /* Cyan-500: More vibrant than Sky */
+  --color-info: #0EA5E9; /* Sky-500: Standard blue-ish */
   --color-momo: #A50064; /* MoMo brand color (magenta) */
 
   /* Interaction */
@@ -66,7 +66,7 @@
 
   --color-background: #020617; /* Slate-950: Deeper, richer black */
   --color-foreground: #F1F5F9; /* Slate-100 */
-  --color-card: #0F172A; /* Slate-900 */
+  --color-card: #020617; /* Slate-950 */
   --color-card-foreground: #F8FAFC;
   --color-muted: #1E293B; /* Slate-800 */
   --color-muted-foreground: #94A3B8;

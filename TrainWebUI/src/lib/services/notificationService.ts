@@ -11,7 +11,7 @@ export class NotificationService {
 
   connect() {
     if (!this.url) {
-      console.warn('[NotificationService] Missing WS url, skip connect');
+      // console.warn('[NotificationService] Missing WS url, skip connect');
       this.disabled = true;
       return;
     }
@@ -141,7 +141,8 @@ let notificationService: NotificationService | null = null;
 
 export function getNotificationService(): NotificationService {
   if (!notificationService) {
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:7128/ws';
+    // Default to empty string to prevent connection attempts if backend doesn't support WS yet
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || '';
     notificationService = new NotificationService(wsUrl);
   }
   return notificationService;

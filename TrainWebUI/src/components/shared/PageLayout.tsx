@@ -9,7 +9,7 @@ interface PageContainerProps {
 export function PageContainer({ children, className }: PageContainerProps) {
   return (
     <div className={cn(
-      "min-h-screen bg-gradient-to-br from-background to-muted/30",
+      "min-h-screen bg-background",
       className
     )}>
       {children}
@@ -25,11 +25,10 @@ interface PageHeaderProps {
 export function PageHeader({ children, className }: PageHeaderProps) {
   return (
     <header className={cn(
-      "bg-background/80 backdrop-blur-sm border-b border-border shadow-sm",
-      "dark:bg-card/80 dark:border-border",
+      "bg-background",
       className
     )}>
-      <div className="container mx-auto px-2 lg:px-2 py-2">
+      <div className="container mx-auto px-4 py-4">
         {children}
       </div>
     </header>

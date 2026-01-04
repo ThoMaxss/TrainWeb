@@ -13,9 +13,9 @@ const quickLinks = [
     label: "Vé của tôi",
     description: "Xem và quản lý vé cá nhân",
     path: "/my-tickets",
-    color: "text-success",
-    bgColor: "bg-success/10",
-    hoverColor: "hover:bg-success/20",
+    color: "text-primary",
+    bgColor: "bg-primary/10",
+    hoverColor: "hover:bg-primary/20",
   },
   {
     icon: User,
@@ -30,10 +30,10 @@ const quickLinks = [
 
 export function QuickLinksCard({ onNavigate }: QuickLinksCardProps) {
   return (
-    <Card className="bg-background/70 backdrop-blur-sm border-0 shadow-sm">
+    <Card className="bg-card border border-border shadow-sm">
       <div className="p-6">
         <div className="flex items-center gap-2 mb-6">
-          <ClipboardList className="h-5 w-5 text-success" />
+          <ClipboardList className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold">Truy cập nhanh</h3>
         </div>
 
@@ -53,7 +53,7 @@ export function QuickLinksCard({ onNavigate }: QuickLinksCardProps) {
                   <p className="font-medium text-sm">{link.label}</p>
                   <p className="text-xs text-muted-foreground">{link.description}</p>
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-success transition-colors" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
               </button>
             );
           })}

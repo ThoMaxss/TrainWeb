@@ -48,38 +48,38 @@ export function TrainCard({
   const displayedSeats = showAllSeats ? seatClasses : seatClasses.slice(0, 2);
 
   return (
-    <Card className="group overflow-hidden border-2 border-border dark:border-primary/30 bg-gradient-to-br from-primary/5 to-background/50 dark:from-primary/10 dark:to-background rounded-2xl shadow-lg transition-all hover:border-primary hover:shadow-2xl dark:hover:shadow-primary/20">
+    <Card className="group overflow-hidden border border-border bg-card rounded-xl shadow-sm transition-all hover:shadow-md">
       <div className="p-4">
         {/* Stylized train journey line */}
         <div className="flex items-center gap-4 mb-3">
           <div className="flex flex-col items-center justify-center">
-            <div className="rounded-full bg-primary p-2 shadow">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M7 20h10M12 17v3M5 10V7a5 5 0 0 1 10 0v3m-7 0h8a2 2 0 0 1 2 2v3a5 5 0 0 1-10 0v-3a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <div className="rounded-full bg-primary/10 p-2 text-primary">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M7 20h10M12 17v3M5 10V7a5 5 0 0 1 10 0v3m-7 0h8a2 2 0 0 1 2 2v3a5 5 0 0 1-10 0v-3a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </div>
             <Small className="text-xs text-primary font-bold mt-1">{trainCode}</Small>
           </div>
           <div className="flex-1 flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-success" />
-              <span className="font-semibold text-success text-base">{from}</span>
+              <span className="font-semibold text-foreground text-base">{from}</span>
               <span className="text-muted-foreground text-xs">{departureDate}</span>
-              <span className="ml-auto text-primary font-bold">{departure}</span>
+              <span className="ml-auto text-foreground font-bold">{departure}</span>
             </div>
             <div className="flex items-center gap-2 relative">
               <div className="h-2 w-2 rounded-full bg-success" />
-              <div className="flex-1 h-1 bg-gradient-to-r from-success via-primary to-primary/30 rounded-full relative">
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1">
-                  <Clock className="h-3 w-3 text-primary" />
-                  <Small className="text-primary font-semibold">{duration}</Small>
+              <div className="flex-1 h-1 bg-muted rounded-full relative">
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1 bg-card px-2">
+                  <Clock className="h-3 w-3 text-muted-foreground" />
+                  <Small className="text-muted-foreground font-medium">{duration}</Small>
                 </div>
               </div>
               <div className="h-2 w-2 rounded-full bg-primary" />
             </div>
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" />
-              <span className="font-semibold text-primary text-base">{to}</span>
+              <span className="font-semibold text-foreground text-base">{to}</span>
               <span className="text-muted-foreground text-xs">{arrivalDate}</span>
-              <span className="ml-auto text-primary font-bold">{arrival}</span>
+              <span className="ml-auto text-foreground font-bold">{arrival}</span>
             </div>
           </div>
           {/* Price badge - mobile */}
@@ -91,7 +91,7 @@ export function TrainCard({
 
         {/* Train name and badge */}
         <div className="flex items-center gap-2 mb-2">
-          <Badge variant="secondary" className="bg-primary/10 text-primary font-semibold text-base px-3 py-1 rounded-full">
+          <Badge variant="outline" className="bg-primary/5 text-primary font-semibold text-base px-3 py-1 rounded-full border-primary/20">
             {trainName}
           </Badge>
           <Small className="text-muted-foreground ml-2">Dừng tại: {stops}</Small>

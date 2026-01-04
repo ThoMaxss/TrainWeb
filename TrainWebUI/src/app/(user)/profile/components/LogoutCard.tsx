@@ -10,7 +10,7 @@ interface LogoutCardProps {
 
 export function LogoutCard({ onLogout }: LogoutCardProps) {
   return (
-    <Card className="bg-background/70 backdrop-blur-sm border-0 shadow-sm">
+    <Card className="bg-card border border-border shadow-sm">
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <AlertTriangle className="h-5 w-5 text-destructive" />

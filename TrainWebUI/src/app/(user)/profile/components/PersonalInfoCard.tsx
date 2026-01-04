@@ -18,18 +18,18 @@ interface PersonalInfoCardProps {
 
 export function PersonalInfoCard({ profile, onEdit }: PersonalInfoCardProps) {
   return (
-    <Card className="bg-background/70 backdrop-blur-sm border-0 shadow-sm">
+    <Card className="bg-card border border-border shadow-sm">
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <User className="h-5 w-5 text-success" />
+            <User className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-semibold">Thông tin cá nhân</h3>
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={onEdit}
-            className="border-success/20 text-success hover:bg-success/10 hover:border-success/40"
+            className="border-primary/20 text-primary hover:bg-primary/10 hover:border-primary/40"
           >
             <Edit2 className="h-4 w-4 mr-2" />
             Chỉnh sửa
@@ -38,8 +38,8 @@ export function PersonalInfoCard({ profile, onEdit }: PersonalInfoCardProps) {
 
         <div className="space-y-4">
           <div className="flex items-start gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
-              <User className="h-5 w-5 text-success" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+              <User className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1">
               <p className="text-sm text-muted-foreground">Họ và tên</p>
@@ -50,8 +50,8 @@ export function PersonalInfoCard({ profile, onEdit }: PersonalInfoCardProps) {
           <Separator />
 
           <div className="flex items-start gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
-              <Mail className="h-5 w-5 text-success" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+              <Mail className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1">
               <p className="text-sm text-muted-foreground">Email</p>
@@ -62,8 +62,8 @@ export function PersonalInfoCard({ profile, onEdit }: PersonalInfoCardProps) {
           <Separator />
 
           <div className="flex items-start gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
-              <Phone className="h-5 w-5 text-success" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+              <Phone className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1">
               <p className="text-sm text-muted-foreground">Số điện thoại</p>
@@ -75,8 +75,8 @@ export function PersonalInfoCard({ profile, onEdit }: PersonalInfoCardProps) {
             <>
               <Separator />
               <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
-                  <Calendar className="h-5 w-5 text-success" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <Calendar className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-muted-foreground">Ngày sinh</p>
@@ -90,8 +90,8 @@ export function PersonalInfoCard({ profile, onEdit }: PersonalInfoCardProps) {
             <>
               <Separator />
               <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
-                  <Users className="h-5 w-5 text-success" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <Users className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-muted-foreground">Giới tính</p>

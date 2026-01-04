@@ -170,7 +170,7 @@ export default function ManageTicketsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b bg-background/95 backdrop-blur-sm">
+      <div className="bg-background">
         <div className="container mx-auto px-4 py-4">
           <PageHeader
             title="Quản lý vé"

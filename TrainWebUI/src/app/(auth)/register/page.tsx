@@ -106,12 +106,12 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="register-name" className="block text-sm font-medium text-foreground mb-2">Họ và tên</label>
+          <label htmlFor="register-name" className="block text-sm font-medium text-gray-700 mb-1">Họ và tên</label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <User className="w-5 h-5 text-muted-foreground" />
+              <User className="w-5 h-5 text-gray-400" />
             </div>
             <input
               id="register-name"
@@ -119,7 +119,7 @@ export default function RegisterPage() {
               value={formData.name}
               onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
               placeholder="Nguyễn Văn A"
-              className="w-full bg-background border border-input rounded-lg py-3 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full border border-gray-300 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               required
               autoComplete="name"
             />
@@ -127,10 +127,10 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label htmlFor="register-email" className="block text-sm font-medium text-foreground mb-2">Email</label>
+          <label htmlFor="register-email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <Mail className="w-5 h-5 text-muted-foreground" />
+              <Mail className="w-5 h-5 text-gray-400" />
             </div>
             <input
               id="register-email"
@@ -138,7 +138,7 @@ export default function RegisterPage() {
               value={formData.email}
               onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
               placeholder="example@gorail.vn"
-              className="w-full bg-background border border-input rounded-lg py-3 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full border border-gray-300 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               required
               autoComplete="email"
             />
@@ -146,10 +146,10 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label htmlFor="register-password" className="block text-sm font-medium text-foreground mb-2">Mật khẩu</label>
+          <label htmlFor="register-password" className="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <Lock className="w-5 h-5 text-muted-foreground" />
+              <Lock className="w-5 h-5 text-gray-400" />
             </div>
             <input
               id="register-password"
@@ -157,7 +157,7 @@ export default function RegisterPage() {
               value={formData.password}
               onChange={(e) => setFormData((p) => ({ ...p, password: e.target.value }))}
               placeholder="••••••••"
-              className="w-full bg-background border border-input rounded-lg py-3 pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full border border-gray-300 rounded-lg py-2.5 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               required
               autoComplete="new-password"
               minLength={6}
@@ -165,21 +165,21 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
               tabIndex={-1}
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
-          <Small className="text-muted-foreground">Ít nhất 6 ký tự</Small>
+          <Small className="text-gray-500 mt-1">Ít nhất 6 ký tự</Small>
         </div>
 
         <div>
-          <label htmlFor="register-confirm-password" className="block text-sm font-medium text-foreground mb-2">Xác nhận mật khẩu</label>
+          <label htmlFor="register-confirm-password" className="block text-sm font-medium text-gray-700 mb-1">Xác nhận mật khẩu</label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <Lock className="w-5 h-5 text-muted-foreground" />
+              <Lock className="w-5 h-5 text-gray-400" />
             </div>
             <input
               id="register-confirm-password"
@@ -187,14 +187,14 @@ export default function RegisterPage() {
               value={formData.confirmPassword}
               onChange={(e) => setFormData((p) => ({ ...p, confirmPassword: e.target.value }))}
               placeholder="••••••••"
-              className="w-full bg-background border border-input rounded-lg py-3 pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full border border-gray-300 rounded-lg py-2.5 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               required
               autoComplete="new-password"
             />
             <button
               type="button"
               onClick={() => setShowConfirmPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               aria-label={showConfirmPassword ? 'Ẩn mật khẩu xác nhận' : 'Hiện mật khẩu xác nhận'}
               tabIndex={-1}
             >
@@ -206,7 +206,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-primary-foreground font-semibold py-3.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           {loading ? 'Đang đăng ký...' : 'Đăng ký'}
         </button>
