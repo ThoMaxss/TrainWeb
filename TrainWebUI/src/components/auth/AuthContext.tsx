@@ -47,11 +47,13 @@ function safeLocalStorageSet(key: string, value: string) {
   } catch {}
 }
 
-function safeLocalStorageRemove(key: string) {
-  if (typeof window === "undefined") return;
+function safeLocalStorageGet(key: string): string | null {
+  if (typeof window === "undefined") return null;
   try {
-    localStorage.removeItem(key);
-  } catch {}
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
 
 // BE /api/User/me có thể trả PascalCase hoặc camelCase => normalize
@@ -120,11 +122,26 @@ function mapMe(raw: RawMe): UserProfile {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    isLoading: true,
-    isAuthenticated: false,
-    role: null,
+  const [authState, setAuthState] = useState<AuthState>(() => {
+    // Optimistic restore from localStorage
+    const stored = safeLocalStorageGet("gorail_user");
+    if (stored) {
+      try {
+        const user = JSON.parse(stored) as UserProfile;
+        return {
+          user,
+          isLoading: true, // Still verify with Firebase in background
+          isAuthenticated: true,
+          role: user.role ?? "passenger",
+        };
+      } catch {}
+    }
+    return {
+      user: null,
+      isLoading: true,
+      isAuthenticated: false,
+      role: null,
+    };
   });
 
   const setAndPersist = useCallback((user: UserProfile | null, role: UserRole | null) => {

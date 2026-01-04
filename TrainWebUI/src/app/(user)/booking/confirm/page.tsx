@@ -208,7 +208,7 @@ export default function BookingConfirmPage() {
 	const totalPrice = selectedSeats.reduce((sum, s) => sum + s.price, 0)
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+		<div className="min-h-screen bg-background">
 			{/* Header Section */}
 			<div className="bg-background border-b">
 				<div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
@@ -313,7 +313,7 @@ export default function BookingConfirmPage() {
 														next[idx] = { ...p, fullName: e.target.value }
 														setPassengers(next)
 													}}
-													className="border-2"
+													className="border-input"
 												/>
 											</div>
 											<div className="grid md:grid-cols-2 gap-4">
@@ -362,7 +362,7 @@ export default function BookingConfirmPage() {
 					<div className="lg:col-span-1">
 						<div className="sticky top-6 space-y-6">
 							{/* Selected Seats Card */}
-							<Card className="border-2">
+							<Card className="border border-border">
 								<CardHeader className="bg-primary/5">
 									<CardTitle className="flex items-center gap-2 text-lg">
 										<Armchair className="h-5 w-5" />

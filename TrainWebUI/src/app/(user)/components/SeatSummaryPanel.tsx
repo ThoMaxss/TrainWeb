@@ -59,7 +59,7 @@ export function SeatSummaryPanel({
                 {selectedSeats.length > 0 ? `${selectedSeats.length} ghế đã chọn` : "Chưa chọn ghế"}
               </div>
               {selectedSeats.length > 0 && (
-                <div className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent font-bold text-lg">
+                <div className="text-primary font-bold text-lg">
                   {formatPrice(totalPrice)}
                 </div>
               )}
@@ -68,7 +68,7 @@ export function SeatSummaryPanel({
               size="lg"
               disabled={selectedSeats.length === 0}
               onClick={onContinue}
-              className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+              className="bg-primary hover:bg-primary/90"
             >
               Tiếp tục thanh toán
             </Button>

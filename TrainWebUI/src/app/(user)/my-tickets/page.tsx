@@ -229,16 +229,16 @@ export default function MyTicketsPage() {
   }, [fetchBookings]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-muted/30">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary/10 via-background to-background border-b">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+      <section className="bg-background border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Quản lý vé</h1>
+              <h1 className="text-3xl font-bold text-foreground mb-2">Quản lý vé</h1>
               <p className="text-muted-foreground">Xem và quản lý vé tàu của bạn</p>
             </div>
-            <Button onClick={handleRefresh} variant="outline" className="gap-2">
+            <Button onClick={handleRefresh} variant="outline" className="gap-2 bg-background hover:bg-muted">
               <RefreshCw className="h-4 w-4" />
               Làm mới
             </Button>
@@ -246,17 +246,17 @@ export default function MyTicketsPage() {
         </div>
       </section>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as typeof activeTab)}
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="upcoming">Sắp tới</TabsTrigger>
-            <TabsTrigger value="completed">Hoàn thành</TabsTrigger>
-            <TabsTrigger value="cancelled">Đã hủy</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 bg-background border border-border p-1 rounded-lg">
+            <TabsTrigger value="upcoming" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary">Sắp tới</TabsTrigger>
+            <TabsTrigger value="completed" className="data-[state=active]:bg-muted data-[state=active]:text-foreground">Hoàn thành</TabsTrigger>
+            <TabsTrigger value="cancelled" className="data-[state=active]:bg-destructive/10 data-[state=active]:text-destructive">Đã hủy</TabsTrigger>
           </TabsList>
 
           {/* Search Bar */}

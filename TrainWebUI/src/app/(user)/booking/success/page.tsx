@@ -284,12 +284,12 @@ export default function BookingSuccessPage() {
       <div className="container mx-auto px-2 lg:px-2 py-5">
         <div className="max-w-4xl mx-auto space-y-3">
           {/* E-Ticket Card */}
-          <Card className="overflow-hidden border-0 shadow-xl bg-background">
+          <Card className="overflow-hidden border border-border shadow-sm bg-background">
             {/* Ticket Header */}
-            <div className="bg-gradient-to-r from-primary to-primary/80 px-2 py-2 text-primary-foreground">
+            <div className="bg-primary px-2 py-2 text-primary-foreground">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-lg bg-background/20 p-2 backdrop-blur-sm">
+                  <div className="rounded-lg bg-primary-foreground/20 p-2 backdrop-blur-sm">
                     <Ticket className="h-6 w-6" />
                   </div>
                   <div>
@@ -361,7 +361,7 @@ export default function BookingSuccessPage() {
                   {/* Total Price */}
                   <div className="rounded-lg bg-background p-2 text-center shadow-sm">
                     <p className="text-sm text-muted-foreground">Tổng thanh toán</p>
-                    <p className="text-2xl bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent font-bold">
+                    <p className="text-2xl text-primary font-bold">
                       {formatPrice(grandTotal)}
                     </p>
                   </div>
@@ -402,7 +402,7 @@ export default function BookingSuccessPage() {
                 {/* Total Price - Mobile */}
                 <div className="rounded-lg bg-muted/30 p-2 text-center">
                   <p className="text-sm text-muted-foreground">Tổng thanh toán</p>
-                  <p className="text-2xl bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent font-bold">
+                  <p className="text-2xl text-primary font-bold">
                     {formatPrice(grandTotal)}
                   </p>
                 </div>
@@ -469,7 +469,7 @@ export default function BookingSuccessPage() {
           )}
 
           {/* Price Breakdown */}
-          <Card className="border-0 shadow-md">
+          <Card className="border border-border shadow-sm">
             <div className="p-2">
               <h3 className="mb-3 flex items-center gap-2">
                 <CreditCard className="h-5 w-5 text-primary" />
@@ -487,7 +487,7 @@ export default function BookingSuccessPage() {
 
                 <div className="flex justify-between pt-2">
                   <span>Tổng cộng:</span>
-                  <span className="text-xl bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                  <span className="text-xl text-primary font-bold">
                     {formatPrice(grandTotal)}
                   </span>
                 </div>
@@ -496,7 +496,7 @@ export default function BookingSuccessPage() {
           </Card>
 
           {/* Support Information */}
-          <Card className="border-0 shadow-md">
+          <Card className="border border-border shadow-sm">
             <div className="p-2">
               <h3 className="mb-3">Hỗ trợ & Thông tin</h3>
               <div className="space-y-3">
@@ -592,7 +592,7 @@ export default function BookingSuccessPage() {
             <Button
               size="lg"
               onClick={handleGoHome}
-              className="flex-1 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/80 hover:to-primary/90"
+              className="flex-1 gap-2 bg-primary hover:bg-primary/90"
             >
               <Home className="h-5 w-5" />
               Về trang chủ

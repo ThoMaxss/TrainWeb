@@ -16,7 +16,7 @@ interface StaffPageHeaderProps {
 
 export function StaffPageHeader({ title, description, icon, actions, stats }: StaffPageHeaderProps) {
   return (
-    <div className="border-b bg-gradient-to-r from-success/5 via-success/10 to-background dark:from-success/10 dark:via-success/20 dark:to-background">
+    <div className="bg-background">
       <div className="container mx-auto px-2 py-5 lg:px-2">
         <PageHeader title={title} description={description} icon={icon} actions={actions} stats={stats} />
       </div>

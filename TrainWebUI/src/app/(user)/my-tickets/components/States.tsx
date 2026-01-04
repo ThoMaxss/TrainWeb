@@ -29,9 +29,9 @@ export function EmptyState({ onGoHome, tab }: EmptyStateProps) {
   const message = messages[tab]
 
   return (
-    <Card className="border-0 bg-card shadow-md">
+    <Card className="border border-border bg-card shadow-sm">
       <div className="flex flex-col items-center justify-center py-16 px-2 text-center">
-        <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary/10 to-primary/20">
+        <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
           <Ticket className="h-10 w-10 text-primary" />
         </div>
         <h3 className="mb-2 text-foreground">{message.title}</h3>
@@ -40,7 +40,7 @@ export function EmptyState({ onGoHome, tab }: EmptyStateProps) {
           <Button
             size="lg"
             onClick={onGoHome}
-            className="gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+            className="gap-2 bg-primary hover:bg-primary/90"
           >
             <Train className="h-5 w-5" />
             Tìm vé tàu
@@ -58,7 +58,7 @@ interface ErrorStateProps {
 
 export function ErrorState({ error, onRetry }: ErrorStateProps) {
   return (
-    <Card className="border-0 bg-card shadow-md">
+    <Card className="border border-border bg-card shadow-sm">
       <div className="flex flex-col items-center justify-center py-16 px-2 text-center">
         <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
           <XCircle className="h-10 w-10 text-destructive" />

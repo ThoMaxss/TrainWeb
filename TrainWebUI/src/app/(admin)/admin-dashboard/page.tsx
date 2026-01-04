@@ -340,23 +340,23 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-primary/5 via-background to-background">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Main Content */}
       <ScrollArea className="flex-1">
         <div className="mx-auto max-w-7xl p-4 lg:p-8 space-y-8">
           <AdminPageHeader
-            title="Admin Dashboard"
-            description="Overview and key metrics"
+            title="Bảng điều khiển"
+            description="Tổng quan và các chỉ số chính"
             icon={LayoutDashboard}
             stats={[
-              { icon: DollarSign, label: "Revenue (month)", value: `${Math.round(kpiData.totalRevenue).toLocaleString("vi-VN")}₫` },
-              { icon: Ticket, label: "Tickets", value: kpiData.ticketsSold },
-              { icon: Users, label: "Online Staff", value: kpiData.staffOnline },
+              { icon: DollarSign, label: "Doanh thu (tháng)", value: `${Math.round(kpiData.totalRevenue).toLocaleString("vi-VN")}₫` },
+              { icon: Ticket, label: "Vé đã bán", value: kpiData.ticketsSold },
+              { icon: Users, label: "Nhân viên online", value: kpiData.staffOnline },
             ]}
             actions={
               <Button variant="outline" size="sm" className="gap-2" onClick={() => handleExport("excel")}>
                 <FileSpreadsheet className="h-4 w-4" />
-                Export
+                Xuất báo cáo
               </Button>
             }
           />
@@ -700,12 +700,12 @@ export default function AdminDashboardPage() {
                   {staffMembers.map((staff) => (
                     <div
                       key={staff.id}
-                      className="rounded-lg border bg-gradient-to-r from-muted/40 via-background to-background p-4 hover:shadow-md transition-shadow"
+                      className="rounded-lg border border-border bg-card p-4 hover:shadow-sm transition-shadow"
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-white text-sm">
+                            <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
                               {staff.name.split(" ").slice(-2).map((n) => n[0]).join("")}
                             </AvatarFallback>
                           </Avatar>
@@ -720,13 +720,13 @@ export default function AdminDashboardPage() {
                             "gap-1 text-xs",
                             staff.status === "online"
                               ? "bg-success/10 text-success border-success/20"
-                              : "bg-card text-muted"
+                              : "bg-muted text-muted-foreground border-border"
                           )}
                         >
                           <div
                             className={cn(
                               "h-2 w-2 rounded-full",
-                              staff.status === "online" ? "bg-success" : "bg-muted"
+                              staff.status === "online" ? "bg-success" : "bg-muted-foreground"
                             )}
                           />
                           {staff.shift}
@@ -735,11 +735,11 @@ export default function AdminDashboardPage() {
                       <div className="grid grid-cols-2 gap-3 text-xs">
                         <div className="rounded bg-primary/10 p-2">
                           <p className="text-primary font-medium">{staff.ticketsProcessed}</p>
-                          <p className="text-primary">Vé xử lý</p>
+                          <p className="text-primary/80">Vé xử lý</p>
                         </div>
                         <div className="rounded bg-secondary/10 p-2">
                           <p className="text-secondary font-medium">{staff.feedbackHandled}</p>
-                          <p className="text-secondary">Feedback</p>
+                          <p className="text-secondary/80">Feedback</p>
                         </div>
                       </div>
                     </div>
@@ -749,8 +749,8 @@ export default function AdminDashboardPage() {
             </Card>
 
             {/* Revenue Detail Table */}
-            <Card className="border-0 bg-background shadow-xl lg:col-span-2">
-              <div className="p-8">
+            <Card className="border border-border bg-card shadow-sm lg:col-span-2">
+              <div className="p-6">
                 <div className="mb-6 flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">Chi tiết doanh thu</h3>
@@ -760,7 +760,7 @@ export default function AdminDashboardPage() {
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/80 hover:to-primary/90">
+                      <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm">
                         <Download className="h-4 w-4" />
                         Xuất báo cáo
                       </Button>

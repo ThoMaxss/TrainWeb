@@ -43,13 +43,13 @@ export const SeatMap: React.FC<SeatMapProps> = ({
   });
 
   if (loading) return <div>Đang tải sơ đồ ghế...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
+  if (error) return <div className="text-destructive">{error}</div>;
 
   return (
-    <div className="inline-block p-4 bg-white rounded shadow">
+    <div className="inline-block p-4 bg-card rounded shadow border border-border">
       {Object.keys(seatRows).sort().map(row => (
         <div key={row} className="flex mb-2">
-          <span className="w-6 font-bold flex items-center justify-center mr-2">{row}</span>
+          <span className="w-6 font-bold flex items-center justify-center mr-2 text-foreground">{row}</span>
           {seatRows[row]
             .sort((a, b) => parseInt(a.seatNumber!.slice(1)) - parseInt(b.seatNumber!.slice(1)))
             .map(seat => (

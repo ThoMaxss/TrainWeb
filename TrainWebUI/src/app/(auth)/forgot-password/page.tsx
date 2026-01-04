@@ -27,9 +27,9 @@ export default function ForgotPasswordPage() {
       title="Quên mật khẩu"
       subtitle="Nhập email để nhận liên kết đặt lại mật khẩu."
       footer={
-        <Body className="text-sm text-muted-foreground">
+        <Body className="text-sm text-gray-600">
           Nhớ mật khẩu?{' '}
-          <Link href="/login" className="text-primary hover:text-primary/80 font-semibold transition-colors">
+          <Link href="/login" className="text-blue-600 hover:text-blue-500 font-semibold transition-colors">
             Đăng nhập ngay
           </Link>
         </Body>
@@ -37,13 +37,13 @@ export default function ForgotPasswordPage() {
     >
       {!sent ? (
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label htmlFor="forgot-email" className="block text-sm font-semibold text-foreground">
+          <div>
+            <label htmlFor="forgot-email" className="block text-sm font-medium text-gray-700 mb-1">
               Email của bạn
             </label>
             <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                <Mail className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <Mail className="w-5 h-5 text-gray-400" aria-hidden="true" />
               </div>
               <input
                 id="forgot-email"
@@ -51,21 +51,21 @@ export default function ForgotPasswordPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="john.doe@example.com"
-                className="w-full bg-background border border-input rounded-xl py-3 pl-12 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                className="w-full border border-gray-300 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 required
                 aria-required="true"
               />
             </div>
           </div>
 
-          <Small className="text-muted-foreground block">
+          <Small className="text-gray-500 block text-center">
             Chúng tôi sẽ gửi liên kết đặt lại mật khẩu đến địa chỉ email này.
           </Small>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg shadow-sm transition-all duration-200"
             aria-label="Gửi link khôi phục mật khẩu"
           >
             {loading ? "Đang gửi..." : "Gửi link khôi phục"}
@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
           <div className="text-center">
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors"
             >
               <ArrowLeft className="w-4 h-4" aria-hidden="true" />
               Quay lại đăng nhập
@@ -83,21 +83,21 @@ export default function ForgotPasswordPage() {
         </form>
       ) : (
         <div className="text-center space-y-6">
-          <div className="w-16 h-16 bg-success/10 dark:bg-success/20 rounded-full flex items-center justify-center mx-auto">
-            <Mail className="w-8 h-8 text-success dark:text-success" aria-hidden="true" />
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+            <Mail className="w-8 h-8 text-green-600" aria-hidden="true" />
           </div>
 
           <div>
-            <H3 className="mb-3">Email đã được gửi!</H3>
-            <Body className="text-muted-foreground">
-              Chúng tôi đã gửi liên kết đặt lại mật khẩu đến <strong className="text-foreground">{email}</strong>.
+            <H3 className="text-xl font-semibold text-gray-900 mb-2">Email đã được gửi!</H3>
+            <Body className="text-gray-600">
+              Chúng tôi đã gửi liên kết đặt lại mật khẩu đến <strong className="text-gray-900">{email}</strong>.
               Vui lòng kiểm tra hộp thư của bạn.
             </Body>
           </div>
 
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-500 font-semibold transition-colors"
           >
             <ArrowLeft className="w-4 h-4" aria-hidden="true" />
             Quay lại đăng nhập

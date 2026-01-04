@@ -28,12 +28,12 @@ export function ProfileHeaderCard({
   getInitials 
 }: ProfileHeaderCardProps) {
   return (
-    <Card className="border-0 bg-gradient-to-br from-purple-600 to-purple-700 text-primary-foreground shadow-xl">
+    <Card className="border border-border bg-card text-foreground shadow-sm">
       <div className="p-6">
         <div className="flex flex-col sm:flex-row items-center gap-4">
           {/* Avatar */}
           <div className="relative group">
-            <div className="h-24 w-24 rounded-full border-4 border-white/20 shadow-lg bg-secondary flex items-center justify-center text-primary-foreground text-2xl overflow-hidden">
+            <div className="h-24 w-24 rounded-full border-4 border-background shadow-sm bg-secondary/10 flex items-center justify-center text-secondary text-2xl overflow-hidden">
               {avatarPreview ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img 
