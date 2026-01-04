@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "TrainWeb.Domain/1.0.0": {
+        "runtime": {
+          "TrainWeb.Domain.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "TrainWeb.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

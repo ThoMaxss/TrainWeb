@@ -1,0 +1,231 @@
+@baseUrl = http://localhost:5000/api
+@adminToken = REPLACE_WITH_ADMIN_JWT
+@userToken = REPLACE_WITH_USER_JWT
+
+### AUTH - Login (get JWT)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "Admin@123"
+}
+
+### TRAIN - Create
+POST {{baseUrl}}/train/create
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "trainNumber": "SE7-2025",
+  "trainName": "Sunrise Express",
+  "trainType": "Express",
+  "hardSeats": 120,
+  "softSeats": 80,
+  "amenities": "WiFi,AC,Food",
+  "hasAC": true,
+  "hasWiFi": true,
+  "hasFoodService": true,
+  "hasToilet": true,
+  "maxSpeed": "140",
+  "manufacturer": "Hitachi",
+  "yearOfManufacture": 2021,
+  "operatingCompany": "VN Rail"
+}
+
+### TRAIN - Create (second train)
+POST {{baseUrl}}/train/create
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "trainNumber": "SE9-2025",
+  "trainName": "Coastliner",
+  "trainType": "Express",
+  "hardSeats": 100,
+  "softSeats": 60,
+  "amenities": "WiFi,AC",
+  "hasAC": true,
+  "hasWiFi": true,
+  "hasFoodService": false,
+  "hasToilet": true,
+  "maxSpeed": "120",
+  "manufacturer": "CRRC",
+  "yearOfManufacture": 2020,
+  "operatingCompany": "VN Rail"
+}
+
+### TRIP - Create for the train above (future date/time)
+POST {{baseUrl}}/trip/create
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "trainId": "REPLACE_WITH_TRAIN_ID",
+  "originStation": "Hanoi",
+  "destinationStation": "Da Nang",
+  "departureTime": "2025-12-20T08:00:00Z",
+  "arrivalTime": "2025-12-20T15:30:00Z",
+  "tripDate": "2025-12-20T00:00:00Z",
+  "basePrice": "850000",
+  "discount": "5",
+  "notes": "Holiday promo"
+}
+
+### TRIP - Create for second train (night trip)
+POST {{baseUrl}}/trip/create
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "trainId": "REPLACE_WITH_TRAIN2_ID",
+  "originStation": "Hanoi",
+  "destinationStation": "Hue",
+  "departureTime": "2025-12-21T22:00:00Z",
+  "arrivalTime": "2025-12-22T06:00:00Z",
+  "tripDate": "2025-12-21T00:00:00Z",
+  "basePrice": "650000",
+  "discount": "0",
+  "notes": "Overnight"
+}
+
+### TRIP - Search
+GET {{baseUrl}}/trip/search?originStation=Hanoi&destinationStation=Da%20Nang&tripDate=2025-12-20
+
+### SEAT - Layout for trip
+GET {{baseUrl}}/seat/trip/REPLACE_WITH_TRIP_ID/layout
+
+### SEAT - Available seats (trip 2)
+GET {{baseUrl}}/seat/trip/REPLACE_WITH_TRIP2_ID/available
+
+### BOOKING - Create (user)
+POST {{baseUrl}}/booking/create
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "userId": "REPLACE_WITH_USER_ID",
+  "tripId": "REPLACE_WITH_TRIP_ID",
+  "numberOfPassengers": 2,
+  "ticketTypeId": null,
+  "notes": "Window seats preferred"
+}
+
+### BOOKING - Create (user, trip 2, 3 pax)
+POST {{baseUrl}}/booking/create
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "userId": "REPLACE_WITH_USER_ID",
+  "tripId": "REPLACE_WITH_TRIP2_ID",
+  "numberOfPassengers": 3,
+  "ticketTypeId": null,
+  "notes": "Group booking"
+}
+
+### PAYMENT - Create for booking
+POST {{baseUrl}}/payment/create
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "bookingId": "REPLACE_WITH_BOOKING_ID",
+  "amount": "935000",
+  "method": "Momo",
+  "cardLastFourDigits": "4242",
+  "cardHolderName": "Nguyen Van A",
+  "bankCode": "VCB"
+}
+
+### PAYMENT - Create for booking (trip 2)
+POST {{baseUrl}}/payment/create
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "bookingId": "REPLACE_WITH_BOOKING2_ID",
+  "amount": "715000",
+  "method": "VnPay",
+  "cardLastFourDigits": "1881",
+  "cardHolderName": "Tran Thi B",
+  "bankCode": "ACB"
+}
+
+### TICKET - Generate after payment
+POST {{baseUrl}}/ticket/generate-for-booking/REPLACE_WITH_BOOKING_ID
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "passengerNames": [
+    "Nguyen Van A",
+    "Tran Thi B"
+  ]
+}
+
+### TICKET - Generate after payment (trip 2)
+POST {{baseUrl}}/ticket/generate-for-booking/REPLACE_WITH_BOOKING2_ID
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "passengerNames": [
+    "Tran Thi B",
+    "Le Van C",
+    "Pham D"
+  ]
+}
+
+### TICKET - Verify QR
+GET {{baseUrl}}/ticket/verify/REPLACE_WITH_QR_CODE
+
+### TICKET - Check-in
+POST {{baseUrl}}/ticket/REPLACE_WITH_TICKET_ID/checkin
+Authorization: Bearer {{userToken}}
+
+### BOOKING - Cancel (before check-in)
+POST {{baseUrl}}/booking/REPLACE_WITH_BOOKING_ID/cancel
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "cancellationReason": "Change of plans"
+}
+
+### FEEDBACK - Create
+POST {{baseUrl}}/feedback/create
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "userId": "REPLACE_WITH_USER_ID",
+  "tripId": "REPLACE_WITH_TRIP_ID",
+  "subject": "Great trip",
+  "content": "Clean coaches, on-time arrival.",
+  "rating": 5
+}
+
+### FEEDBACK - Create (trip 2)
+POST {{baseUrl}}/feedback/create
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "userId": "REPLACE_WITH_USER_ID",
+  "tripId": "REPLACE_WITH_TRIP2_ID",
+  "subject": "Overnight ride",
+  "content": "Quiet cabins, smooth ride.",
+  "rating": 4
+}
+
+### FEEDBACK - Respond (admin)
+POST {{baseUrl}}/feedback/REPLACE_WITH_FEEDBACK_ID/respond
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "responseMessage": "Thanks for the feedback!",
+  "respondedByUserId": "REPLACE_WITH_ADMIN_USER_ID",
+  "isPublished": true
+}

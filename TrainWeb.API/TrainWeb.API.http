@@ -1,0 +1,6 @@
+@TrainWeb.API_HostAddress = http://localhost:5232
+
+GET {{TrainWeb.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

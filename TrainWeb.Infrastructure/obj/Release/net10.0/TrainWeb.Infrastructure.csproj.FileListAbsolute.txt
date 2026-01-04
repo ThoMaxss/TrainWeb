@@ -1,0 +1,17 @@
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\obj\Release\net10.0\TrainWeb.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\obj\Release\net10.0\TrainWeb.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\obj\Release\net10.0\TrainWeb.Infrastructure.AssemblyInfo.cs
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\obj\Release\net10.0\TrainWeb.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\bin\Release\net10.0\TrainWeb.Infrastructure.deps.json
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\bin\Release\net10.0\TrainWeb.Infrastructure.dll
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\bin\Release\net10.0\TrainWeb.Infrastructure.pdb
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\bin\Release\net10.0\TrainWeb.Application.dll
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\bin\Release\net10.0\TrainWeb.Domain.dll
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\bin\Release\net10.0\TrainWeb.Application.pdb
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\bin\Release\net10.0\TrainWeb.Domain.pdb
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\obj\Release\net10.0\TrainWeb.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\obj\Release\net10.0\TrainWeb.93F6F3D2.Up2Date
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\obj\Release\net10.0\TrainWeb.Infrastructure.dll
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\obj\Release\net10.0\refint\TrainWeb.Infrastructure.dll
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\obj\Release\net10.0\TrainWeb.Infrastructure.pdb
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Infrastructure\obj\Release\net10.0\ref\TrainWeb.Infrastructure.dll

@@ -1,0 +1,11 @@
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Application\bin\Release\net10.0\TrainWeb.Application.deps.json
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Application\bin\Release\net10.0\TrainWeb.Application.dll
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Application\bin\Release\net10.0\TrainWeb.Application.pdb
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Application\obj\Release\net10.0\TrainWeb.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Application\obj\Release\net10.0\TrainWeb.Application.AssemblyInfoInputs.cache
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Application\obj\Release\net10.0\TrainWeb.Application.AssemblyInfo.cs
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Application\obj\Release\net10.0\TrainWeb.Application.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Application\obj\Release\net10.0\TrainWeb.Application.dll
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Application\obj\Release\net10.0\refint\TrainWeb.Application.dll
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Application\obj\Release\net10.0\TrainWeb.Application.pdb
+C:\Users\Administrator\Desktop\TrainWeb\TrainWeb.Application\obj\Release\net10.0\ref\TrainWeb.Application.dll
