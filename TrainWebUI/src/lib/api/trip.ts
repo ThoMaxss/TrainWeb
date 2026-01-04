@@ -37,11 +37,12 @@ export async function deleteTrip(id: string): Promise<void> {
   });
 }
 
-// GET /api/Seat/trip/{tripId} - Get seats by trip ID
+// GET /api/trips/{tripId}/seats - Get seats by trip ID
+// Note: This is now handled by seat.ts, but keeping for backward compatibility
 export async function getSeatsByTripId(tripId: string): Promise<SeatDto[] | null> {
   try {
     const seats = await withRequestCache(`getSeatsByTripId:${tripId}`, () => 
-      apiFetch<SeatDto[]>(`/Seat/trip/${tripId}`)
+      apiFetch<SeatDto[]>(`/trips/${tripId}/seats`)
     );
     return seats;
   } catch (error) {

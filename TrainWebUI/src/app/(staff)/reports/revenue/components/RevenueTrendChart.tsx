@@ -58,7 +58,7 @@ export function RevenueTrendChart({ data, timeFilterLabel }: RevenueTrendChartPr
                 border: `1px solid var(--color-border)`,
                 borderRadius: "8px",
               }}
-              formatter={(value: any) => `${value.toLocaleString("vi-VN")}₫`}
+              formatter={(value: number) => `${value.toLocaleString("vi-VN")}₫`}
             />
             <Line
               type="monotone"

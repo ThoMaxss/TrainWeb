@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrainCard } from "./TrainCard";
 import { searchTrips, getAllTrips, getSeatsByTripId } from "@/lib/api/trip";
+import { API_CONFIG } from "@/lib/api/config";
 import { TripDto, SeatDto, SeatType } from "@/types";
 import { H2, Body } from "@/components/ui/typography";
 
@@ -60,7 +61,7 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
       } catch (e) {
         console.error('API Error:', e);
         if (!mounted) return;
-        setError("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy ở https://localhost:7128");
+        setError(`Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy ở ${API_CONFIG.BASE_URL}`);
         setTrips([]);
       } finally {
         if (mounted) setLoading(false);

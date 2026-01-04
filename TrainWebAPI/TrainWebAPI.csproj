@@ -12,7 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="firebase-key.json" />
+    <None Include="firebase-key.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

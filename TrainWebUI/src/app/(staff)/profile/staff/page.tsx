@@ -12,7 +12,7 @@ import { EditProfileDialog } from "./components/EditProfileDialog";
 import { ChangePasswordDialog } from "./components/ChangePasswordDialog";
 import { LogoutConfirmDialog } from "./components/LogoutConfirmDialog";
 import { getUserById, updateUser } from "@/lib/api/user";
-import type { UserDto } from "@/types";
+import type { UserDto, AdminUpdateUserRequest } from "@/types";
 
 type Gender = "Nam" | "Nữ" | "Khác";
 
@@ -95,16 +95,15 @@ export default function StaffProfilePage() {
   const handleSaveProfile = async (updatedProfile: LocalStaffProfile, newAvatarPreview: string) => {
     try {
       setLoading(true);
-      if (user?.id) {
-        const dto: Partial<UserDto> = {
-          id: user.id,
-          name: updatedProfile.name,
-          email: updatedProfile.email,
-          phone: updatedProfile.phone,
-        } as any;
-        const updated = await updateUser(user.id, dto as UserDto);
-        setUser(updated as UserDto);
-      }
+        if (user?.id) {
+          const dto = {
+            name: updatedProfile.name,
+            phone: updatedProfile.phone,
+            avatarURL: newAvatarPreview,
+          };
+          const updated = await updateUser(user.id, dto as AdminUpdateUserRequest);
+          setUser(updated as UserDto);
+        }
       setProfile({ ...updatedProfile, avatar: newAvatarPreview });
       setAvatarPreview(newAvatarPreview);
       setIsEditProfileOpen(false);

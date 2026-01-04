@@ -49,18 +49,36 @@ export default function RootLayout({
           </AuthProvider>
         </ThemeProvider>
         
-        {/* Service Worker Registration */}
+        {/* Service Worker Registration / Unregister helpers */}
         <Script id="sw-register" strategy="afterInteractive">
           {`
+            const __GORAIL_ENABLE_SW = ${process.env.NEXT_PUBLIC_ENABLE_SW === 'true' ? 'true' : 'false'};
             if ('serviceWorker' in navigator) {
-              window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                  .then((registration) => {
-                    console.log('SW registered:', registration);
-                  })
-                  .catch((error) => {
-                    console.log('SW registration failed:', error);
-                  });
+              window.addEventListener('load', async () => {
+                try {
+                  if (__GORAIL_ENABLE_SW === 'true') {
+                    // Normal behavior: register the SW
+                    navigator.serviceWorker.register('/sw.js')
+                      .then((registration) => console.log('SW registered:', registration))
+                      .catch((error) => console.log('SW registration failed:', error));
+                  } else {
+                    // If SW is disabled (dev mode), proactively unregister any existing SWs
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    if (regs && regs.length) {
+                      await Promise.all(regs.map(r => r.unregister()));
+                      console.log('Gorail: unregistered service workers', regs.map(r => r.scope));
+                      if (window.caches) {
+                        const keys = await caches.keys();
+                        await Promise.all(keys.map(k => caches.delete(k)));
+                        console.log('Gorail: cleared caches', keys);
+                      }
+                      // reload so the page fetches fresh, non-SW cached assets
+                      window.location.reload();
+                    }
+                  }
+                } catch (err) {
+                  console.warn('Gorail: SW helper error', err);
+                }
               });
             }
           `}

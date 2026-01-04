@@ -54,9 +54,10 @@ export default function TrainSchedulePage() {
         data,
         timestamp: Date.now()
       }));
-    } catch (err: any) {
-      if (err.name !== 'AbortError') {
-        setError("Không thể tải lịch trình tàu. Vui lòng thử lại.");
+        } catch (err: unknown) {
+          const name = (err as { name?: string })?.name
+          if (name !== 'AbortError') {
+        setError(err instanceof Error ? err.message : "Không thể tải lịch trình tàu. Vui lòng thử lại.");
         console.error("Failed to load trips:", err);
       }
     } finally {

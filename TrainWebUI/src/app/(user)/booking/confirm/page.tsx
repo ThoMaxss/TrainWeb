@@ -12,10 +12,10 @@ import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/components/auth/AuthContext"
 import { getTripById } from "@/lib/api/trip"
 import { getSeatsByTripId } from "@/lib/api/seat"
-import { createTicket } from "@/lib/api/ticket"
+// Tickets are created by backend after payment; do not create tickets here
 import { getAllTicketTypes } from "@/lib/api/ticketType"
 import { createBooking } from "@/lib/api/booking"
-import { SeatType, BookingStatus, TicketStatus, type TripDto, type BookingDto, type TicketEntity } from "@/types"
+import { SeatType, BookingStatus, type TripDto, type BookingDto, type TicketTypeDto } from "@/types"
 import { SEAT_TYPE_LABELS } from "@/types/seat"
 import { 
 	Train, 
@@ -77,7 +77,7 @@ export default function BookingConfirmPage() {
 				])
 				if (!mounted) return
 				setTripData(trip)
-				const seatsMap = new Map(allSeats?.map((s: any) => [s.id, s]) || [])
+				const seatsMap = new Map(allSeats?.map((s: { id?: string } ) => [s.id, s]) || [])
 				const actualSeats: SelectedSeat[] = seatIds
 					.map((id: string) => {
 						const s = seatsMap.get(id)
@@ -139,58 +139,32 @@ export default function BookingConfirmPage() {
 			if (!tripData) throw new Error("Thiếu dữ liệu chuyến đi")
 
 			// 1) Lấy ticket type (dùng default nếu BE chưa có)
-			let ticketTypes = [] as any[]
+			let ticketTypes: TicketTypeDto[] = []
 			try {
 				ticketTypes = await getAllTicketTypes()
 			} catch {}
-			const defaultTicketType = ticketTypes[0] || { id: 'default', name: 'Standard', discount: 0 }
+			const defaultTicketType: TicketTypeDto = ticketTypes[0] || { id: 'default', name: 'Standard', discount: 0 }
 
-			// 2) Tạo Ticket cho từng ghế
-			const tickets = await Promise.all(selectedSeats.map(async seat => {
-				const payload: Partial<TicketEntity> = {
-					seat: {
-						id: seat.id,
-						seatNumber: seat.seatNumber,
-						type: seat.seatType === SEAT_TYPE_LABELS[SeatType.Soft] ? SeatType.Soft : SeatType.Hard,
-						price: seat.price,
-					},
-					ticketType: {
-						id: defaultTicketType.id,
-						name: defaultTicketType.name,
-						discount: defaultTicketType.discount,
-					},
-					status: TicketStatus.Active,
-				}
-				try {
-					return await createTicket(payload as TicketEntity)
-				} catch (ticketErr) {
-					console.error("Create ticket failed", ticketErr)
-					throw new Error("Không thể tạo vé, vui lòng thử lại")
-				}
-			}))
-
-			// 3) Tạo Booking tham chiếu ticket.id
-			const bookings = await Promise.all(tickets.map(async (t, idx) => {
-				if (!t?.id) throw new Error("Tạo vé thất bại")
+			// 2) Tạo Booking cho từng ghế (backend expects userId, tripId, seatId)
+			const bookings = await Promise.all(selectedSeats.map(async (seat, idx) => {
 				const p = passengers[idx]
-				const bookingData: BookingDto = {
-					user: { id: user.id!, name: p.fullName.trim(), email: p.email?.trim() },
-					ticket: { id: t.id, status: t.status ?? TicketStatus.Active },
-					status: BookingStatus.Reserved,
-					createdAt: new Date().toISOString(),
+				const payload = {
+					userId: user?.id ?? '',
+					tripId: tripData.id!,
+					seatId: seat.id,
+					ticketTypeId: defaultTicketType?.id ?? undefined,
 				}
-				
-				// Optimistic UI: show success immediately
-				setSubmitting(false)
-				
+
 				try {
-					return await createBooking(bookingData)
-				} catch (bookingErr: any) {
+					const created = await createBooking(payload)
+					return created
+				} catch (bookingErr: unknown) {
 					console.error("Create booking failed", bookingErr)
-					// Check if it's a seat already booked error from backend
-					const errorMsg = bookingErr?.response?.data?.message || 
-					                 bookingErr?.message || 
-					                 "Không thể tạo đơn đặt vé"
+					let errorMsg = "Không thể tạo đơn đặt vé"
+					if (typeof bookingErr === 'object' && bookingErr !== null) {
+						const maybe = bookingErr as { response?: { data?: { message?: string } }; message?: string }
+						errorMsg = maybe.response?.data?.message ?? maybe.message ?? errorMsg
+					}
 					throw new Error(errorMsg)
 				}
 			}))
@@ -204,7 +178,7 @@ export default function BookingConfirmPage() {
 				return
 			}
 
-			sessionStorage.setItem('pendingBooking', JSON.stringify({ bookingIds, seats: selectedSeats, tripId: tripData.id }))
+			sessionStorage.setItem('pendingBooking', JSON.stringify({ bookingIds, seats: selectedSeats, tripId: tripData.id, passengers }))
 			router.push(`/booking/payment?bookingId=${bookingIds.join(',')}`)
 		} catch (e) {
 			console.error(e)

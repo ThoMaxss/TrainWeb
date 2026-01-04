@@ -7,7 +7,8 @@
 type CacheKey = string;
 type PendingRequest<T> = Promise<T>;
 
-const pendingRequests = new Map<CacheKey, PendingRequest<any>>();
+// We store heterogeneous pending promises; use `unknown` to avoid `any`
+const pendingRequests = new Map<CacheKey, PendingRequest<unknown>>();
 
 /**
  * Execute a function with request deduplication
@@ -38,6 +39,34 @@ export function withRequestCache<T>(
 
   pendingRequests.set(key, promise);
   return promise;
+}
+
+// Simple in-memory response cache for GET requests with a configurable stale time
+type ResponseCacheEntry<T> = { data: T; timestamp: number };
+const responseCache = new Map<string, ResponseCacheEntry<unknown>>();
+
+export function withResponseCache<T>(
+  key: string,
+  fn: () => Promise<T>,
+  staleMs: number = 45_000 // default ~45 seconds
+): Promise<T> {
+  const now = Date.now();
+  const entry = responseCache.get(key) as ResponseCacheEntry<T> | undefined;
+
+  if (entry && now - entry.timestamp < staleMs) {
+    console.log(`[Response Cache] Returning cached response for ${key}`);
+    return Promise.resolve(entry.data);
+  }
+
+  return fn().then((res) => {
+    responseCache.set(key, { data: res, timestamp: Date.now() });
+    return res;
+  });
+}
+
+export function clearResponseCache(key?: string) {
+  if (key) responseCache.delete(key);
+  else responseCache.clear();
 }
 
 /**

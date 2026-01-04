@@ -134,8 +134,15 @@ export default function AuthFormSet() {
     confirmPassword: '',
   });
 
-  async function fetchMe(): Promise<MeResponse> {
+  async function fetchMe(idToken?: string): Promise<MeResponse> {
     // ✅ endpoint chuẩn hoá theo BE mới: /api/User/me
+    if (idToken) {
+      return apiFetch<MeResponse>('/User/me', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+    }
+
     return apiFetch<MeResponse>('/User/me', { method: 'GET' });
   }
 
@@ -162,10 +169,15 @@ export default function AuthFormSet() {
       await applyPersistence();
 
       // 1) Login Firebase
-      await signInWithEmailAndPassword(auth, loginData.email, loginData.password);
+      const cred = await signInWithEmailAndPassword(auth, loginData.email, loginData.password);
 
-      // 2) Gọi BE /User/me để verify token + lấy role
-      const rawMe = await fetchMe();
+      // 2) Ensure ID token and call BE /User/me to verify token + get role
+      const idToken = await cred.user.getIdToken();
+      const rawMe = await fetchMe(idToken);
+
+      if (process.env.NEXT_PUBLIC_DEBUG === 'true') {
+        console.debug('[auth] login token length:', idToken?.length, 'profile raw:', rawMe);
+      }
       const me = normalizeMe(rawMe);
 
       // 3) Update context (RouteGuard dùng)
@@ -205,6 +217,7 @@ export default function AuthFormSet() {
     try {
       await applyPersistence();
 
+
       // 1) Register Firebase
       const cred = await createUserWithEmailAndPassword(auth, registerData.email, registerData.password);
 
@@ -214,8 +227,13 @@ export default function AuthFormSet() {
         await updateProfile(cred.user, { displayName: nameTrim });
       }
 
-      // 3) Bootstrap Firestore user bằng cách gọi /User/me
-      const rawMe = await fetchMe();
+      // 3) Bootstrap Firestore user bằng cách gọi /User/me (pass current token to be safe)
+      const idToken = await cred.user.getIdToken();
+      const rawMe = await fetchMe(idToken);
+
+      if (process.env.NEXT_PUBLIC_DEBUG === 'true') {
+        console.debug('[auth] register token length:', idToken?.length, 'profile raw:', rawMe);
+      }
       const me = normalizeMe(rawMe);
 
       // 4) Lưu SĐT (và name) vào Firestore nếu có

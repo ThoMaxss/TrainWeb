@@ -14,7 +14,7 @@ export interface SeatEntity {
 
 export interface SeatDto {
   id?: string;
-  trip?: any;
+  trip?: { id?: string } | string | undefined;
   seatNumber?: string;
   type?: SeatType | "Hard" | "Soft";
   isAvailable?: boolean;

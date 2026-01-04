@@ -262,7 +262,7 @@ export default function BookingSuccessPage() {
           <AlertCircle className="w-8 h-8 mx-auto mb-4" style={{ color: "var(--color-warning)" }} />
           <p className="text-muted-foreground mb-4 font-semibold">Đơn hàng được xử lý</p>
           <p className="text-xs text-muted-foreground mb-6">
-            Thông tin vé đầy đủ sẽ được gửi qua email của bạn trong vòng 5 phút. Bạn cũng có thể xem vé tại mục "Vé của tôi".
+            Thông tin vé đầy đủ sẽ được gửi qua email của bạn trong vòng 5 phút. Bạn cũng có thể xem vé tại mục {'\u201C'}Vé của tôi{'\u201D'}.
           </p>
           <div className="space-y-2">
             <Button className="w-full" onClick={handleGoHome}>Về trang chủ</Button>

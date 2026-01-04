@@ -1,3 +1,4 @@
+import React from 'react';
 import { Train, Armchair, UserCheck, Clock, DollarSign, Smartphone } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -7,7 +8,7 @@ import { cn } from "@/lib/utils/utils";
 interface FeedbackCategory {
   id: string;
   label: string;
-  icon: any;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 export const categories: FeedbackCategory[] = [

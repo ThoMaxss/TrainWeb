@@ -1,6 +1,14 @@
 import { apiFetch } from './config';
 import { BookingDto, BookingStatus } from '@/types';
 
+export type CreateBookingRequest = {
+  userId: string;
+  tripId: string;
+  seatId: string;
+  ticketTypeId?: string | null;
+};
+import { withRequestCache, withResponseCache } from './request-cache';
+
 // Booking endpoints based on backend documentation
 
 // GET /api/booking - Get all bookings
@@ -12,7 +20,9 @@ export async function getAllBookings(): Promise<BookingDto[]> {
 export async function getBookingById(id: string): Promise<BookingDto> {
   console.log(`[Booking API] Fetching booking with ID: ${id}`);
   try {
-    const result = await apiFetch<BookingDto>(`/Booking/${id}`);
+    // Deduplicate in-flight requests for the same booking id
+    const key = `booking:${id}`;
+    const result = await withRequestCache(key, () => apiFetch<BookingDto>(`/Booking/${id}`));
     console.log(`[Booking API] Successfully fetched booking:`, result);
     return result;
   } catch (error) {
@@ -22,7 +32,7 @@ export async function getBookingById(id: string): Promise<BookingDto> {
 }
 
 // POST /api/booking - Create booking
-export async function createBooking(bookingData: BookingDto): Promise<BookingDto> {
+export async function createBooking(bookingData: CreateBookingRequest | BookingDto): Promise<BookingDto> {
   return apiFetch<BookingDto>('/Booking', {
     method: 'POST',
     body: JSON.stringify(bookingData),
@@ -31,9 +41,19 @@ export async function createBooking(bookingData: BookingDto): Promise<BookingDto
 
 // POST /api/Booking/{id}/success-booking - Mark booking as paid
 export async function successBooking(id: string): Promise<void> {
-  return apiFetch<void>(`/Booking/${id}/success-booking`, {
+  // Idempotent call - backend is already idempotent, but guard on client to avoid duplicate calls
+  const flagKey = `paid:${id}`;
+  if (typeof window !== 'undefined' && sessionStorage.getItem(flagKey) === 'true') {
+    console.log(`[Booking API] successBooking skipped for ${id} (already handled)`);
+    return;
+  }
+
+  const res = await apiFetch<void>(`/Booking/${id}/success-booking`, {
     method: 'POST',
   });
+
+  if (typeof window !== 'undefined') sessionStorage.setItem(flagKey, 'true');
+  return res;
 }
 
 // POST /api/Booking/{id}/cancel-booking - Cancel booking
@@ -53,8 +73,10 @@ export async function updateBooking(id: string, updates: Partial<BookingDto>): P
 
 // Helper function to get bookings by user ID
 export async function getBookingsByUserId(userId: string): Promise<BookingDto[]> {
-  // Use dedicated backend endpoint instead of filtering all bookings client-side
-  return apiFetch<BookingDto[]>(`/Booking/user/${userId}`);
+  // Use dedicated backend endpoint and cache responses for short period to reduce Firestore reads
+  const key = `bookings:user:${userId}`;
+  // stale time: 45s (configurable in request-cache)
+  return withResponseCache(key, () => apiFetch<BookingDto[]>(`/Booking/user/${userId}`), 45_000);
 }
 
 // Helper function to get bookings by status

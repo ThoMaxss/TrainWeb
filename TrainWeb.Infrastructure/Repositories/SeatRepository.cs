@@ -25,22 +25,43 @@ namespace TrainWeb.Infrastructure.Repositories
             var snap = await SeatsCol(tripId).Document(seatId).GetSnapshotAsync();
             if (!snap.Exists) return null;
 
-            var e = snap.ConvertTo<SeatEntity>();
-            e.Id = snap.Id;
-            e.TripId = tripId;
-            return e;
+            return ConvertSnapshotToEntity(snap, tripId);
         }
 
         public async Task<IEnumerable<SeatEntity>> GetByTripIdAsync(string tripId)
         {
             var snap = await SeatsCol(tripId).GetSnapshotAsync();
-            return snap.Documents.Select(d =>
+            return snap.Documents.Select(d => ConvertSnapshotToEntity(d, tripId)).ToList();
+        }
+
+        private static SeatEntity ConvertSnapshotToEntity(DocumentSnapshot d, string tripId)
+        {
+            // Read raw fields and be tolerant when parsing enums from Firestore (case-insensitive)
+            var e = new SeatEntity();
+            e.Id = d.Id;
+            e.TripId = tripId;
+
+            if (d.TryGetValue("seatNumber", out string? seatNumber)) e.SeatNumber = seatNumber;
+
+            // Parse type as string (allow "Hard", "hard", "Soft", etc.)
+            if (d.TryGetValue("type", out object? rawType) && rawType != null)
             {
-                var e = d.ConvertTo<SeatEntity>();
-                e.Id = d.Id;
-                e.TripId = tripId;
-                return e;
-            }).ToList();
+                var typeStr = rawType.ToString() ?? string.Empty;
+                if (Enum.TryParse<TrainWeb.Domain.Enum.SeatType>(typeStr, true, out var parsed))
+                {
+                    e.Type = parsed;
+                }
+                else
+                {
+                    // fallback to default
+                    e.Type = TrainWeb.Domain.Enum.SeatType.Hard;
+                }
+            }
+
+            if (d.TryGetValue("isAvailable", out bool isAvailable)) e.IsAvailable = isAvailable;
+            if (d.TryGetValue("price", out double price)) e.Price = price;
+
+            return e;
         }
 
         public Task AddAsync(string tripId, SeatEntity seatEntity)

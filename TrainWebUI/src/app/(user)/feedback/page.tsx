@@ -41,17 +41,17 @@ export default function FeedbackPage() {
   // Load trip data with caching
   const loadTrip = useCallback(async () => {
     if (!tripId) return;
-    
+
     const controller = new AbortController();
-    
     try {
       setLoading(true);
       setError(null);
-      
+
       const trip = await getTripById(tripId);
       setTripData(trip);
-    } catch (err: any) {
-      if (err.name !== 'AbortError') {
+    } catch (err: unknown) {
+      // Ignore aborts, surface other errors
+      if (!(err instanceof Error && err.name === 'AbortError')) {
         console.error("Failed to load trip data:", err);
         setError("Không thể tải thông tin chuyến đi");
       }
@@ -63,24 +63,23 @@ export default function FeedbackPage() {
   }, [tripId]);
 
   useEffect(() => {
-    loadTrip();
+    const abort = loadTrip();
+    return () => {
+      try {
+        (abort as unknown as () => void)?.()
+      } catch {}
+    }
   }, [loadTrip]);
 
-  // Memoized trip info
   const tripInfo = useMemo(() => {
     if (tripData) {
       return {
-        trainNumber: tripData.train?.name || "N/A",
-        route: `${tripData.originStation || "N/A"} → ${tripData.destinationStation || "N/A"}`,
-        date: tripData.departure
-          ? new Date(tripData.departure).toLocaleDateString("vi-VN", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : "N/A",
+        trainNumber: tripData.train?.name || "",
+        route:
+          tripData.originStation && tripData.destinationStation
+            ? `${tripData.originStation} → ${tripData.destinationStation}`
+            : "",
+        date: tripData.departure ? new Date(tripData.departure).toLocaleString() : "",
         seats,
       };
     }

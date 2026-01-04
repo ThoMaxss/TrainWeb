@@ -567,7 +567,7 @@ export default function AdminDashboardPage() {
                         borderRadius: "12px",
                         padding: "12px",
                       }}
-                      formatter={(value: any) => [`${value.toLocaleString("vi-VN")}₫`, "Doanh thu"]}
+                      formatter={(value: number) => [`${value.toLocaleString("vi-VN")}₫`, "Doanh thu"]}
                     />
                     <Line
                       type="monotone"
@@ -611,7 +611,7 @@ export default function AdminDashboardPage() {
                         border: "1px solid var(--color-border)",
                         borderRadius: "12px",
                       }}
-                      formatter={(value: any) => `${value.toLocaleString("vi-VN")}₫`}
+                      formatter={(value: number) => `${value.toLocaleString("vi-VN")}₫`}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -671,7 +671,7 @@ export default function AdminDashboardPage() {
                       borderRadius: "12px",
                       padding: "12px",
                     }}
-                    formatter={(value: any, name: string) => {
+                    formatter={(value: number, name: string) => {
                       if (name === "tickets") return [value.toLocaleString(), "Vé bán"];
                       return [value, name];
                     }}

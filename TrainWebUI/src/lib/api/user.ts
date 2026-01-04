@@ -39,6 +39,11 @@ export async function adminGetUserById(id: string): Promise<UserProfile> {
   return apiFetch<UserProfile>(`/User/${id}`);
 }
 
+// Backwards-compatible aliases used by admin UI components
+export async function getUserById(id: string): Promise<UserProfile> {
+  return adminGetUserById(id);
+}
+
 /**
  * PUT /api/User/{id} - Admin update any user (can include role)
  * (Staff/User không được gọi)
@@ -53,11 +58,19 @@ export async function adminUpdateUser(
   });
 }
 
+export async function updateUser(id: string, data: AdminUpdateUserRequest): Promise<UserProfile> {
+  return adminUpdateUser(id, data);
+}
+
 /** DELETE /api/User/{id} - Admin delete user */
 export async function adminDeleteUser(id: string): Promise<void> {
   return apiFetch<void>(`/User/${id}`, {
     method: "DELETE",
   });
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  return adminDeleteUser(id);
 }
 
 /**
@@ -74,6 +87,10 @@ export async function adminCreateUser(
   });
 }
 
+export async function createUser(data: AdminCreateUserRequest): Promise<UserProfile> {
+  return adminCreateUser(data);
+}
+
 /**
  * GET /api/User - Admin list all users
  * ⚠️ Chỉ dùng khi BE có endpoint GET /api/User (AdminOnly)
@@ -81,3 +98,8 @@ export async function adminCreateUser(
 // export async function adminGetAllUsers(): Promise<UserProfile[]> {
 //   return apiFetch<UserProfile[]>("/User");
 // }
+
+// Admin list all users (alias used by admin UI)
+export async function getAllUsers(): Promise<UserProfile[]> {
+  return apiFetch<UserProfile[]>('/User');
+}

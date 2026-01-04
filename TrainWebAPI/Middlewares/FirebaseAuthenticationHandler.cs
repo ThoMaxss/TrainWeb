@@ -31,13 +31,22 @@ namespace TrainWebAPI.Middlewares
         {
             var authHeader = Request.Headers.Authorization.ToString();
             if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                Logger.LogDebug("No Authorization header present or not a Bearer token.");
                 return AuthenticateResult.NoResult();
+            }
 
             var idToken = authHeader["Bearer ".Length..].Trim();
 
+            Logger.LogDebug("Attempting to verify Firebase token (first 8 chars): {prefix}", idToken?.Substring(0, Math.Min(8, idToken.Length)));
             var decoded = await _firebaseService.VerifyIdTokenAsync(idToken);
             if (decoded == null)
+            {
+                Logger.LogWarning("Firebase token verification failed for provided token prefix.");
                 return AuthenticateResult.Fail("Invalid Firebase token");
+            }
+
+            Logger.LogDebug("Firebase token verified successfully, uid={uid}", decoded.Uid);
 
             var uid = decoded.Uid;
 

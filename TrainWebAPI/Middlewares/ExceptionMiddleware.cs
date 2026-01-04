@@ -1,4 +1,8 @@
-﻿using TrainWeb.Domain.Exceptions;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
+using TrainWeb.Domain.Exceptions;
 
 namespace TrainWebAPI.Middlewares
 {
@@ -7,10 +11,13 @@ namespace TrainWebAPI.Middlewares
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
 
-        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
+        private readonly IHostEnvironment _env;
+
+        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
         {
             _next = next;
             _logger = logger;
+            _env = env;
         }
 
         public async Task Invoke(HttpContext context)
@@ -37,12 +44,26 @@ namespace TrainWebAPI.Middlewares
                 // Catch all unhandled exceptions
                 context.Response.StatusCode = StatusCodeConstants.InternalServerError;
                 context.Response.ContentType = "application/json";
-                Console.WriteLine("ERROR: " + ex.Message);
-                await context.Response.WriteAsJsonAsync(new
+                _logger.LogError(ex, "Unhandled exception");
+
+                if (_env.IsDevelopment())
                 {
-                    status = 500,
-                    error = "Internal server error",
-                });
+                    // In development, include the exception message to aid debugging
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        status = 500,
+                        error = ex.Message,
+                        detail = ex.StackTrace
+                    });
+                }
+                else
+                {
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        status = 500,
+                        error = "Internal server error",
+                    });
+                }
             }
         }
     }

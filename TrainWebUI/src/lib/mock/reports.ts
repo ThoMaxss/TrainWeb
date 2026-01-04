@@ -18,7 +18,7 @@ export interface DailyReportMock {
 
 function seededRand(seed: number) {
   // Simple LCG for deterministic pseudo-random numbers
-  let x = Math.sin(seed) * 10000;
+  const x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
 }
 

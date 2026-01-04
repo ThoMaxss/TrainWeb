@@ -9,7 +9,13 @@ import type { MeResponse } from "@/types/user";
  */
 
 /** Call BE to get current profile (also ensures Firestore user exists) */
-export async function getProfile(): Promise<MeResponse> {
+export async function getProfile(idToken?: string): Promise<MeResponse> {
+  if (idToken) {
+    return apiFetch<MeResponse>("/User/me", {
+      headers: { Authorization: `Bearer ${idToken}` },
+    });
+  }
+
   return apiFetch<MeResponse>("/User/me");
 }
 

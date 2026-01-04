@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using TrainWeb.Application.Extensions;
@@ -65,6 +66,15 @@ namespace TrainWebAPI.Controllers
 
         private static bool IsValidPhone(string phone)
             => Regex.IsMatch(phone, @"^(0|\+84)\d{9}$"); // đơn giản
+
+        // ========== ADMIN ONLY: GET /api/User ==========
+        [Authorize(Policy = "AdminOnly")]
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var list = await UserService.GetAllAsync();
+            return Ok(list.Select(x => x.ToDto()));
+        }
 
         // ========== (SELF) GET /api/User/me ==========
         [Authorize]

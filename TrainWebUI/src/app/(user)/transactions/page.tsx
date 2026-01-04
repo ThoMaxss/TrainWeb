@@ -27,7 +27,6 @@ export default function TransactionsPage() {
   // Fetch transactions with caching
   const fetchTransactions = useCallback(async () => {
     const controller = new AbortController();
-
     try {
       setIsLoading(true);
       setError(null);
@@ -71,16 +70,17 @@ export default function TransactionsPage() {
         });
 
       setTransactions(transformedTransactions);
-      
+
       // Cache result
       sessionStorage.setItem(
         `${CACHE_KEY}_${userId}`,
         JSON.stringify({ data: transformedTransactions, timestamp: Date.now() })
       );
-    } catch (err: any) {
-      if (err.name !== "AbortError") {
+    } catch (err: unknown) {
+      const isAbort = (err as { name?: string }).name === "AbortError";
+      if (!isAbort) {
         console.error("Error fetching transactions:", err);
-        setError("Không thể tải lịch sử giao dịch. Vui lòng thử lại sau.");
+        setError(err instanceof Error ? err.message : "Không thể tải lịch sử giao dịch. Vui lòng thử lại sau.");
       }
     } finally {
       setIsLoading(false);

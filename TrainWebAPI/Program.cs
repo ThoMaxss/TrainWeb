@@ -20,6 +20,24 @@ var credentialPath = string.IsNullOrWhiteSpace(serviceAccountPathFromConfig)
         ? serviceAccountPathFromConfig
         : Path.Combine(builder.Environment.ContentRootPath, serviceAccountPathFromConfig);
 
+// Validate the credential file early and fail fast with a clear message when missing.
+if (!File.Exists(credentialPath))
+{
+    // Try to discover the file anywhere under the content root to make local dev less brittle
+    var discovered = Directory.EnumerateFiles(builder.Environment.ContentRootPath, "firebase-key.json", SearchOption.AllDirectories).FirstOrDefault();
+    if (!string.IsNullOrEmpty(discovered) && File.Exists(discovered))
+    {
+        Console.WriteLine($"Notice: Found firebase-key.json at '{discovered}' and will use it.");
+        credentialPath = discovered;
+    }
+    else
+    {
+        Console.WriteLine($"ERROR: Firebase service account file not found at '{credentialPath}'.\n" +
+                          "Please set 'Firebase:ServiceAccountPath' in configuration or place 'firebase-key.json' in the application content root.");
+        throw new FileNotFoundException($"Firebase service account file not found at '{credentialPath}'.", credentialPath);
+    }
+}
+
 builder.Services.AddSingleton(sp => new FirestoreDbContext(projectId, credentialPath));
 
 // ===== DI: Infrastructure services =====

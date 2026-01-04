@@ -4,11 +4,23 @@ export class NotificationService {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000; // Start with 1 second
-  private listeners: Set<(notification: any) => void> = new Set();
+  private disabled = false; // stop reconnecting once we give up
+  private listeners: Set<(notification: Notification) => void> = new Set();
 
   constructor(private url: string) {}
 
   connect() {
+    if (!this.url) {
+      console.warn('[NotificationService] Missing WS url, skip connect');
+      this.disabled = true;
+      return;
+    }
+
+    if (this.disabled) {
+      console.warn('[NotificationService] Disabled (max retries reached or not configured)');
+      return;
+    }
+
     if (this.ws?.readyState === WebSocket.OPEN) {
       console.log('[NotificationService] Already connected');
       return;
@@ -33,7 +45,8 @@ export class NotificationService {
       };
 
       this.ws.onerror = (error) => {
-        console.error('[NotificationService] WebSocket error:', error);
+        const details = this.normalizeError(error);
+        console.error('[NotificationService] WebSocket error', details);
       };
 
       this.ws.onclose = () => {
@@ -48,8 +61,10 @@ export class NotificationService {
   }
 
   private attemptReconnect() {
+    if (this.disabled) return;
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('[NotificationService] Max reconnect attempts reached');
+      console.error('[NotificationService] Max reconnect attempts reached — disabling further reconnects');
+      this.disabled = true;
       return;
     }
 
@@ -63,16 +78,16 @@ export class NotificationService {
     }, delay);
   }
 
-  subscribe(callback: (notification: any) => void) {
+  subscribe(callback: (notification: Notification) => void) {
     this.listeners.add(callback);
     return () => this.unsubscribe(callback);
   }
 
-  unsubscribe(callback: (notification: any) => void) {
+  unsubscribe(callback: (notification: Notification) => void) {
     this.listeners.delete(callback);
   }
 
-  private notifyListeners(notification: any) {
+  private notifyListeners(notification: Notification) {
     this.listeners.forEach(callback => {
       try {
         callback(notification);
@@ -82,7 +97,23 @@ export class NotificationService {
     });
   }
 
-  send(message: any) {
+  private normalizeError(error: unknown) {
+    if (typeof error === 'string') return { message: error, url: this.url, readyState: this.ws?.readyState };
+    if (error instanceof Event) {
+      const errEvent = error as ErrorEvent;
+      return {
+        type: errEvent.type,
+        message: errEvent.message || undefined,
+        filename: errEvent.filename || undefined,
+        url: this.url,
+        readyState: this.ws?.readyState,
+      };
+    }
+    if (error && typeof error === 'object') return { ...error, url: this.url, readyState: this.ws?.readyState };
+    return { message: 'Unknown WS error', url: this.url, readyState: this.ws?.readyState };
+  }
+
+  send(message: unknown) {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(message));
     } else {
@@ -95,6 +126,8 @@ export class NotificationService {
       this.ws.close();
       this.ws = null;
     }
+    this.disabled = true;
+    this.reconnectAttempts = this.maxReconnectAttempts;
     this.listeners.clear();
   }
 
