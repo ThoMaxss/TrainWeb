@@ -42,7 +42,7 @@ export function SearchSection({ className, showTitle = true }: { className?: str
   return (
     <div className={cn("w-full", className)}>
       {showTitle && <Display className="mb-6 text-center">Bạn muốn đi đâu?</Display>}
-      <Card className="mx-auto max-w-5xl border-0 shadow-xl rounded-2xl overflow-hidden">
+      <Card className="mx-auto max-w-5xl rounded-2xl border border-slate-200 bg-white/60 backdrop-blur shadow-sm overflow-hidden">
           {/* Trip Type Toggle */}
           <div className="flex border-b bg-muted/30">
             <button
@@ -53,7 +53,7 @@ export function SearchSection({ className, showTitle = true }: { className?: str
               )}
             >
               Một chiều
-              {tripType === 'one-way' && <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />}
+              {tripType === 'one-way' && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary" />}
             </button>
             <button
               onClick={() => setTripType('round-trip')}
@@ -63,7 +63,7 @@ export function SearchSection({ className, showTitle = true }: { className?: str
               )}
             >
               Khứ hồi
-              {tripType === 'round-trip' && <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />}
+              {tripType === 'round-trip' && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary" />}
             </button>
           </div>
 
@@ -94,7 +94,7 @@ export function SearchSection({ className, showTitle = true }: { className?: str
                   variant="outline"
                   size="icon"
                   onClick={swapLocations}
-                  className="h-12 w-12 rounded-full hover:bg-primary/10 hover:text-primary hover:border-primary transition-all shrink-0 mb-0.5"
+                  className="h-12 w-12 rounded-full border border-slate-200 bg-white/70 text-slate-600 hover:bg-white hover:text-slate-900 transition"
                   aria-label="Đổi điểm đi và điểm đến"
                 >
                   <ArrowRightLeft className="h-5 w-5" />
@@ -155,7 +155,7 @@ export function SearchSection({ className, showTitle = true }: { className?: str
 
                 {/* Search button */}
                 <Button
-                  className="h-12 px-8 gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-hover-primary hover:to-hover-primary/90 focus-visible:ring-2 focus-visible:ring-ring font-semibold transition-all shadow-md hover:shadow-lg"
+                  className="h-12 px-8 gap-2 bg-primary hover:bg-primary/90 text-white font-semibold shadow-sm"
                   onClick={handleSearch}
                 >
                   <Search className="h-4 w-4" />
