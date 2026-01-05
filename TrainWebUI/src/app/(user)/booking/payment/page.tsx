@@ -28,7 +28,7 @@ interface OptionalServices {
   insurance: boolean;
 }
 
-type UIPaymentMethod = "bank_card" | "e_wallet" | "bank_transfer";
+type UIPaymentMethod = "bank_card" | "momo" | "bank_transfer";
 
 export default function PaymentPage() {
   const router = useRouter();
@@ -42,7 +42,7 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
-  const [paymentMethod, setPaymentMethod] = useState<UIPaymentMethod>("bank_card");
+  const [paymentMethod, setPaymentMethod] = useState<UIPaymentMethod>("momo");
   const [cardNumber, setCardNumber] = useState("");
   const [cardHolder, setCardHolder] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
@@ -133,7 +133,7 @@ export default function PaymentPage() {
                 if (!bookingData) return null;
                 // Prefer seat from ticket if backend returns nested ticket
                 const seatSource = bookingData.ticket?.seat ?? (bookingData as { seat?: unknown }).seat;
-                const seat = seatSource;
+                const seat = seatSource as any; // Type assertion to handle dynamic seat structure
                 if (seat && seat.id) {
                   const seatLabel = typeof seat.type === 'string'
                     ? (seat.type.toLowerCase() === 'soft' ? "Ngồi mềm điều hòa" : "Ngồi cứng")
@@ -227,20 +227,15 @@ export default function PaymentPage() {
         setProcessing(false);
         return;
       }
-    } else if (paymentMethod === "e_wallet") {
-      if (!phoneNumber) {
-        alert("Vui lòng nhập số điện thoại");
-        setProcessing(false);
-        return;
-      }
     }
+    // MoMo không cần validate vì sẽ redirect sang trang MoMo
 
     try {
       // Process payment through API
       const methodEnum =
         paymentMethod === "bank_card"
           ? PaymentMethod.Visa
-          : paymentMethod === "e_wallet"
+          : paymentMethod === "momo"
           ? PaymentMethod.Momo
           : PaymentMethod.VnPay;
 
@@ -348,25 +343,42 @@ export default function PaymentPage() {
               </CardHeader>
               <CardContent>
                 <RadioGroup value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as UIPaymentMethod)}>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                    <RadioGroupItem value="momo" id="momo" />
+                    <Label htmlFor="momo" className="flex items-center space-x-3 cursor-pointer flex-1">
+                      <div className="w-10 h-10 bg-payment-momo rounded-lg flex items-center justify-center">
+                        <Smartphone className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Ví MoMo</div>
+                        <div className="text-xs text-muted-foreground">Thanh toán qua ứng dụng MoMo</div>
+                      </div>
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                     <RadioGroupItem value="bank_card" id="bank_card" />
-                    <Label htmlFor="bank_card" className="flex items-center space-x-2 cursor-pointer">
-                      <CreditCard className="h-4 w-4" />
-                      <span>Thẻ ngân hàng</span>
+                    <Label htmlFor="bank_card" className="flex items-center space-x-3 cursor-pointer flex-1">
+                      <div className="w-10 h-10 bg-payment-bank rounded-lg flex items-center justify-center">
+                        <CreditCard className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Thẻ ngân hàng</div>
+                        <div className="text-xs text-muted-foreground">Visa, Mastercard, JCB</div>
+                      </div>
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="e_wallet" id="e_wallet" />
-                    <Label htmlFor="e_wallet" className="flex items-center space-x-2 cursor-pointer">
-                      <Smartphone className="h-4 w-4" />
-                      <span>Ví điện tử (MoMo, ZaloPay)</span>
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
+                  
+                  <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                     <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-                    <Label htmlFor="bank_transfer" className="flex items-center space-x-2 cursor-pointer">
-                      <Building className="h-4 w-4" />
-                      <span>Chuyển khoản ngân hàng</span>
+                    <Label htmlFor="bank_transfer" className="flex items-center space-x-3 cursor-pointer flex-1">
+                      <div className="w-10 h-10 bg-payment-transfer rounded-lg flex items-center justify-center">
+                        <Building className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Chuyển khoản ngân hàng</div>
+                        <div className="text-xs text-muted-foreground">Chuyển khoản qua Internet Banking</div>
+                      </div>
                     </Label>
                   </div>
                 </RadioGroup>
@@ -425,20 +437,26 @@ export default function PaymentPage() {
               </Card>
             )}
 
-            {paymentMethod === "e_wallet" && (
+            {paymentMethod === "momo" && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Thông tin ví điện tử</CardTitle>
+                  <CardTitle>Thanh toán MoMo</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div>
-                    <Label htmlFor="phoneNumber">Số điện thoại</Label>
-                    <Input
-                      id="phoneNumber"
-                      placeholder="0912345678"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                    />
+                  <div className="bg-payment-momo/10 dark:bg-payment-momo-dark/20 p-4 rounded-lg border border-payment-momo/30 dark:border-payment-momo-dark/30">
+                    <div className="flex gap-3">
+                      <Smartphone className="h-5 w-5 text-payment-momo dark:text-payment-momo flex-shrink-0 mt-0.5" />
+                      <div className="text-sm space-y-2">
+                        <p className="font-medium text-payment-momo-dark dark:text-payment-momo">Hướng dẫn thanh toán:</p>
+                        <ol className="list-decimal list-inside space-y-1 text-payment-momo-dark/80 dark:text-payment-momo/80">
+                          <li>Nhấn nút "Thanh toán" bên dưới</li>
+                          <li>Bạn sẽ được chuyển đến trang thanh toán MoMo</li>
+                          <li>Quét mã QR bằng ứng dụng MoMo hoặc đăng nhập</li>
+                          <li>Xác nhận thanh toán trên ứng dụng</li>
+                          <li>Hệ thống sẽ tự động chuyển về sau khi hoàn tất</li>
+                        </ol>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

@@ -15,6 +15,27 @@ import AuthLayout from "@/components/auth/AuthLayout";
 
 import type { MeResponse, UserProfile, UserRole } from "@/types";
 
+// Local role normalizer to handle numeric enums (0/1/2) or string values from backend
+function normalizeRoleValue(role: unknown): UserRole {
+  if (typeof role === "number") {
+    if (role === 2) return "admin";
+    if (role === 1) return "staff";
+    return "passenger";
+  }
+  if (typeof role === "string") {
+    const r = role.trim().toLowerCase();
+    // Handle numeric strings
+    if (r === "2") return "admin";
+    if (r === "1") return "staff";
+    if (r === "0") return "passenger";
+    // Handle word strings (Admin, Staff, Passenger)
+    if (r === "admin") return "admin";
+    if (r === "staff") return "staff";
+    if (r === "passenger") return "passenger";
+  }
+  return "passenger";
+}
+
 export default function LoginClient() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -45,19 +66,20 @@ export default function LoginClient() {
 
       // 3) Call BE to get profile/role (pass token to be safe)
       const me: MeResponse = await getProfile(idToken);
+      const normalizedRole = normalizeRoleValue(me.role);
 
       if (process.env.NEXT_PUBLIC_DEBUG === 'true') {
         console.debug('[auth] login token length:', idToken?.length, 'profile:', me);
       }
 
       if (typeof login === "function") {
-        const payload: UserProfile = {
-          id: me.id,
-          email: me.email,
-          name: me.name,
-          role: (me.role as unknown as UserRole) ?? "passenger",
-          createdAt: me.createdAt ?? null,
-        };
+          const payload: UserProfile = {
+            id: me.id,
+            email: me.email,
+            name: me.name,
+            role: normalizedRole,
+            createdAt: me.createdAt ?? null,
+          };
         login(payload);
       }
 
@@ -67,7 +89,7 @@ export default function LoginClient() {
         return;
       }
 
-      switch (me.role) {
+      switch (normalizedRole) {
         case "admin":
           router.push("/admin-dashboard");
           break;

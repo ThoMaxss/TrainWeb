@@ -38,6 +38,14 @@
   --color-info: #0EA5E9; /* Sky-500: Standard blue-ish */
   --color-momo: #A50064; /* MoMo brand color (magenta) */
 
+  /* Payment Methods */
+  --color-payment-momo: #EC407A; /* Pink-400 */
+  --color-payment-momo-dark: #880E4F; /* Pink-900 */
+  --color-payment-bank: #2196F3; /* Blue-500 */
+  --color-payment-bank-dark: #0D47A1; /* Blue-900 */
+  --color-payment-transfer: #4CAF50; /* Green-500 */
+  --color-payment-transfer-dark: #1B5E20; /* Green-900 */
+
   /* Interaction */
   --color-hover-primary: color-mix(in srgb, var(--color-primary) 90%, white);
   --color-active-primary: color-mix(in srgb, var(--color-primary) 80%, black);
@@ -82,6 +90,11 @@
   --color-success: #34D399; /* Emerald-400 */
   --color-warning: #FBBF24; /* Amber-400 */
   --color-info: #22D3EE; /* Cyan-400 */
+
+  /* Payment Methods (Dark Mode) */
+  --color-payment-momo: #F06292; /* Pink-300 */
+  --color-payment-bank: #64B5F6; /* Blue-300 */
+  --color-payment-transfer: #81C784; /* Green-300 */
 }
 
 /* ===============================

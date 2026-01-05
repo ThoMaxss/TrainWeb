@@ -36,6 +36,12 @@ const config: Config = {
         "active-primary": "var(--color-active-primary)",
         "hover-accent": "var(--color-hover-accent)",
         "active-accent": "var(--color-active-accent)",
+        "payment-momo": "var(--color-payment-momo)",
+        "payment-momo-dark": "var(--color-payment-momo-dark)",
+        "payment-bank": "var(--color-payment-bank)",
+        "payment-bank-dark": "var(--color-payment-bank-dark)",
+        "payment-transfer": "var(--color-payment-transfer)",
+        "payment-transfer-dark": "var(--color-payment-transfer-dark)",
       },
       boxShadow: {
         card: "0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08)",
