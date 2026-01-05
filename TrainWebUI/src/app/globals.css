@@ -2,6 +2,10 @@
    Tailwind CSS v4 - OPTIMIZED
    =============================== */
 @import "tailwindcss";
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+
 
 /* ===============================
    🎨 THEME CONFIGURATION (Tailwind v4 format)

@@ -10,9 +10,6 @@ import { Train, MapPin, Sparkles, ShieldCheck, ChevronRight, Clock } from 'lucid
 import { Display, H2, H3, Body, Lead } from '@/components/ui/typography';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
@@ -31,7 +28,6 @@ export default function HomePage() {
           priority
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/50" />
         
         <div className="container mx-auto px-4 md:px-8 py-16 md:py-20 flex flex-col items-center">
           <motion.div
@@ -40,12 +36,10 @@ export default function HomePage() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="flex flex-col items-center text-center"
           >
-            <Display className="text-white drop-shadow-lg">
-              Sẵn sàng cho chuyến đi?
+            <Display className="w-full relative overflow-hidden flex flex-col items-center py-13 px-0 box-border gap-12 bg-cover bg-no-repeat bg-[top] text-left text-[60px] text-white font-sans font-bold leading-[150%]">
+      			<b className="relative tracking-[-0.03em] leading-[100%]">Sẵn sàng cho chuyến đi?</b>
             </Display>
-            <Lead className="mt-3 max-w-2xl text-white/90">
-              Tìm kiếm, so sánh và đặt vé tàu trên toàn quốc một cách dễ dàng
-            </Lead>
+  
             <div className="mt-3">
               <DynamicClientTime />
             </div>
@@ -66,13 +60,13 @@ export default function HomePage() {
 
       {/* WHY CHOOSE TRAINBOOK */}
       <section className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20">
-        <div className="text-center mb-12 md:mb-16">
-          <Display>Tại sao chọn TrainBook?</Display>
+        <div className="relative text-3xl tracking-[-0.02em] leading-[120%] font-inter text-gray text-center mb-12">
+          <Display>Vì sao nên lựa chọn GoRail?</Display>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
             { icon: MapPin, title: 'Tìm kiếm dễ dàng', desc: 'Giao diện trực quan giúp bạn nhanh chóng tìm chuyến tàu phù hợp' },
-            { icon: Sparkles, title: 'Chọn chỗ bạn thích', desc: 'Bản đồ ghế interactif giúp chọn vị trí ngồi một cách dễ dàng' },
+            { icon: Sparkles, title: 'Chọn chỗ bạn thích', desc: 'Bản đồ ghế cụ thể giúp chọn vị trí ngồi một cách dễ dàng' },
             { icon: ShieldCheck, title: 'Thanh toán an toàn', desc: 'Hệ thống bảo mật cao, bảo vệ thông tin khách hàng tuyệt đối' },
           ].map((item, i) => {
             const IconComponent = item.icon;
@@ -101,7 +95,7 @@ export default function HomePage() {
       <section className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20">
         <div className="flex items-center gap-3 mb-6">
           <Train className="w-7 h-7 text-primary" aria-hidden="true" />
-          <H2 className="text-3xl font-bold">TrainBook</H2>
+          <H2 className="text-3xl font-bold">GoRail</H2>
         </div>
         <Body className="max-w-3xl mb-12 text-lg">
           Nền tảng đặt vé tàu hỏa hiện đại của Việt Nam, kết nối hành khách với mạng lưới đường sắt quốc gia. Khám phá những điểm đến nổi bật từ Hà Nội, Huế, Đà Nẵng, Nha Trang đến TP.HCM một cách dễ dàng và tiện lợi.
@@ -181,7 +175,7 @@ export default function HomePage() {
       <section className="bg-muted/30">
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20">
           <div className="flex items-center justify-between mb-12">
-            <H2 className="text-3xl font-bold">Ưu đãi mới nhất</H2>
+            <H2 className="text-3xl font-bold">Mã giảm giá vé tàu</H2>
             <Link href="/promotions" className="text-sm font-medium text-primary hover:underline flex items-center gap-2">
               Xem tất cả <ChevronRight className="w-4 h-4" />
             </Link>
@@ -258,9 +252,8 @@ export default function HomePage() {
               <Image
                 src={partner.img}
                 alt={partner.alt}
-                width={100}
+                width={60}
                 height={50}
-                className="object-contain h-12 w-auto grayscale hover:grayscale-0 transition-all duration-300"
                 loading="lazy"
               />
             </motion.div>

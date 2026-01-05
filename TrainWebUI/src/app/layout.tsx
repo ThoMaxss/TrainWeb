@@ -53,16 +53,14 @@ export default function RootLayout({
         <Script id="sw-register" strategy="afterInteractive">
           {`
             const __GORAIL_ENABLE_SW = ${process.env.NEXT_PUBLIC_ENABLE_SW === 'true' ? 'true' : 'false'};
+
             if ('serviceWorker' in navigator) {
               window.addEventListener('load', async () => {
                 try {
-                  if (__GORAIL_ENABLE_SW === 'true') {
-                    // Normal behavior: register the SW
-                    navigator.serviceWorker.register('/sw.js')
-                      .then((registration) => console.log('SW registered:', registration))
-                      .catch((error) => console.log('SW registration failed:', error));
+                  if (__GORAIL_ENABLE_SW) {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('SW registered:', registration);
                   } else {
-                    // If SW is disabled (dev mode), proactively unregister any existing SWs
                     const regs = await navigator.serviceWorker.getRegistrations();
                     if (regs && regs.length) {
                       await Promise.all(regs.map(r => r.unregister()));
@@ -72,7 +70,6 @@ export default function RootLayout({
                         await Promise.all(keys.map(k => caches.delete(k)));
                         console.log('Gorail: cleared caches', keys);
                       }
-                      // reload so the page fetches fresh, non-SW cached assets
                       window.location.reload();
                     }
                   }
