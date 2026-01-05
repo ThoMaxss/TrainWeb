@@ -41,7 +41,7 @@ function SearchPageContent() {
       <Header />
 
       {/* Search Section */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
+      <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <SearchSection />
         </div>

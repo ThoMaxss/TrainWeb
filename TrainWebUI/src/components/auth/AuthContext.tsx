@@ -34,9 +34,21 @@ const ROLE_HIERARCHY: Record<UserRole, number> = {
 };
 
 function normalizeRole(role: unknown): UserRole | null {
-  if (typeof role !== "string") return null;
-  const r = role.trim().toLowerCase();
-  if (r === "admin" || r === "staff" || r === "passenger") return r;
+  // Handle numeric enums from BE (0: passenger, 1: staff, 2: admin)
+  if (typeof role === "number") {
+    if (role === 2) return "admin";
+    if (role === 1) return "staff";
+    if (role === 0) return "passenger";
+  }
+
+  if (typeof role === "string") {
+    const r = role.trim().toLowerCase();
+    if (r === "2") return "admin";
+    if (r === "1") return "staff";
+    if (r === "0") return "passenger";
+    if (r === "admin" || r === "staff" || r === "passenger") return r;
+  }
+
   return null;
 }
 
@@ -54,6 +66,13 @@ function safeLocalStorageGet(key: string): string | null {
   } catch {
     return null;
   }
+}
+
+function safeLocalStorageRemove(key: string) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(key);
+  } catch {}
 }
 
 // BE /api/User/me có thể trả PascalCase hoặc camelCase => normalize
@@ -82,7 +101,6 @@ function asBool(v: unknown): boolean | undefined {
   }
   return undefined;
 }
-
 
 function mapMe(raw: RawMe): UserProfile {
   const id =
@@ -122,27 +140,30 @@ function mapMe(raw: RawMe): UserProfile {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [authState, setAuthState] = useState<AuthState>(() => {
-    // Optimistic restore from localStorage
-    const stored = safeLocalStorageGet("gorail_user");
-    if (stored) {
-      try {
-        const user = JSON.parse(stored) as UserProfile;
-        return {
-          user,
-          isLoading: true, // Still verify with Firebase in background
-          isAuthenticated: true,
-          role: user.role ?? "passenger",
-        };
-      } catch {}
-    }
-    return {
-      user: null,
-      isLoading: true,
-      isAuthenticated: false,
-      role: null,
-    };
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    isLoading: true,
+    isAuthenticated: false,
+    role: null,
   });
+
+  // Restore from localStorage on client after hydration to avoid SSR mismatch
+  useEffect(() => {
+    const stored = safeLocalStorageGet("gorail_user");
+    if (!stored) return;
+    try {
+      const user = JSON.parse(stored) as UserProfile;
+      const role = user.role ?? "passenger";
+      setAuthState((prev) => ({
+        ...prev,
+        user,
+        role,
+        isAuthenticated: true,
+      }));
+    } catch {
+      // ignore invalid cache
+    }
+  }, []);
 
   const setAndPersist = useCallback((user: UserProfile | null, role: UserRole | null) => {
     if (user) {

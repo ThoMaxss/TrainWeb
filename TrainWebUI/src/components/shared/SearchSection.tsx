@@ -9,7 +9,7 @@ import { TripSearchParams } from '@/types';
 import { H2, Small, Display } from '@/components/ui/typography';
 import { cn } from '@/lib/utils';
 
-export function SearchSection() {
+export function SearchSection({ className, showTitle = true }: { className?: string; showTitle?: boolean }) {
   const router = useRouter();
   const [tripType, setTripType] = useState<'one-way' | 'round-trip'>('one-way');
   const [from, setFrom] = useState<string>('Hà Nội (HAN)');
@@ -40,10 +40,9 @@ export function SearchSection() {
   };
 
   return (
-    <div className="w-full bg-gradient-to-br from-primary/5 via-background to-secondary/5 border-b">
-      <div className="container mx-auto px-4 lg:px-8 py-6">
-        <Display className="mb-6 text-center">Bạn muốn đi đâu?</Display>
-        <Card className="mx-auto max-w-5xl border-0 shadow-xl rounded-2xl overflow-hidden">
+    <div className={cn("w-full", className)}>
+      {showTitle && <Display className="mb-6 text-center">Bạn muốn đi đâu?</Display>}
+      <Card className="mx-auto max-w-5xl border-0 shadow-xl rounded-2xl overflow-hidden">
           {/* Trip Type Toggle */}
           <div className="flex border-b bg-muted/30">
             <button
@@ -167,7 +166,6 @@ export function SearchSection() {
             </div>
           </div>
         </Card>
-      </div>
     </div>
   );
 }
