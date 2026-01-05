@@ -22,7 +22,7 @@ export default function HomePage() {
       <Header />
 
       {/* HERO SECTION */}
-      <section className="relative w-full h-[400px] md:h-[520px] overflow-hidden">
+      <section className="relative isolate w-full min-h-[500px] md:min-h-[600px] flex flex-col justify-center overflow-hidden">
         <Image
           src="/image/hero-train.png"
           alt="Tàu hỏa Việt Nam chạy qua cảnh quan thiên nhiên đẹp"
@@ -33,7 +33,7 @@ export default function HomePage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/50" />
         
-        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 md:px-8 pt-16 md:pt-20">
+        <div className="container mx-auto px-4 md:px-8 py-16 md:py-20 flex flex-col items-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -58,7 +58,7 @@ export default function HomePage() {
             className="mt-8 w-full max-w-2xl md:max-w-5xl"
           >
             <div className="rounded-2xl bg-background/95 backdrop-blur-md border border-border shadow-2xl px-4 py-6 md:px-8 md:py-8">
-              <SearchSection />
+              <SearchSection showTitle={false} />
             </div>
           </motion.div>
         </div>
