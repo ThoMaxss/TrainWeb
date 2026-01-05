@@ -43,10 +43,14 @@ function normalizeRole(role: unknown): UserRole | null {
 
   if (typeof role === "string") {
     const r = role.trim().toLowerCase();
+    // Numeric strings
     if (r === "2") return "admin";
     if (r === "1") return "staff";
     if (r === "0") return "passenger";
-    if (r === "admin" || r === "staff" || r === "passenger") return r;
+    // Word strings (Admin, Staff, Passenger or already lowercase)
+    if (r === "admin") return "admin";
+    if (r === "staff") return "staff";
+    if (r === "passenger") return "passenger";
   }
 
   return null;
@@ -153,11 +157,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!stored) return;
     try {
       const user = JSON.parse(stored) as UserProfile;
-      const role = user.role ?? "passenger";
+      const normalizedRole = normalizeRole(user.role) ?? "passenger";
+      const normalizedUser: UserProfile = { ...user, role: normalizedRole };
       setAuthState((prev) => ({
         ...prev,
-        user,
-        role,
+        user: normalizedUser,
+        role: normalizedRole,
         isAuthenticated: true,
       }));
     } catch {
@@ -167,7 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const setAndPersist = useCallback((user: UserProfile | null, role: UserRole | null) => {
     if (user) {
-      const normalizedRole = role ?? user.role ?? "passenger";
+      const normalizedRole = normalizeRole(role ?? user.role) ?? "passenger";
       const normalizedUser: UserProfile = { ...user, role: normalizedRole };
 
       safeLocalStorageSet("gorail_user", JSON.stringify(normalizedUser));
@@ -260,7 +265,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // giữ login() để tương thích luồng cũ
   const login = useCallback(
     (user: UserProfile) => {
-      const role = user.role ?? "passenger";
+      const role = normalizeRole(user.role) ?? "passenger";
       setAndPersist(user, role);
     },
     [setAndPersist]
