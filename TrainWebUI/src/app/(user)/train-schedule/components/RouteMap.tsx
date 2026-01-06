@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { TripDto } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -40,8 +40,9 @@ export function RouteMap({ trip }: RouteMapProps) {
     );
   }
 
-  const departureCoords = STATION_COORDINATES[trip.originStation || ''];
-  const arrivalCoords = STATION_COORDINATES[trip.destinationStation || ''];
+  const originName = trip.originStationName || "";
+  const destinationName = trip.destinationStationName || "";
+
 
   // Calculate positions for SVG (normalized to 0-100%)
   const getPosition = (station: string) => {
@@ -61,8 +62,8 @@ export function RouteMap({ trip }: RouteMapProps) {
     return { x, y };
   };
 
-  const departurePos = getPosition(trip.originStation || '');
-  const arrivalPos = getPosition(trip.destinationStation || '');
+ const departurePos = getPosition(trip.originStationName ?? trip.originStationId ?? "");
+  const arrivalPos = getPosition(trip.destinationStationName ?? trip.destinationStationId ?? "");
 
   // Generate intermediate points for curved path
   const midX = (departurePos.x + arrivalPos.x) / 2;
@@ -93,12 +94,13 @@ export function RouteMap({ trip }: RouteMapProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
               <p className="text-muted-foreground mb-1">Tàu</p>
-              <p className="font-bold">{trip.train?.name || "Không xác định"}</p>
+              <p className="font-bold">{trip.trainName ?? trip.trainId ?? "Không xác định"}</p>
             </div>
             <div>
               <p className="text-muted-foreground mb-1">Tuyến</p>
               <p className="font-bold">
-                {trip.originStation} → {trip.destinationStation}
+              {trip.originStationName ?? trip.originStationId ?? "?"} →{" "}
+              {trip.destinationStationName ?? trip.destinationStationId ?? "?"}
               </p>
             </div>
             <div>
@@ -179,7 +181,7 @@ export function RouteMap({ trip }: RouteMapProps) {
                 textAnchor="middle"
                 className="text-xs font-bold fill-primary"
               >
-                {trip.originStation}
+                {trip.originStationName ?? trip.originStationId ?? "Không xác định"}
               </text>
             </g>
 
@@ -204,7 +206,7 @@ export function RouteMap({ trip }: RouteMapProps) {
                 textAnchor="middle"
                 className="text-xs font-bold fill-success"
               >
-                {trip.destinationStation}
+                {trip.destinationStationName ?? trip.destinationStationId ?? "Không xác định"}
               </text>
             </g>
 
@@ -251,7 +253,7 @@ export function RouteMap({ trip }: RouteMapProps) {
             <div className="flex items-center gap-2 mb-2">
               <MapPin className="h-5 w-5" />
               <h4 className="font-semibold">
-                {trip.originStation}
+                 {trip.originStationName ?? trip.originStationId ?? "Không xác định"}
               </h4>
             </div>
             <div className="space-y-1 text-sm">
@@ -269,7 +271,7 @@ export function RouteMap({ trip }: RouteMapProps) {
             <div className="flex items-center gap-2 mb-2">
               <MapPin className="h-5 w-5" />
               <h4 className="font-semibold">
-                {trip.destinationStation}
+                {trip.destinationStationName ?? trip.destinationStationId ?? "Không xác định"}
               </h4>
             </div>
             <div className="space-y-1 text-sm">

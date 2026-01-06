@@ -58,126 +58,217 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* WHY CHOOSE TRAINBOOK */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20">
-        <div className="relative text-3xl tracking-[-0.02em] leading-[120%] font-inter text-gray text-center mb-12">
-          <Display>Vì sao nên lựa chọn GoRail?</Display>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            { icon: MapPin, title: 'Tìm kiếm dễ dàng', desc: 'Giao diện trực quan giúp bạn nhanh chóng tìm chuyến tàu phù hợp' },
-            { icon: Sparkles, title: 'Chọn chỗ bạn thích', desc: 'Bản đồ ghế cụ thể giúp chọn vị trí ngồi một cách dễ dàng' },
-            { icon: ShieldCheck, title: 'Thanh toán an toàn', desc: 'Hệ thống bảo mật cao, bảo vệ thông tin khách hàng tuyệt đối' },
-          ].map((item, i) => {
-            const IconComponent = item.icon;
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-              >
-                <Card className="h-full rounded-2xl border hover:border-primary hover:shadow-lg transition-all p-8 flex flex-col items-center text-center bg-card">
-                  <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
-                    <IconComponent className="w-8 h-8 text-primary" aria-hidden="true" />
-                  </div>
-                  <H3 className="mb-2 font-semibold">{item.title}</H3>
-                  <Body className="text-muted-foreground leading-relaxed">{item.desc}</Body>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
-      </section>
+      {/* WHY CHOOSE GORAIL */}
+    <section className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8 py-16 md:py-20">
+      <div className="text-center mb-12">
+        <Display className="text-3xl md:text-4xl tracking-[-0.02em] leading-[120%]">
+          Vì sao nên lựa chọn GoRail?
+        </Display>
+        <Lead className="mt-3 text-muted-foreground">
+          Nhanh – tiện – an toàn, tối ưu trải nghiệm đặt vé tàu cho mọi hành trình.
+        </Lead>
+      </div>
 
-      {/* ABOUT TRAINBOOK */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20">
-        <div className="flex items-center gap-3 mb-6">
-          <Train className="w-7 h-7 text-primary" aria-hidden="true" />
-          <H2 className="text-3xl font-bold">GoRail</H2>
-        </div>
-        <Body className="max-w-3xl mb-12 text-lg">
-          Nền tảng đặt vé tàu hỏa hiện đại của Việt Nam, kết nối hành khách với mạng lưới đường sắt quốc gia. Khám phá những điểm đến nổi bật từ Hà Nội, Huế, Đà Nẵng, Nha Trang đến TP.HCM một cách dễ dàng và tiện lợi.
-        </Body>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[
+          {
+            key: "search",
+            icon: MapPin,
+            title: "Tìm kiếm dễ dàng",
+            desc: "Giao diện trực quan giúp bạn nhanh chóng tìm chuyến tàu phù hợp.",
+          },
+          {
+            key: "seatmap",
+            icon: Sparkles,
+            title: "Chọn chỗ bạn thích",
+            desc: "Bản đồ toa/ghế rõ ràng giúp chọn vị trí ngồi dễ dàng.",
+          },
+          {
+            key: "payment",
+            icon: ShieldCheck,
+            title: "Thanh toán an toàn",
+            desc: "Bảo mật cao, bảo vệ thông tin khách hàng và giao dịch.",
+          },
+        ].map((item, i) => {
+          const Icon = item.icon;
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          return (
+            <motion.div
+              key={item.key}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.55, ease: "easeOut", delay: i * 0.08 }}
+            >
+              <Card className="h-full rounded-2xl border bg-card p-8 text-center transition-all hover:border-primary/60 hover:shadow-lg">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+                  <Icon className="h-8 w-8 text-primary" aria-hidden="true" />
+                </div>
+
+                <H3 className="mb-2 font-semibold">{item.title}</H3>
+                <Body className="text-muted-foreground leading-relaxed">
+                  {item.desc}
+                </Body>
+              </Card>
+            </motion.div>
+          );
+        })}
+      </div>
+    </section>
+
+      {/* ABOUT GORAIL */}
+      <section className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-[60px] py-12 sm:py-14 lg:py-[72px]">
+        <div className="grid grid-cols-1 lg:grid-cols-[520px_1fr] gap-10 lg:gap-16 items-center">
+          {/* Left content */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="max-w-[520px]"
           >
-            <H2 className="text-2xl font-bold mb-4">Dịch vụ đặt vé tàu hiện đại</H2>
-            <Body className="text-lg text-muted-foreground mb-4">
-              Hoạt động như một dịch vụ đặt vé độc lập, GoRail kết nối với Đường sắt Việt Nam (VNR) để mở rộng phạm vi toàn quốc.
+            <H2 className="text-3xl md:text-4xl font-bold tracking-tight">
+              Dịch vụ đặt vé tàu hiện đại
+            </H2>
+
+            <Body className="mt-5 text-base md:text-lg text-muted-foreground leading-relaxed">
+              Hoạt động như một dịch vụ đặt vé độc lập, GoRail kết nối với Đường sắt Việt Nam (VNR)
+              để mở rộng phạm vi toàn quốc.
             </Body>
-            <Body className="text-lg text-muted-foreground">
-              Bên cạnh tính năng đặt vé, GoRail còn hỗ trợ chọn chỗ ngồi chi tiết và thanh toán bảo mật với nhiều phương thức.
+
+            <Body className="mt-4 text-base md:text-lg text-muted-foreground leading-relaxed">
+              Bên cạnh tính năng đặt vé, GoRail còn hỗ trợ chọn chỗ ngồi chi tiết và thanh toán bảo mật
+              với nhiều phương thức.
             </Body>
+
+            <div className="mt-7 flex flex-wrap gap-3">
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs md:text-sm font-semibold text-primary">
+                Tìm kiếm nhanh
+              </span>
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs md:text-sm font-semibold text-primary">
+                Chọn chỗ ngồi
+              </span>
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs md:text-sm font-semibold text-primary">
+                Thanh toán an toàn
+              </span>
+            </div>
           </motion.div>
+
+          {/* Right image */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="relative h-[350px] md:h-[450px] w-full"
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.05 }}
+            className="relative w-full overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm
+                      aspect-[16/10] lg:aspect-[16/9] lg:justify-self-end lg:max-w-[820px]"
           >
             <Image
-              src="https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=800&q=80"
+              src="/image/about-gorail.png"
               alt="Hệ thống tàu hỏa hiện đại"
               fill
-              className="object-cover rounded-2xl"
+              className="object-cover object-center"
               loading="lazy"
+              sizes="(max-width: 1024px) 100vw, 820px"
             />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
           </motion.div>
         </div>
       </section>
 
       {/* TRAIN MAP VIETNAM */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20">
-        <div className="text-center mb-12 md:mb-16">
-          <Display>Bản đồ tàu hỏa Việt Nam</Display>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <Lead className="text-lg mb-6">
-              Bản đồ này làm nổi bật những tuyến đường sắt phổ biến nhất, bao gồm <span className="font-semibold">Hà Nội, Huế, Đà Nẵng, Nha Trang và TP.HCM</span>.
-            </Lead>
-            <Body className="text-lg text-muted-foreground">
-              Tuyến Bắc–Nam lịch sử dài hơn 1.700 km là một trong những hành trình đường sắt đẹp nhất và hấp dẫn nhất khu vực Đông Nam Á.
-            </Body>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="relative h-[350px] md:h-[450px] w-full"
-          >
-            <Image
-              src="https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80"
-              alt="Bản đồ tuyến đường sắt Bắc-Nam"
-              fill
-              className="object-cover rounded-2xl"
-              loading="lazy"
-            />
-          </motion.div>
+      <section className="relative py-12 sm:py-14 lg:py-[72px]">
+        <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-[60px]">
+          {/* Heading */}
+          <div className="text-center mb-10 lg:mb-12">
+            <Display className="tracking-tight text-3xl sm:text-4xl lg:text-4xl">
+              Bản đồ tàu hỏa Việt Nam
+            </Display>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-10 lg:gap-14 items-center">
+            {/* Left content */}
+            <motion.div
+              initial={{ opacity: 0, x: -22 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="max-w-[560px] space-y-6 lg:mt-10"
+            >
+              <Lead className="text-base sm:text-lg leading-relaxed">
+                Bản đồ này làm nổi bật những tuyến đường sắt phổ biến nhất, bao gồm{" "}
+                <span className="font-semibold text-foreground">
+                  Hà Nội, Huế, Đà Nẵng, Nha Trang và TP.HCM
+                </span>
+                .
+              </Lead>
+
+              <Body className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+                Tuyến Bắc–Nam lịch sử dài hơn{" "}
+                <span className="font-semibold text-foreground">1.700 km</span> là một trong những hành trình
+                đường sắt đẹp nhất và hấp dẫn nhất khu vực Đông Nam Á.
+              </Body>
+
+              <div className="flex flex-wrap gap-3 pt-1">
+                <span className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs sm:text-sm font-semibold text-primary">
+                  Tuyến Bắc–Nam
+                </span>
+                <span className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs sm:text-sm font-semibold text-primary">
+                  Các ga nổi bật
+                </span>
+                <span className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs sm:text-sm font-semibold text-primary">
+                  Gợi ý hành trình
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Right image card */}
+            <motion.div
+              initial={{ opacity: 0, x: 22 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur border border-black/5 shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
+            >
+              {/* Tăng “độ đầy” của map: giảm padding + tăng min-height vừa đủ */}
+              <div className="relative w-full min-h-[380px] sm:min-h-[460px] lg:min-h-[560px] p-2 sm:p-3">
+                <Image
+                  src="/image/trainmap.png"
+                  alt="Bản đồ tuyến đường sắt Việt Nam"
+                  fill
+                  className="object-contain object-center"
+                  loading="lazy"
+                  sizes="(max-width: 1024px) 100vw, 900px"
+                />
+              </div>
+
+              {/* subtle highlight để card “nổi” hơn */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent" />
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* LATEST PROMOTIONS */}
       <section className="bg-muted/30">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20">
-          <div className="flex items-center justify-between mb-12">
-            <H2 className="text-3xl font-bold">Mã giảm giá vé tàu</H2>
-            <Link href="/promotions" className="text-sm font-medium text-primary hover:underline flex items-center gap-2">
-              Xem tất cả <ChevronRight className="w-4 h-4" />
+        <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-[60px] py-12 sm:py-14 lg:py-[72px]">
+          {/* Header */}
+          <div className="mb-10 flex items-end justify-between gap-6">
+            <div>
+              <H2 className="text-3xl sm:text-4xl font-bold tracking-tight">
+                Mã giảm giá vé tàu
+              </H2>
+              <p className="mt-2 text-sm sm:text-base text-muted-foreground">
+                Ưu đãi nổi bật hôm nay — số lượng có hạn.
+              </p>
+            </div>
+
+            <Link
+              href="/promotions"
+              className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold text-primary
+                        hover:bg-primary/5 transition"
+            >
+              Xem tất cả <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
 
@@ -194,30 +285,85 @@ export default function HomePage() {
             className="w-full"
           >
             {[
-              { img: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=640&q=80', title: 'Giảm 20% vé đi Đà Lạt Express' },
-              { img: 'https://images.unsplash.com/photo-1559628376-f3fe5f782a2e?w=640&q=80', title: 'Giảm 25% chuyến ven biển Đà Nẵng' },
-              { img: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=640&q=80', title: 'Giảm 30% vé khứ hồi Nha Trang' },
+              {
+                img: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&q=80&auto=format&fit=crop",
+                title: "Giảm 20% vé đi Đà Lạt Express",
+                discount: "20%",
+                tag: "Tuyến hot",
+              },
+              {
+                img: "https://images.unsplash.com/photo-1559628376-f3fe5f782a2e?w=1200&q=80&auto=format&fit=crop",
+                title: "Giảm 25% chuyến ven biển Đà Nẵng",
+                discount: "25%",
+                tag: "Cuối tuần",
+              },
+              {
+                img: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1200&q=80&auto=format&fit=crop",
+                title: "Giảm 30% vé khứ hồi Nha Trang",
+                discount: "30%",
+                tag: "Best deal",
+              },
             ].map((promo, i) => (
               <SwiperSlide key={i}>
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.1 }}
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.35 }}
+                  transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.08 }}
+                  className="h-full"
                 >
-                  <Card className="overflow-hidden rounded-2xl border hover:border-primary hover:shadow-lg transition-all h-full flex flex-col bg-card">
-                    <div className="relative h-[200px] w-full">
+                  <Card
+                    className="group relative h-full overflow-hidden rounded-3xl border bg-card shadow-sm
+                              transition-all hover:-translate-y-1 hover:shadow-lg"
+                  >
+                    {/* Image */}
+                    <div className="relative h-[220px] w-full">
                       <Image
                         src={promo.img}
                         alt={promo.title}
                         fill
-                        className="object-cover"
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         loading="lazy"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
+                      {/* overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
+
+                      {/* badge discount */}
+                      <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1 text-xs font-bold text-foreground backdrop-blur">
+                        <span className="text-primary">-{promo.discount}</span>
+                        <span className="text-muted-foreground font-semibold">OFF</span>
+                      </div>
+
+                      {/* tag */}
+                      <div className="absolute right-4 top-4 rounded-full bg-black/35 px-3 py-1 text-xs font-semibold text-white">
+                        {promo.tag}
+                      </div>
                     </div>
-                    <div className="p-6 flex-1 flex flex-col justify-end">
-                      <H3 className="text-lg font-semibold text-foreground">{promo.title}</H3>
+
+                    {/* Content */}
+                    <div className="p-6">
+                      <H3 className="text-lg sm:text-xl font-semibold leading-snug">
+                        {promo.title}
+                      </H3>
+
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        Áp dụng cho một số chuyến/tuyến. Kiểm tra điều kiện khi đặt vé.
+                      </p>
+
+                      <div className="mt-5 flex items-center justify-between">
+                        <span className="text-sm font-semibold text-primary">
+                          Lấy mã ngay
+                        </span>
+
+                        <button
+                          className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground
+                                    hover:opacity-95 transition"
+                          type="button"
+                        >
+                          Nhận ưu đãi
+                        </button>
+                      </div>
                     </div>
                   </Card>
                 </motion.div>
@@ -227,110 +373,155 @@ export default function HomePage() {
         </div>
       </section>
 
+
       {/* PARTNERS */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20">
-        <div className="text-center mb-12">
-          <Display>Đối tác của chúng tôi</Display>
+      <section className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-[60px] py-12 sm:py-14 lg:py-[72px]">
+        {/* Heading */}
+        <div className="text-center mb-10 lg:mb-12">
+          <Display className="text-3xl sm:text-4xl font-bold tracking-tight">
+            Đối tác của chúng tôi
+          </Display>
+          <p className="mx-auto mt-3 max-w-[720px] text-sm sm:text-base text-muted-foreground">
+            Kết nối với các đối tác vận hành và thanh toán để mang đến trải nghiệm đặt vé an toàn.
+          </p>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+
+        {/* Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5 lg:gap-6">
           {[
-            { name: 'VNR', img: '/image/partner1.jpg', alt: 'Đường sắt Việt Nam' },
-            { name: 'ViettelPay', img: '/image/partner2.png', alt: 'ViettelPay' },
-            { name: 'MoMo', img: '/image/partner3.png', alt: 'MoMo' },
-            { name: 'VNPay', img: '/image/partner4.jpg', alt: 'VNPay' },
-            { name: 'ZaloPay', img: '/image/partner5.png', alt: 'ZaloPay' },
-            { name: 'Mastercard', img: '/image/partner6.png', alt: 'Mastercard' },
-          ].map((partner) => (
+            { name: "VNR", img: "/image/partner1.jpg", alt: "Đường sắt Việt Nam" },
+            { name: "ViettelPay", img: "/image/partner2.png", alt: "ViettelPay" },
+            { name: "MoMo", img: "/image/partner3.png", alt: "MoMo" },
+            { name: "VNPay", img: "/image/partner4.jpg", alt: "VNPay" },
+            { name: "ZaloPay", img: "/image/partner5.png", alt: "ZaloPay" },
+            { name: "Mastercard", img: "/image/partner6.png", alt: "Mastercard" },
+          ].map((partner, i) => (
             <motion.div
               key={partner.name}
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center justify-center rounded-xl border border-border hover:border-primary bg-card p-6 transition-all cursor-pointer"
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.45, ease: "easeOut", delay: i * 0.05 }}
+              whileHover={{ y: -4 }}
+              className="group"
             >
-              <Image
-                src={partner.img}
-                alt={partner.alt}
-                width={60}
-                height={50}
-                loading="lazy"
-              />
+              <div
+                className="relative flex items-center justify-center rounded-2xl border border-black/5
+                          bg-white/60 backdrop-blur shadow-sm
+                          transition-all duration-300
+                          hover:shadow-md hover:bg-white/80 hover:border-primary/30
+                          h-[88px] sm:h-[96px]"
+                role="button"
+                tabIndex={0}
+                aria-label={partner.alt}
+              >
+                {/* logo */}
+                <Image
+                  src={partner.img}
+                  alt={partner.alt}
+                  fill
+                  className="object-contain p-5 opacity-95 transition-all duration-300 group-hover:opacity-100"
+                  loading="lazy"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                />
+
+                {/* subtle highlight */}
+                <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-white/40 via-transparent to-transparent" />
+              </div>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* TICKET CLASSES */}
-      <section className="bg-muted/30">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20">
-          <div className="text-center mb-12">
-            <Display>Loại vé tàu</Display>
-            <Lead className="mt-4 max-w-2xl mx-auto">
-              Chọn từ nhiều hạng vé từ tiết kiệm đến cao cấp, phù hợp với mọi nhu cầu và ngân sách
-            </Lead>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                title: 'Ghế cứng',
-                subtitle: 'Standard Class',
-                desc: 'Giá rẻ nhất, phù hợp quãng ngắn và khách du lịch tiết kiệm',
-                img: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=640&q=80',
-              },
-              {
-                title: 'Ghế mềm',
-                subtitle: 'Comfort Class',
-                desc: 'Ghế mềm điều hòa, ngả lưng thoải mái, thích hợp hành trình xa',
-                img: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=640&q=80',
-              },
-              {
-                title: 'Giường nằm',
-                subtitle: 'Premium Class',
-                desc: 'Khoang giường VIP 6/4/2, lý tưởng cho hành trình đêm dài',
-                img: 'https://images.unsplash.com/photo-1489824904134-891ab64532f1?w=640&q=80',
-              },
-            ].map((ticketClass, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-              >
-                <Card className="overflow-hidden rounded-2xl border hover:border-primary hover:shadow-lg transition-all flex flex-col h-full bg-card">
-                  <div className="relative h-[220px] w-full">
-                    <Image
-                      src={ticketClass.img}
-                      alt={ticketClass.title}
-                      fill
-                      className="object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="p-6 flex flex-col flex-1">
-                    <Body className="text-sm text-primary font-medium mb-1">{ticketClass.subtitle}</Body>
-                    <H3 className="text-xl font-bold mb-3">{ticketClass.title}</H3>
-                    <Body className="text-muted-foreground flex-1">{ticketClass.desc}</Body>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
+<section className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-[60px] py-12 sm:py-14 lg:py-[72px]">
+  <div className="text-center mb-10 lg:mb-12">
+    <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Loại vé tàu</h2>
+    <p className="mx-auto mt-3 max-w-[760px] text-sm sm:text-base text-muted-foreground">
+      Chọn từ nhiều hạng vé từ tiết kiệm đến cao cấp, phù hợp với mọi nhu cầu và ngân sách.
+    </p>
+  </div>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+    {[
+      {
+        tier: "Standard Class",
+        title: "Ghế cứng",
+        desc: "Giá rẻ nhất, phù hợp quãng ngắn và khách du lịch tiết kiệm.",
+        img: "/image/ticket-seat-hard.jpg",
+        tag: "Tiết kiệm",
+      },
+      {
+        tier: "Comfort Class",
+        title: "Ghế mềm",
+        desc: "Ghế mềm điều hòa, ngả lưng thoải mái, thích hợp hành trình xa.",
+        img: "/image/ticket-seat-soft.png",
+        tag: "Phổ biến",
+      },
+      {
+        tier: "Premium Class",
+        title: "Giường nằm",
+        desc: "Khoang giường 6/4/2, lý tưởng cho hành trình đêm dài.",
+        img: "/image/ticket-seat-hard.jpg",
+        tag: "Cao cấp",
+      },
+    ].map((c) => (
+      <article
+        key={c.title}
+        className="group h-full overflow-hidden rounded-3xl border bg-card shadow-sm transition-all
+                   hover:-translate-y-1 hover:shadow-lg flex flex-col"
+      >
+        {/* Image */}
+        <div className="relative w-full aspect-[16/9] bg-muted">
+          <Image
+            src={c.img}
+            alt={`${c.title} - khoang tàu`}
+            fill
+            className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            loading="lazy"
+            onError={(e) => {
+              // fallback nếu sai đường dẫn / thiếu file
+              const target = e.target as HTMLImageElement;
+              target.src = "/image/fallback.jpg"; // bạn có thể tạo fallback.jpg trong public/image/
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/10 to-transparent" />
+
+          <div className="absolute left-4 top-4 inline-flex items-center rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-foreground backdrop-blur">
+            {c.tag}
           </div>
         </div>
-      </section>
+
+        {/* Content */}
+        <div className="p-6 flex flex-col flex-1">
+          <p className="text-xs font-semibold text-primary">{c.tier}</p>
+          <h3 className="mt-2 text-xl font-bold tracking-tight">{c.title}</h3>
+          <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
+            {c.desc}
+          </p>
+
+          {/* CTA luôn nằm đáy => card đều */}
+          <div className="mt-auto pt-5">
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-full border bg-background px-4 py-2 text-sm font-semibold
+                         hover:bg-primary/5 transition"
+            >
+              Xem chi tiết
+            </button>
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
+
 
       {/* CUSTOMER SUPPORT BANNER */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-secondary/80 to-accent/70" />
         <div className="absolute inset-0 opacity-10">
-          <Image
-            src="/image/customer-service-bg.jpg"
-            alt="Background"
-            fill
-            className="object-cover"
-            loading="lazy"
-          />
         </div>
         <div className="relative max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20">
           <div className="rounded-2xl bg-background/95 backdrop-blur border border-white/20 shadow-xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 max-w-4xl">
@@ -350,17 +541,6 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* FINAL CTA */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-20 text-center">
-        <Display className="mb-6">Bắt đầu hành trình của bạn</Display>
-        <Lead className="max-w-2xl mx-auto mb-8">
-          Tìm kiếm và đặt vé tàu hỏa với giá tốt nhất trên GoRail ngay hôm nay
-        </Lead>
-        <Button asChild size="lg" className="rounded-xl min-w-[200px]">
-          <Link href="/search">Tìm kiếm vé tàu</Link>
-        </Button>
       </section>
 
       {/* FOOTER */}

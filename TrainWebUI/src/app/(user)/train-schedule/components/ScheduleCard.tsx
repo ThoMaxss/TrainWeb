@@ -4,17 +4,16 @@ import { TripDto } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Train, 
-  MapPin, 
-  Clock, 
+import {
+  Train,
+  MapPin,
+  Clock,
   Calendar,
   ArrowRight,
   Users,
   DollarSign,
-  Map
+  Map,
 } from "lucide-react";
-import { cn } from "@/lib/utils/utils";
 
 interface ScheduleCardProps {
   trip: TripDto;
@@ -24,7 +23,16 @@ interface ScheduleCardProps {
 export function ScheduleCard({ trip, onViewRoute }: ScheduleCardProps) {
   const departureDate = trip.departure ? new Date(trip.departure) : null;
   const arrivalDate = trip.arrival ? new Date(trip.arrival) : null;
-  
+
+  const trainLabel = trip.trainName ?? trip.trainId ?? "Không xác định";
+  const trainCode = trip.trainId ?? "N/A";
+  const trainType = trip.trainType ?? "";
+
+  const originLabel =
+    trip.originStationName ?? trip.originStationId ?? "—";
+  const destinationLabel =
+    trip.destinationStationName ?? trip.destinationStationId ?? "—";
+
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("vi-VN", {
       hour: "2-digit",
@@ -41,7 +49,7 @@ export function ScheduleCard({ trip, onViewRoute }: ScheduleCardProps) {
   };
 
   const calculateDuration = () => {
-    if (!arrivalDate || !departureDate) return '—';
+    if (!arrivalDate || !departureDate) return "—";
     const diff = arrivalDate.getTime() - departureDate.getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -50,7 +58,9 @@ export function ScheduleCard({ trip, onViewRoute }: ScheduleCardProps) {
 
   const getAvailabilityStatus = () => {
     const available = trip.seatsAvailable ?? 0;
-    const percentage = available > 40 ? 60 : available > 15 ? 30 : available > 0 ? 10 : 0;
+    const percentage =
+      available > 40 ? 60 : available > 15 ? 30 : available > 0 ? 10 : 0;
+
     if (percentage > 50) return { label: "Còn nhiều chỗ", variant: "default" as const };
     if (percentage > 20) return { label: "Còn ít chỗ", variant: "secondary" as const };
     if (percentage > 0) return { label: "Sắp hết chỗ", variant: "destructive" as const };
@@ -69,13 +79,15 @@ export function ScheduleCard({ trip, onViewRoute }: ScheduleCardProps) {
               <Train className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold text-lg text-foreground">{trip.train?.name || "Không xác định"}</h3>
-              <p className="text-sm text-muted-foreground">Mã: {trip.train?.id || "N/A"}</p>
+              <h3 className="font-bold text-lg text-foreground">{trainLabel}</h3>
+              <p className="text-sm text-muted-foreground">
+                Mã: {trainCode}
+                {trainType ? ` • Loại: ${trainType}` : ""}
+              </p>
             </div>
           </div>
-          <Badge variant={status.variant}>
-            {status.label}
-          </Badge>
+
+          <Badge variant={status.variant}>{status.label}</Badge>
         </div>
 
         {/* Route: Departure -> Arrival */}
@@ -86,11 +98,15 @@ export function ScheduleCard({ trip, onViewRoute }: ScheduleCardProps) {
               <MapPin className="h-4 w-4" />
               <span>Ga đi</span>
             </div>
-            <p className="font-bold text-xl text-foreground">{trip.originStation || '—'}</p>
+            <p className="font-bold text-xl text-foreground">{originLabel}</p>
+
             <div className="flex items-center gap-2 text-sm">
               <Clock className="h-4 w-4" />
-              <span className="font-semibold">{departureDate ? formatTime(departureDate) : '—'}</span>
+              <span className="font-semibold">
+                {departureDate ? formatTime(departureDate) : "—"}
+              </span>
             </div>
+
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Calendar className="h-3 w-3" />
               {departureDate ? <span>{formatDate(departureDate)}</span> : <span>—</span>}
@@ -111,11 +127,16 @@ export function ScheduleCard({ trip, onViewRoute }: ScheduleCardProps) {
               <span>Ga đến</span>
               <MapPin className="h-4 w-4" />
             </div>
-            <p className="font-bold text-xl text-foreground">{trip.destinationStation || '—'}</p>
+
+            <p className="font-bold text-xl text-foreground">{destinationLabel}</p>
+
             <div className="flex items-center justify-end gap-2 text-sm">
-              <span className="font-semibold">{arrivalDate ? formatTime(arrivalDate) : '—'}</span>
+              <span className="font-semibold">
+                {arrivalDate ? formatTime(arrivalDate) : "—"}
+              </span>
               <Clock className="h-4 w-4" />
             </div>
+
             <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
               {arrivalDate ? <span>{formatDate(arrivalDate)}</span> : <span>—</span>}
               <Calendar className="h-3 w-3" />
@@ -130,6 +151,7 @@ export function ScheduleCard({ trip, onViewRoute }: ScheduleCardProps) {
               <Users className="h-4 w-4 text-muted-foreground" />
               <span className="font-medium">{trip.seatsAvailable ?? 0} chỗ trống</span>
             </div>
+
             <div className="flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-muted-foreground" />
               <span className="font-bold text-lg">—</span>
@@ -146,11 +168,8 @@ export function ScheduleCard({ trip, onViewRoute }: ScheduleCardProps) {
               <Map className="h-4 w-4" />
               Xem tuyến
             </Button>
-            <Button
-              size="sm"
-              disabled={(trip.seatsAvailable ?? 0) === 0}
-              className="gap-2"
-            >
+
+            <Button size="sm" disabled={(trip.seatsAvailable ?? 0) === 0} className="gap-2">
               Đặt vé
             </Button>
           </div>
