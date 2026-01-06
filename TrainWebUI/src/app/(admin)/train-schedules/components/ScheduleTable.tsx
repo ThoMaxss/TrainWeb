@@ -47,22 +47,16 @@ export function ScheduleTable({
     if ((trip.seatsAvailable ?? 0) <= 0) {
       return (
         <Badge variant="destructive">
-          Hết chỗ
+          Hết ghế
         </Badge>
       );
     }
     const available = trip.seatsAvailable ?? 0;
-    if (available > 50) {
-      return (
-        <Badge variant="default">
-          Còn nhiều chỗ
-        </Badge>
-      );
-    }
+
     if (available > 0) {
       return (
         <Badge variant="secondary">
-          Còn ít chỗ
+          Còn ghế
         </Badge>
       );
     }
@@ -100,13 +94,13 @@ export function ScheduleTable({
             return (
               <TableRow key={trip.id} className="hover:bg-muted/50">
                 <TableCell className="font-mono font-medium">
-                  {trip.train?.name || `ID:${trip.train?.id || '—'}`}
+                  {trip.trainId}
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="font-medium">{trip.train?.name || "Không xác định"}</span>
+                    <span className="font-medium">{trip.trainName || "Không xác định"}</span>
                     <span className="text-xs text-muted-foreground">
-                      {trip.train?.type || "N/A"}
+                      {trip.trainType || "N/A"}
                     </span>
                   </div>
                 </TableCell>
@@ -115,11 +109,11 @@ export function ScheduleTable({
                     <div className="flex flex-col">
                       <div className="flex items-center gap-1 text-sm">
                         <MapPin className="h-3 w-3 text-primary" />
-                        <span className="font-medium">{trip.originStation}</span>
+                        <span className="font-medium">{trip.originStationName}</span>
                       </div>
                       <div className="flex items-center gap-1 text-sm">
                         <MapPin className="h-3 w-3 text-destructive" />
-                        <span className="font-medium">{trip.destinationStation}</span>
+                        <span className="font-medium">{trip.destinationStationName}</span>
                       </div>
                     </div>
                   </div>

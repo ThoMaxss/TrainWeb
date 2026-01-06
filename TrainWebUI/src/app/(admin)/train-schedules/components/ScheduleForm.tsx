@@ -34,15 +34,19 @@ interface ScheduleFormProps {
 
 // Danh sách ga
 const STATIONS = [
-  "Hà Nội",
-  "Sài Gòn",
-  "Đà Nẵng",
-  "Huế",
-  "Nha Trang",
-  "Vinh",
-  "Lào Cai",
-  "Hải Phòng",
-  "Quy Nhơn",
+  {"id": "HN", "name": "Hà Nội"},
+  {"id": "SG", "name": "Sài Gòn"},
+  {"id": "DN", "name": "Đà Nẵng"},
+  {"id": "HUE", "name": "Huế"},
+  {"id": "NT", "name": "Nha Trang"},
+  {"id": "VI", "name": "Vinh"},
+  {"id": "LC", "name": "Lào Cai"},
+  {"id": "HP", "name": "Hải Phòng"},
+  {"id": "QN", "name": "Quy Nhơn"},
+  {"id": "CT", "name": "Cần Thơ"},
+  {"id": "BD", "name": "Bình Định"},
+  {"id": "QT", "name": "Quảng Trị"},
+  {"id": "BT", "name": "Bình Thuận"},
 ];
 
 export function ScheduleForm({
@@ -56,10 +60,15 @@ export function ScheduleForm({
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     trainId: "",
-    originStation: "",
-    destinationStation: "",
+    trainName: "",
+    trainType: "",
+    originStationId: "",
+    originStationName: "",
+    destinationStationId: "",
+    destinationStationName: "",
     departure: "",
     arrival: "",
+    seatsAvailable: 240,
     // fields not in TripDto are removed
   });
 
@@ -70,20 +79,30 @@ export function ScheduleForm({
   useEffect(() => {
     if (trip && mode === "edit") {
       setFormData({
-        trainId: trip.train?.id || "",
-        originStation: trip.originStation || "",
-        destinationStation: trip.destinationStation || "",
+        trainId: trip.trainId || "",
+        trainName: trip.trainName || "",
+        trainType: trip.trainType || "",
+        originStationId: trip.originStationId || "",
+        originStationName: trip.originStationName || "",
+        destinationStationId: trip.destinationStationId || "",
+        destinationStationName: trip.destinationStationName || "",
         departure: trip.departure ? new Date(trip.departure).toISOString().slice(0, 16) : "",
         arrival: trip.arrival ? new Date(trip.arrival).toISOString().slice(0, 16) : "",
+        seatsAvailable: trip.seatsAvailable || 240,
       });
     } else if (mode === "create") {
       // Reset form for create mode
       setFormData({
         trainId: "",
-        originStation: "",
-        destinationStation: "",
+        trainName: "",
+        trainType: "",
+        originStationId: "",
+        originStationName: "",
+        destinationStationId: "",
+        destinationStationName: "",
         departure: "",
         arrival: "",
+        seatsAvailable: 240,
       });
     }
   }, [trip, mode, open]);
@@ -104,11 +123,16 @@ export function ScheduleForm({
 
     try {
       await onSave({
-        train: formData.trainId ? { id: formData.trainId } : undefined,
-        originStation: formData.originStation,
-        destinationStation: formData.destinationStation,
+        trainId: formData.trainId,
+        trainName: formData.trainName,
+        trainType: formData.trainType,
+        originStationId: formData.originStationId,
+        originStationName: formData.originStationName,
+        destinationStationId: formData.destinationStationId,
+        destinationStationName: formData.destinationStationName,
         departure: formData.departure ? new Date(formData.departure).toISOString() : undefined,
         arrival: formData.arrival ? new Date(formData.arrival).toISOString() : undefined,
+        seatsAvailable: formData.seatsAvailable,
       } as Partial<TripDto>);
       onOpenChange(false);
     } catch (error) {
@@ -119,10 +143,16 @@ export function ScheduleForm({
   };
 
   const handleTrainChange = (trainId: string) => {
-    setFormData({
-      ...formData,
-      trainId,
-    });
+    const selectedTrain = trains.find(t => t.id === trainId)
+  if (!selectedTrain) return
+
+  setFormData({
+    ...formData,
+    trainId: trainId,
+    trainName: selectedTrain.name ?? "",
+    trainType: selectedTrain.type ?? "",
+  })
+  console.log("Selected train ID:", formData);
   };
 
   return (
@@ -154,7 +184,7 @@ export function ScheduleForm({
               <SelectTrigger>
                 <SelectValue placeholder="Chọn tàu" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border border-border shadow-md">
                 {trains.map((train, idx) => (
                   <SelectItem key={train.id ?? String(idx)} value={train.id ?? ""}>
                     {train.name} ({train.type || 'N/A'})
@@ -172,19 +202,19 @@ export function ScheduleForm({
                 Ga đi <span className="text-destructive">*</span>
               </Label>
               <Select
-                value={formData.originStation}
+                value={formData.originStationName}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, originStation: value })
+                  setFormData({ ...formData, originStationId: STATIONS.find(s => s.name === value)?.id ?? "", originStationName: value })
                 }
                 required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn ga đi" />
                 </SelectTrigger>
-                <SelectContent>
+                  <SelectContent className="bg-background border border-border shadow-md">
                   {STATIONS.map((station) => (
-                    <SelectItem key={station} value={station}>
-                      {station}
+                    <SelectItem key={station.id} value={station.name}>
+                      {station.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -197,19 +227,19 @@ export function ScheduleForm({
                 Ga đến <span className="text-destructive">*</span>
               </Label>
               <Select
-                value={formData.destinationStation}
+                value={formData.destinationStationName}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, destinationStation: value })
+                  setFormData({ ...formData, destinationStationId: STATIONS.find(s => s.name === value)?.id ?? "", destinationStationName: value })
                 }
                 required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn ga đến" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background border border-border shadow-md">
                   {STATIONS.map((station) => (
-                    <SelectItem key={station} value={station}>
-                      {station}
+                    <SelectItem key={station.id} value={station.name}>
+                      {station.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

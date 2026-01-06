@@ -10,6 +10,8 @@ namespace TrainWeb.Application.DTOS
         public string? TrainName { get; set; }
         public string? TrainType { get; set; }
 
+        public TrainDto? Train { get; set; }
+
         public DateTime? Departure { get; set; }
         public DateTime? Arrival { get; set; }
 

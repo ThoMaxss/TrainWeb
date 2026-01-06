@@ -52,8 +52,8 @@ export function RoutePreview({ trip }: RoutePreviewProps) {
     return { x, y };
   };
 
-  const departurePos = getPosition(trip.originStation || "");
-  const arrivalPos = getPosition(trip.destinationStation || "");
+  const departurePos = getPosition(trip.originStationName || "");
+  const arrivalPos = getPosition(trip.destinationStationName || "");
 
   const midX = (departurePos.x + arrivalPos.x) / 2;
   const midY = (departurePos.y + arrivalPos.y) / 2;
@@ -91,9 +91,9 @@ export function RoutePreview({ trip }: RoutePreviewProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Tàu</p>
-              <p className="font-bold text-lg">{trip.train?.name || "Không xác định"}</p>
+              <p className="font-bold text-lg">{trip.trainName || "Không xác định"}</p>
               <p className="text-xs text-muted-foreground">
-                {trip.train?.type || "N/A"}
+                {trip.trainType || "N/A"}
               </p>
             </div>
           </div>
@@ -102,7 +102,7 @@ export function RoutePreview({ trip }: RoutePreviewProps) {
             <div>
               <p className="text-xs text-muted-foreground mb-1">Tuyến</p>
               <p className="font-semibold text-sm">
-                {(trip.originStation || "")} → {(trip.destinationStation || "")}
+                {(trip.originStationName || "")} → {(trip.destinationStationName || "")}
               </p>
             </div>
             <div>
@@ -150,7 +150,7 @@ export function RoutePreview({ trip }: RoutePreviewProps) {
                 textAnchor="middle"
                 className="text-[10px] font-bold fill-primary"
               >
-                {trip.originStation || "—"}
+                {trip.originStationName || "—"}
               </text>
             </g>
 
@@ -164,7 +164,7 @@ export function RoutePreview({ trip }: RoutePreviewProps) {
                 textAnchor="middle"
                 className="text-[10px] font-bold fill-success"
               >
-                {trip.destinationStation}
+                {trip.destinationStationName || "—"}
               </text>
             </g>
 
@@ -189,7 +189,7 @@ export function RoutePreview({ trip }: RoutePreviewProps) {
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="h-5 w-5" />
               <h4 className="font-semibold">
-                {trip.originStation}
+                {trip.originStationName}
               </h4>
             </div>
             <div className="space-y-2 text-sm">
@@ -215,7 +215,7 @@ export function RoutePreview({ trip }: RoutePreviewProps) {
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="h-5 w-5" />
               <h4 className="font-semibold">
-                {trip.destinationStation || "—"}
+                {trip.destinationStationName || "—"}
               </h4>
             </div>
             <div className="space-y-2 text-sm">
