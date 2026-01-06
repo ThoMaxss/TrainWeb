@@ -8,7 +8,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { CreditCard, Smartphone, Building, Check } from "lucide-react";
 import { getBookingById, successBooking } from "@/lib/api/booking";
 import { createPayment, successPayment } from "@/lib/api/payment";
@@ -30,14 +29,28 @@ interface OptionalServices {
 
 type UIPaymentMethod = "bank_card" | "momo" | "bank_transfer";
 
+/** ✅ thay any bằng type rõ ràng */
+type SeatLike = {
+  id: string;
+  seatNumber?: string;
+  price?: number;
+  type?: SeatType | string;
+};
+
+function isSeatLike(value: unknown): value is SeatLike {
+  if (!value || typeof value !== "object") return false;
+  const v = value as { id?: unknown };
+  return typeof v.id === "string" && v.id.length > 0;
+}
+
 export default function PaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [bookings, setBookings] = useState<BookingDto[]>([]);
   const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
-  const [optionalServices, setOptionalServices] = useState<OptionalServices>({ 
-    meal: false, 
-    insurance: false 
+  const [optionalServices, setOptionalServices] = useState<OptionalServices>({
+    meal: false,
+    insurance: false,
   });
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -47,143 +60,126 @@ export default function PaymentPage() {
   const [cardHolder, setCardHolder] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [cvv, setCvv] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
 
   const bookingIdsParam = searchParams.get("bookingId");
-  // Memoize to avoid new array on every render which retriggers effects
   const bookingIds = useMemo(
     () => bookingIdsParam?.split(",").filter(Boolean) || [],
     [bookingIdsParam]
   );
 
-  console.log(`🔍 Payment page - bookingIdsParam: "${bookingIdsParam}", parsed IDs:`, bookingIds);
-
   useEffect(() => {
     let mounted = true;
+
     async function loadBookingData() {
       try {
         if (bookingIds.length === 0) {
           throw new Error("No booking IDs provided in URL");
         }
 
-        console.log(`🔄 Starting loadBookingData() at ${new Date().toISOString()}`);
         setLoading(true);
-        
-        console.log(`🔄 Loading ${bookingIds.length} bookings:`, bookingIds);
-        
-        // Load all bookings in parallel with timeout
+
         const bookingPromises = bookingIds.map(async (id: string) => {
-          console.log(`📥 Fetching booking: ${id} at ${new Date().toISOString()}`);
-          const timeoutPromise = new Promise((_, reject) => 
+          const timeoutPromise = new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error("Booking fetch timeout (20s)")), 20000)
           );
-          
+
           try {
-            const result = await Promise.race([
-              getBookingById(id),
-              timeoutPromise
-            ]);
-            console.log(`✅ Successfully fetched booking ${id}:`, result);
+            const result = await Promise.race([getBookingById(id), timeoutPromise]);
             return result;
           } catch (err) {
             console.error(`❌ Failed to fetch booking ${id}:`, err);
-            return null; // Return null on error instead of throwing
+            return null;
           }
         });
-        
-        console.log('⏳ Waiting for all booking promises to resolve...');
+
         const loadedBookings = (await Promise.all(bookingPromises)).filter(Boolean);
-        console.log(`✅ Loaded ${loadedBookings.length} bookings:`, loadedBookings);
-        
+
         if (mounted) {
           let bookingsToUse: BookingDto[] = [];
           let seatsToUse: SelectedSeat[] = [];
 
           if (loadedBookings.length === 0) {
             console.warn("⚠️ Không thể load bookings từ backend. Thử fallback sang session storage.");
-            // Try to get booking data from session storage (set by confirm page)
-            const fallbackData = sessionStorage.getItem('pendingBooking');
+            const fallbackData = sessionStorage.getItem("pendingBooking");
+
             if (fallbackData) {
               try {
-                const { seats, tripId } = JSON.parse(fallbackData);
-                console.log("📦 Using fallback booking data:", { seats, tripId });
+                const { seats } = JSON.parse(fallbackData) as { seats?: SelectedSeat[] };
                 seatsToUse = seats || [];
-                // Create demo bookings for display purposes
-                bookingsToUse = (seats || []).map((seat: { id?: string }, idx: number) => ({
+                bookingsToUse = (seats || []).map((_, idx: number) => ({
                   id: bookingIds[idx] || `demo-${Date.now()}-${idx}`,
-                  seat: seat,
                   status: BookingStatus.Reserved,
-                }));
+                })) as BookingDto[];
               } catch (parseErr) {
                 console.error("Failed to parse fallback data", parseErr);
-                // Create minimal fallback
-                bookingsToUse = bookingIds.map((id: string) => ({ id, status: BookingStatus.Reserved }));
+                bookingsToUse = bookingIds.map((id: string) => ({
+                  id,
+                  status: BookingStatus.Reserved,
+                })) as BookingDto[];
               }
             } else {
-              console.warn("⚠️ No fallback data in session storage, creating minimal state");
-              // Create minimal state to allow page to render
-              bookingsToUse = bookingIds.map((id: string) => ({ id, status: BookingStatus.Reserved }));
+              bookingsToUse = bookingIds.map((id: string) => ({
+                id,
+                status: BookingStatus.Reserved,
+              })) as BookingDto[];
             }
           } else {
-            // Use loaded bookings
             bookingsToUse = loadedBookings as BookingDto[];
-            // Transform all booking seats to SelectedSeat format (prefer ticket.seat if available)
+
             seatsToUse = (loadedBookings as BookingDto[])
-              .map((bookingData: BookingDto | null) => {
-                if (!bookingData) return null;
-                // Prefer seat from ticket if backend returns nested ticket
-                const seatSource = bookingData.ticket?.seat ?? (bookingData as { seat?: unknown }).seat;
-                const seat = seatSource as any; // Type assertion to handle dynamic seat structure
-                if (seat && seat.id) {
-                  const seatLabel = typeof seat.type === 'string'
-                    ? (seat.type.toLowerCase() === 'soft' ? "Ngồi mềm điều hòa" : "Ngồi cứng")
-                    : (seat.type === SeatType.Soft ? "Ngồi mềm điều hòa" : "Ngồi cứng");
-                  return {
-                    id: seat.id!,
-                    coachNumber: 1,
-                    seatNumber: seat.seatNumber || "",
-                    seatType: seatLabel,
-                    price: seat.price || 0,
-                  };
-                }
-                return null;
+              .map((bookingData) => {
+                const seatSource: unknown =
+                  bookingData.ticket?.seat ??
+                  (bookingData as unknown as { seat?: unknown }).seat;
+
+                if (!isSeatLike(seatSource)) return null;
+
+                const seat = seatSource;
+
+                const seatLabel =
+                  typeof seat.type === "string"
+                    ? seat.type.toLowerCase() === "soft"
+                      ? "Ngồi mềm điều hòa"
+                      : "Ngồi cứng"
+                    : seat.type === SeatType.Soft
+                    ? "Ngồi mềm điều hòa"
+                    : "Ngồi cứng";
+
+                return {
+                  id: seat.id,
+                  coachNumber: 1,
+                  seatNumber: seat.seatNumber || "",
+                  seatType: seatLabel,
+                  price: seat.price || 0,
+                };
               })
               .filter((s): s is SelectedSeat => s !== null);
           }
 
           setBookings(bookingsToUse);
           setSelectedSeats(seatsToUse);
-          
-          // Initialize optional services (can be extended based on backend support)
-          setOptionalServices({
-            meal: false,
-            insurance: false,
-          });
+          setOptionalServices({ meal: false, insurance: false });
         }
       } catch (error) {
         console.error("Failed to load booking data:", error);
         if (mounted) {
-          // On error, still try to show payment page with fallback data
-          console.warn("⚠️ Attempting fallback due to error");
-          const fallbackData = sessionStorage.getItem('pendingBooking');
+          const fallbackData = sessionStorage.getItem("pendingBooking");
           if (fallbackData) {
             try {
-              const parsed = JSON.parse(fallbackData);
-              const { seats } = parsed;
-              const demoBookings = bookingIds.map((id: string, idx: number) => ({
-                id: id.startsWith('demo-') ? id : `demo-${Date.now()}-${idx}`,
+              const parsed = JSON.parse(fallbackData) as { seats?: SelectedSeat[] };
+              const demoBookings = bookingIds.map((id: string) => ({
+                id,
                 status: BookingStatus.Reserved,
-              }));
+              })) as BookingDto[];
               setBookings(demoBookings);
-              setSelectedSeats(seats || []);
-              console.log("✅ Fallback loaded successfully");
+              setSelectedSeats(parsed.seats || []);
             } catch (parseErr) {
               console.error("Fallback parse error", parseErr);
-              alert(`⚠️ Không thể tải dữ liệu. Vui lòng quay lại và thử lại.`);
+              alert("⚠️ Không thể tải dữ liệu. Vui lòng quay lại và thử lại.");
               router.back();
             }
           } else {
-            alert(`⚠️ Không thể tải thông tin đặt vé. Vui lòng quay lại và thử lại.`);
+            alert("⚠️ Không thể tải thông tin đặt vé. Vui lòng quay lại và thử lại.");
             router.back();
           }
         }
@@ -192,25 +188,21 @@ export default function PaymentPage() {
       }
     }
 
-    if (bookingIds.length === 0) {
-      console.error("❌ No booking IDs provided");
-      return;
-    }
+    if (bookingIds.length === 0) return;
 
     loadBookingData();
-    return () => { mounted = false; };
-  }, [bookingIdsParam, router]);
+    return () => {
+      mounted = false;
+    };
+  }, [bookingIds, router]);
 
-  // Calculate prices
   const ticketTotal = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
   const mealPrice = optionalServices.meal ? 50000 : 0;
   const insurancePrice = optionalServices.insurance ? 25000 : 0;
   const serviceTotal = mealPrice + insurancePrice;
   const grandTotal = ticketTotal + serviceTotal;
 
-  const handleBack = () => {
-    router.back();
-  };
+  const handleBack = () => router.back();
 
   const handlePayment = async () => {
     if (bookings.length === 0) {
@@ -220,7 +212,6 @@ export default function PaymentPage() {
 
     setProcessing(true);
 
-    // Validate form based on payment method
     if (paymentMethod === "bank_card") {
       if (!cardNumber || !cardHolder || !expiryDate || !cvv) {
         alert("Vui lòng điền đầy đủ thông tin thẻ");
@@ -228,10 +219,8 @@ export default function PaymentPage() {
         return;
       }
     }
-    // MoMo không cần validate vì sẽ redirect sang trang MoMo
 
     try {
-      // Process payment through API
       const methodEnum =
         paymentMethod === "bank_card"
           ? PaymentMethod.Visa
@@ -239,7 +228,6 @@ export default function PaymentPage() {
           ? PaymentMethod.Momo
           : PaymentMethod.VnPay;
 
-      // Create payment for first booking (or combine amounts)
       const paymentResult = await createPayment({
         booking: { id: bookings[0].id! },
         method: methodEnum,
@@ -247,47 +235,31 @@ export default function PaymentPage() {
         status: PaymentStatus.Pending,
       });
 
-      console.log("💳 Payment result:", paymentResult, "Type:", typeof paymentResult);
-
-      // Handle Momo redirect (if payment returns URL string)
-      if (typeof paymentResult === 'string') {
-        console.log("💳 Redirecting to MoMo payment page:", paymentResult);
-        // Redirect to real MoMo payment URL
+      if (typeof paymentResult === "string") {
         window.location.href = paymentResult;
         return;
       }
 
-      // Mark payment as successful
       await successPayment(paymentResult.id!);
 
-      // Important: call successBooking once per booking and make client-side idempotency guard
       for (const booking of bookings) {
+        const paidFlag =
+          typeof window !== "undefined" ? sessionStorage.getItem(`paid:${booking.id}`) : null;
+        if (paidFlag === "true") continue;
+
+        await successBooking(booking.id!);
+
         try {
-          // If sessionStorage indicates it's already handled, skip. successBooking sets flag itself.
-          const paidFlag = typeof window !== 'undefined' ? sessionStorage.getItem(`paid:${booking.id}`) : null;
-          if (paidFlag === 'true') {
-            console.log(`[Payment] Booking ${booking.id} already marked paid on client`);
-            continue;
-          }
-
-          await successBooking(booking.id!);
-
-          // Refetch booking to get ticketId (backend will have created ticket)
-          try {
-            await getBookingById(booking.id!);
-          } catch (err) {
-            console.warn(`Failed to fetch booking ${booking.id} after success call`, err);
-          }
+          await getBookingById(booking.id!);
         } catch (err) {
-          console.error(`Failed to mark booking ${booking.id} as success:`, err);
-          // Do not abort other bookings; log and continue. UI will show an error on redirect if needed.
+          console.warn(`Failed to fetch booking ${booking.id} after success call`, err);
         }
       }
 
-      console.log("✅ Payment successful, redirecting to success page");
-      // Navigate to success page with booking IDs and payment result
-      const bookingIdsString = bookings.map(b => b.id).join(",");
-      router.push(`/booking/success?bookingId=${bookingIdsString}&paymentId=${paymentResult.id}`);
+      const bookingIdsString = bookings.map((b) => b.id).join(",");
+      router.push(
+        `/booking/success?bookingId=${bookingIdsString}&paymentId=${paymentResult.id}`
+      );
     } catch (error) {
       console.error("Payment failed:", error);
       const errorMessage = error instanceof Error ? error.message : "Thanh toán thất bại";
@@ -310,8 +282,8 @@ export default function PaymentPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-muted-foreground mb-3">Không tìm thấy thông tin đặt vé</p>
-          <button 
-            onClick={() => router.back()} 
+          <button
+            onClick={() => router.back()}
             className="px-2 py-2 bg-primary text-primary-foreground rounded hover:bg-hover-primary"
           >
             Quay lại
@@ -324,7 +296,6 @@ export default function PaymentPage() {
   return (
     <div className="min-h-screen bg-card p-2">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="mb-3">
           <Button variant="ghost" onClick={handleBack} className="mb-3">
             ← Quay lại
@@ -334,15 +305,16 @@ export default function PaymentPage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-3">
-          {/* Payment Form */}
           <div className="space-y-3">
-            {/* Payment Method Selection */}
             <Card>
               <CardHeader>
                 <CardTitle>Phương thức thanh toán</CardTitle>
               </CardHeader>
               <CardContent>
-                <RadioGroup value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as UIPaymentMethod)}>
+                <RadioGroup
+                  value={paymentMethod}
+                  onValueChange={(value) => setPaymentMethod(value as UIPaymentMethod)}
+                >
                   <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                     <RadioGroupItem value="momo" id="momo" />
                     <Label htmlFor="momo" className="flex items-center space-x-3 cursor-pointer flex-1">
@@ -355,7 +327,7 @@ export default function PaymentPage() {
                       </div>
                     </Label>
                   </div>
-                  
+
                   <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                     <RadioGroupItem value="bank_card" id="bank_card" />
                     <Label htmlFor="bank_card" className="flex items-center space-x-3 cursor-pointer flex-1">
@@ -368,7 +340,7 @@ export default function PaymentPage() {
                       </div>
                     </Label>
                   </div>
-                  
+
                   <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                     <RadioGroupItem value="bank_transfer" id="bank_transfer" />
                     <Label htmlFor="bank_transfer" className="flex items-center space-x-3 cursor-pointer flex-1">
@@ -385,7 +357,6 @@ export default function PaymentPage() {
               </CardContent>
             </Card>
 
-            {/* Payment Details */}
             {paymentMethod === "bank_card" && (
               <Card>
                 <CardHeader>
@@ -447,9 +418,12 @@ export default function PaymentPage() {
                     <div className="flex gap-3">
                       <Smartphone className="h-5 w-5 text-payment-momo dark:text-payment-momo flex-shrink-0 mt-0.5" />
                       <div className="text-sm space-y-2">
-                        <p className="font-medium text-payment-momo-dark dark:text-payment-momo">Hướng dẫn thanh toán:</p>
+                        <p className="font-medium text-payment-momo-dark dark:text-payment-momo">
+                          Hướng dẫn thanh toán:
+                        </p>
                         <ol className="list-decimal list-inside space-y-1 text-payment-momo-dark/80 dark:text-payment-momo/80">
-                          <li>Nhấn nút "Thanh toán" bên dưới</li>
+                          {/* ✅ fix unescaped entities */}
+                          <li>Nhấn nút &quot;Thanh toán&quot; bên dưới</li>
                           <li>Bạn sẽ được chuyển đến trang thanh toán MoMo</li>
                           <li>Quét mã QR bằng ứng dụng MoMo hoặc đăng nhập</li>
                           <li>Xác nhận thanh toán trên ứng dụng</li>
@@ -484,14 +458,12 @@ export default function PaymentPage() {
             )}
           </div>
 
-          {/* Order Summary */}
           <div>
             <Card>
               <CardHeader>
                 <CardTitle>Tóm tắt đơn hàng</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {/* Seats */}
                 <div>
                   <h4 className="font-medium mb-2">Vé tàu ({selectedSeats.length} ghế)</h4>
                   {selectedSeats.map((seat) => (
@@ -502,7 +474,6 @@ export default function PaymentPage() {
                   ))}
                 </div>
 
-                {/* Services */}
                 {(optionalServices.meal || optionalServices.insurance) && (
                   <>
                     <Separator />
@@ -526,7 +497,6 @@ export default function PaymentPage() {
 
                 <Separator />
 
-                {/* Totals */}
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Tiền vé:</span>
@@ -544,9 +514,8 @@ export default function PaymentPage() {
                   </div>
                 </div>
 
-                {/* Payment Button */}
-                <Button 
-                  onClick={handlePayment} 
+                <Button
+                  onClick={handlePayment}
                   disabled={processing || bookings.length === 0 || loading}
                   className="w-full"
                 >
@@ -554,11 +523,6 @@ export default function PaymentPage() {
                     <div className="flex items-center space-x-2">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                       <span>Đang xử lý thanh toán...</span>
-                    </div>
-                  ) : loading ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      <span>Đang tải dữ liệu...</span>
                     </div>
                   ) : (
                     <>
@@ -570,7 +534,6 @@ export default function PaymentPage() {
               </CardContent>
             </Card>
 
-            {/* Security Info */}
             <Card className="mt-3">
               <CardContent className="pt-3">
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">

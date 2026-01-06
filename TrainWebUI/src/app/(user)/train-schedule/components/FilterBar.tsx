@@ -16,8 +16,8 @@ import {
 
 interface FilterBarProps {
   onFilterChange: (filters: {
-    originStation: string;
-    destinationStation: string;
+    originStationName: string;
+    destinationStationName: string;
     date: string;
     timeRange: string;
   }) => void;
@@ -43,16 +43,23 @@ const TIME_RANGES = [
   { value: "evening", label: "Tối (18:00 - 24:00)" },
 ];
 
+type FilterState = {
+  originStationName: string;
+  destinationStationName: string;
+  date: string;
+  timeRange: string;
+};
+
 export function FilterBar({ onFilterChange }: FilterBarProps) {
-  const [filters, setFilters] = useState({
-    originStation: "",
-    destinationStation: "",
+  const [filters, setFilters] = useState<FilterState>({
+    originStationName: "",
+    destinationStationName: "",
     date: new Date().toISOString().split("T")[0],
     timeRange: "all",
   });
 
-  const handleFilterChange = (key: string, value: string) => {
-    const newFilters = { ...filters, [key]: value };
+  const handleFilterChange = (key: keyof FilterState, value: string) => {
+    const newFilters: FilterState = { ...filters, [key]: value };
     setFilters(newFilters);
   };
 
@@ -71,8 +78,8 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
               Ga đi
             </Label>
             <Select
-              value={filters.originStation}
-              onValueChange={(value) => handleFilterChange("originStation", value)}
+              value={filters.originStationName}
+              onValueChange={(value) => handleFilterChange("originStationName", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Chọn ga đi" />
@@ -94,8 +101,8 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
               Ga đến
             </Label>
             <Select
-              value={filters.destinationStation}
-              onValueChange={(value) => handleFilterChange("destinationStation", value)}
+              value={filters.destinationStationName}
+              onValueChange={(value) => handleFilterChange("destinationStationName", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Chọn ga đến" />
@@ -150,11 +157,7 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
           {/* Search Button */}
           <div className="space-y-2">
             <Label className="text-transparent">.</Label>
-            <Button 
-              onClick={handleApplyFilter} 
-              className="w-full gap-2"
-              size="lg"
-            >
+            <Button onClick={handleApplyFilter} className="w-full gap-2" size="lg">
               <Search className="h-4 w-4" />
               Tìm kiếm
             </Button>

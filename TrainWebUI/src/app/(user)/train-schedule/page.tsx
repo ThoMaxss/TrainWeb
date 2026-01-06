@@ -11,7 +11,7 @@ import { Calendar, Train, MapPin, AlertCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 
-const CACHE_KEY = 'train_schedule_cache';
+const CACHE_KEY = "train_schedule_cache";
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 export default function TrainSchedulePage() {
@@ -20,51 +20,54 @@ export default function TrainSchedulePage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedTrip, setSelectedTrip] = useState<TripDto | null>(null);
   const [mapDialogOpen, setMapDialogOpen] = useState(false);
+
+  // Đồng bộ key filter theo TripDto
   const [filters, setFilters] = useState({
-    originStation: "",
-    destinationStation: "",
+    originStationName: "",
+    destinationStationName: "",
     date: "",
     timeRange: "all",
   });
 
-  // Load trips with caching
   const loadTrips = useCallback(async () => {
-    const controller = new AbortController();
-    
     try {
       setLoading(true);
       setError(null);
 
-      // Check cache first
+      // Cache
       const cached = sessionStorage.getItem(CACHE_KEY);
       if (cached) {
-        const { data, timestamp } = JSON.parse(cached);
+        const { data, timestamp } = JSON.parse(cached) as {
+          data: TripDto[];
+          timestamp: number;
+        };
+
         if (Date.now() - timestamp < CACHE_DURATION) {
-          setTrips(data);
-          setLoading(false);
+          setTrips(data || []);
           return;
         }
       }
 
       const data = await getAllTrips();
-      setTrips(data || []);
-      
-      // Cache the result
-      sessionStorage.setItem(CACHE_KEY, JSON.stringify({
-        data,
-        timestamp: Date.now()
-      }));
-        } catch (err: unknown) {
-          const name = (err as { name?: string })?.name
-          if (name !== 'AbortError') {
-        setError(err instanceof Error ? err.message : "Không thể tải lịch trình tàu. Vui lòng thử lại.");
-        console.error("Failed to load trips:", err);
-      }
+      const safeData = (data || []) as TripDto[];
+
+      setTrips(safeData);
+
+      sessionStorage.setItem(
+        CACHE_KEY,
+        JSON.stringify({
+          data: safeData,
+          timestamp: Date.now(),
+        })
+      );
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "Không thể tải lịch trình tàu. Vui lòng thử lại."
+      );
+      console.error("Failed to load trips:", err);
     } finally {
       setLoading(false);
     }
-
-    return () => controller.abort();
   }, []);
 
   useEffect(() => {
@@ -75,15 +78,15 @@ export default function TrainSchedulePage() {
   const filteredTrips = useMemo(() => {
     let filtered = [...trips];
 
-    if (filters.originStation) {
+    if (filters.originStationName) {
       filtered = filtered.filter(
-        (trip) => trip.originStation === filters.originStation
+        (trip) => (trip.originStationName ?? "") === filters.originStationName
       );
     }
 
-    if (filters.destinationStation) {
+    if (filters.destinationStationName) {
       filtered = filtered.filter(
-        (trip) => trip.destinationStation === filters.destinationStation
+        (trip) => (trip.destinationStationName ?? "") === filters.destinationStationName
       );
     }
 
@@ -128,9 +131,13 @@ export default function TrainSchedulePage() {
   // Memoized stats
   const stats = useMemo(() => {
     const uniqueRoutes = new Set(
-      trips.map((trip) => `${trip.originStation}-${trip.destinationStation}`)
+      trips.map((trip) => {
+        const o = trip.originStationName ?? trip.originStationId ?? "";
+        const d = trip.destinationStationName ?? trip.destinationStationId ?? "";
+        return `${o}-${d}`;
+      })
     ).size;
-    
+
     return {
       totalTrips: trips.length,
       uniqueRoutes,
@@ -197,18 +204,11 @@ export default function TrainSchedulePage() {
           {/* Schedule List */}
           <div className="lg:col-span-2">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-foreground">
-                Kết quả tìm kiếm
-              </h2>
-              <p className="text-muted-foreground">
-                Tìm thấy {filteredTrips.length} chuyến tàu
-              </p>
+              <h2 className="text-2xl font-bold text-foreground">Kết quả tìm kiếm</h2>
+              <p className="text-muted-foreground">Tìm thấy {filteredTrips.length} chuyến tàu</p>
             </div>
-            <ScheduleList
-              trips={filteredTrips}
-              loading={false}
-              onViewRoute={handleViewRoute}
-            />
+
+            <ScheduleList trips={filteredTrips} loading={false} onViewRoute={handleViewRoute} />
           </div>
 
           {/* Route Map Preview */}

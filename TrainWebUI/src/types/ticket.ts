@@ -38,4 +38,3 @@ export function parseTicketStatus(status: string | TicketStatus): TicketStatus {
     default: return TicketStatus.Active;
   }
 }
-
