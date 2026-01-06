@@ -191,11 +191,8 @@ export default function TrainDetailPage({ params }: TrainDetailPageProps) {
                       {train?.name || "N/A"} - {train?.type || "Tàu"}
                     </h1>
                     <p className="text-sm text-muted-foreground">
-<<<<<<< HEAD
                       {trip?.originStationName || 'N/A'} → {trip?.destinationStationName || 'N/A'}
-=======
                       {trip?.originStationName || "N/A"} → {trip?.destinationStationName || "N/A"}
->>>>>>> master
                     </p>
                   </div>
                 </div>
