@@ -184,7 +184,7 @@ export function ScheduleForm({
               <SelectTrigger>
                 <SelectValue placeholder="Chọn tàu" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border border-border shadow-md">
                 {trains.map((train, idx) => (
                   <SelectItem key={train.id ?? String(idx)} value={train.id ?? ""}>
                     {train.name} ({train.type || 'N/A'})
@@ -211,7 +211,7 @@ export function ScheduleForm({
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn ga đi" />
                 </SelectTrigger>
-                <SelectContent>
+                  <SelectContent className="bg-background border border-border shadow-md">
                   {STATIONS.map((station) => (
                     <SelectItem key={station.id} value={station.name}>
                       {station.name}
@@ -236,7 +236,7 @@ export function ScheduleForm({
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn ga đến" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background border border-border shadow-md">
                   {STATIONS.map((station) => (
                     <SelectItem key={station.id} value={station.name}>
                       {station.name}
