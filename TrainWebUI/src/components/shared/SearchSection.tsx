@@ -25,8 +25,8 @@ export function SearchSection({ className, showTitle = true }: { className?: str
   const handleSearch = () => {
     // Chuẩn hóa params cho TripSearchParams
     const params: TripSearchParams = {
-      originStation: from,
-      destinationStation: to,
+      originStationName: from,
+      destinationStationName: to,
       departureDate,
     };
     // Truyền params qua URL sang trang kết quả
