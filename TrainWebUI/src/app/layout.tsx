@@ -7,7 +7,6 @@ import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import ErrorBoundary from '@/components/shared/ErrorBoundary'
 import "@vietmap/vietmap-gl-js/dist/vietmap-gl.css";
 
-
 // Font configuration
 const inter = Inter({ 
   subsets: ['latin', 'vietnamese'],

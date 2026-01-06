@@ -9,12 +9,12 @@ export default function VietmapRailwayMap() {
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
+    if (mapRef.current) return; 
 
     let destroyed = false;
 
     (async () => {
-      const vietmapgl = await import("@vietmap/vietmap-gl-js"); 
-
+      const vietmapgl = await import("@vietmap/vietmap-gl-js");
       if (destroyed) return;
 
       const key = process.env.NEXT_PUBLIC_VIETMAP_API_KEY;
@@ -23,16 +23,12 @@ export default function VietmapRailwayMap() {
         return;
       }
 
-    const container = mapContainerRef.current;
-    if (!container) return; 
-
-    const map = new vietmapgl.Map({
-        container, 
+      const map = new vietmapgl.Map({
+        container: mapContainerRef.current!,
         style: `https://maps.vietmap.vn/maps/styles/tm/style.json?apikey=${key}`,
         center: [106.7, 10.78],
         zoom: 5,
-    });
-
+      });
 
       map.addControl(new vietmapgl.NavigationControl(), "top-right");
       mapRef.current = map;
@@ -46,7 +42,7 @@ export default function VietmapRailwayMap() {
   }, []);
 
   return (
-    <div className="w-full h-[calc(100vh-160px)] rounded-2xl overflow-hidden border bg-white">
+    <div className="w-full h-[560px] rounded-2xl overflow-hidden border bg-white">
       <div ref={mapContainerRef} className="w-full h-full" />
     </div>
   );
