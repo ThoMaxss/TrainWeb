@@ -9,7 +9,7 @@ export enum TicketStatus {
 export interface TicketTypeDto {
   id?: string;
   name?: string | null;
-  discount?: number;
+  discountPercent?: number;
 }
 
 export interface TicketEntity {

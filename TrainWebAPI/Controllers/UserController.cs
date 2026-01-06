@@ -68,7 +68,7 @@ namespace TrainWebAPI.Controllers
             => Regex.IsMatch(phone, @"^(0|\+84)\d{9}$"); // đơn giản
 
         // ========== ADMIN ONLY: GET /api/User ==========
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "StaffOrAdmin")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

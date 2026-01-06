@@ -21,7 +21,7 @@ interface TicketTypeTableProps {
 export function TicketTypeTable({ ticketTypes, onEdit, onDelete }: TicketTypeTableProps) {
   const formatDiscount = (discount?: number | null) => {
     if (discount === undefined || discount === null) return "0%";
-    return `${(discount * 100).toFixed(0)}%`;
+    return `${(discount)}%`;
   };
 
   return (
@@ -50,7 +50,7 @@ export function TicketTypeTable({ ticketTypes, onEdit, onDelete }: TicketTypeTab
                     <TableCell>
                       <Badge variant="secondary" className="gap-1">
                         <Percent className="h-3 w-3" />
-                        {formatDiscount(ticketType.discount)}
+                        {formatDiscount(ticketType.discountPercent)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">

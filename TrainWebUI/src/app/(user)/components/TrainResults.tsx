@@ -171,15 +171,15 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
       ) : (
         <div className="space-y-4">
           {pageTrips.map((trip, index) => {
-            const trainName = trip.train?.type || "Tàu";
-            const trainCode = trip.train?.name || trip.train?.id || "";
+            const trainName = trip.trainType || "Tàu";
+            const trainCode = trip.trainName || trip.trainId || "";
             const departure = trip.departure ? new Date(trip.departure).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "--:--";
             const departureDate = trip.departure ? new Date(trip.departure).toLocaleDateString("vi-VN") : "";
             // Note: arrival isn't in TripDto; keep blank or compute when backend adds
             const arrival = "";
             const arrivalDate = "";
-            const from = trip.originStation || "";
-            const to = trip.destinationStation || "";
+            const from = trip.originStationName || "";
+            const to = trip.destinationStationName || "";
             const duration = "--"; // needs backend to provide or compute
             const stops = ""; // optional until backend provides
             const sInfo = (trip.id && seatInfo[trip.id]) || { seatClasses: [] };
@@ -201,7 +201,7 @@ export function TrainResults({ onViewDetail, searchParams, pageSize = 5 }: Train
                 priceFrom={priceFrom || "Liên hệ"}
                 seatClasses={sInfo.seatClasses}
                 amenities={["Wifi", "Điều hòa", "Vé điện tử QR"]}
-                onViewDetail={() => onViewDetail?.(trip.id || "", trip.train?.id)}
+                onViewDetail={() => onViewDetail?.(trip.id || "", trip.trainId || "")}
                 onBook={() => {
                   // Navigate directly to booking step, skipping info
                   router.push(`/booking/${trip.id}`);

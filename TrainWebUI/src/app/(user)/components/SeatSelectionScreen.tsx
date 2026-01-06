@@ -166,10 +166,10 @@ export function SeatSelectionScreen({ tripId, onBack, onContinue, preSelectedSea
             <div className="flex items-center gap-4 text-muted-foreground text-sm">
               <div className="flex items-center gap-2">
                 <Train className="h-4 w-4" />
-                <span>{trip.train?.name || 'N/A'}</span>
+                <span>{trip.trainName || 'N/A'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span>{trip.originStation || 'N/A'} → {trip.destinationStation || 'N/A'}</span>
+                <span>{trip.originStationName || 'N/A'} → {trip.destinationStationName || 'N/A'}</span>
               </div>
               {trip.departure && (
                 <div className="flex items-center gap-2">

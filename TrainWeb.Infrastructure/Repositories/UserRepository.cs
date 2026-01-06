@@ -35,7 +35,6 @@ namespace TrainWeb.Infrastructure.Repositories
         public async Task AddAsync(User user)
         {
             var entity = UserEntity.FromDomain(user);
-            entity.Id = user.Id;
 
             await AddAsync(CollectionName, entity.Id, entity);
         }

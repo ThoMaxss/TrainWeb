@@ -28,7 +28,7 @@ export default function AdminTicketsPage() {
   // Form state
   const [formData, setFormData] = useState<TicketTypeDto>({
     name: "",
-    discount: 0,
+    discountPercent: 0,
   });
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function AdminTicketsPage() {
     setEditingTicketType(null);
     setFormData({
       name: "",
-      discount: 0,
+      discountPercent: 0,
     });
     setIsAddEditDialogOpen(true);
   };
@@ -73,7 +73,7 @@ export default function AdminTicketsPage() {
     setEditingTicketType(ticketType);
     setFormData({
       name: ticketType.name || "",
-      discount: ticketType.discount ?? 0,
+      discountPercent: ticketType.discountPercent ?? 0,
     });
     setIsAddEditDialogOpen(true);
   };

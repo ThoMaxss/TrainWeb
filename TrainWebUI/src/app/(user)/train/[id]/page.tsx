@@ -182,7 +182,7 @@ export default function TrainDetailPage({ params }: TrainDetailPageProps) {
                       {train?.name || 'N/A'} - {train?.type || 'Tàu'}
                     </h1>
                     <p className="text-sm text-muted-foreground">
-                      {trip?.originStation || 'N/A'} → {trip?.destinationStation || 'N/A'}
+                      {trip?.originStationName || 'N/A'} → {trip?.destinationStationName || 'N/A'}
                     </p>
                   </div>
                 </div>
@@ -211,7 +211,7 @@ export default function TrainDetailPage({ params }: TrainDetailPageProps) {
                 <div>
                   <div className="mb-1 text-sm text-primary-foreground">Khởi hành</div>
                   <div className="mb-1">{departure ? departure.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "--:--"}</div>
-                  <div className="text-sm text-primary-foreground">{trip?.originStation ?? ""}</div>
+                  <div className="text-sm text-primary-foreground">{trip?.originStationName ?? ""}</div>
                 </div>
                 <div className="flex flex-col items-center justify-center">
                   <div className="mb-2 flex items-center gap-2 rounded-full bg-background/20 px-2 py-1.5 backdrop-blur-sm">
@@ -223,7 +223,7 @@ export default function TrainDetailPage({ params }: TrainDetailPageProps) {
                 <div className="text-right md:text-left">
                   <div className="mb-1 text-sm text-primary-foreground">Đến nơi</div>
                   <div className="mb-1">{arrival ? arrival.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "--:--"}</div>
-                  <div className="text-sm text-primary-foreground">{trip?.destinationStation ?? ""}</div>
+                  <div className="text-sm text-primary-foreground">{trip?.destinationStationName ?? ""}</div>
                 </div>
               </div>
             </div>

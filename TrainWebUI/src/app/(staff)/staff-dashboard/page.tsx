@@ -14,6 +14,7 @@ import { CustomerFeedback } from "./components/CustomerFeedback";
 import type { UpcomingTrain } from "./components/UpcomingTrainsList";
 import type { Transaction } from "./components/RecentTransactions";
 import type { Feedback } from "./components/CustomerFeedback";
+import { auth } from "@/lib/firebase";
 
 interface StaffStats {
   name: string;
@@ -32,9 +33,10 @@ export default function StaffDashboardPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("today");
   const [refreshing, setRefreshing] = useState(false);
 
+  const user = auth.currentUser;
   // Staff info
   const [staffInfo] = useState<StaffStats>({
-    name: "Nguyễn Văn An",
+    name: user?.displayName || "Nguyễn Văn An",
     role: "Nhân viên kiểm soát",
     avatar: "/avatars/staff-01.jpg",
     todayStats: {

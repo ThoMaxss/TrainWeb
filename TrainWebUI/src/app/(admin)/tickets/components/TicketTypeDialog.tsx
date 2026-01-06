@@ -64,17 +64,19 @@ export function TicketTypeDialog({
               min="0"
               max="100"
               step="1"
-              value={formData.discount !== undefined ? formData.discount * 100 : ""}
+              value={formData.discountPercent !== undefined ? formData.discountPercent : ""}
               onChange={(e) => {
                 const value = parseFloat(e.target.value);
                 setFormData({ 
                   ...formData, 
-                  discount: isNaN(value) ? 0 : value / 100 
+                  discountPercent: isNaN(value) ? 0 : value * 100
                 });
+                console.log(formData);
               }}
               placeholder="Nhập tỷ lệ giảm giá (0-100)"
               className="h-10"
             />
+            
             <p className="text-xs text-muted-foreground">
               Nhập số từ 0 đến 100 (ví dụ: 20 = giảm 20%)
             </p>
@@ -86,7 +88,7 @@ export function TicketTypeDialog({
           </Button>
           <Button
             onClick={onSave}
-            disabled={!formData.name || formData.discount === undefined}
+            disabled={!formData.name || formData.discountPercent === undefined}
           >
             {editingTicketType ? "Cập nhật" : "Tạo mới"}
           </Button>
