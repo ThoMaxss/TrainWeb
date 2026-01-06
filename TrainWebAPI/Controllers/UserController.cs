@@ -164,9 +164,6 @@ namespace TrainWebAPI.Controllers
             if (roleLower is not ("passenger" or "staff" or "admin"))
                 return BadRequest(new { error = "Invalid role" });
 
-            if (string.IsNullOrWhiteSpace(req.Id))
-                return BadRequest(new { error = "Id (Firebase UID) is required" });
-
             if (!string.IsNullOrWhiteSpace(req.CCCD) && !IsValidCccd(req.CCCD))
                 return BadRequest(new { error = "CCCD must be 15 digits" });
 

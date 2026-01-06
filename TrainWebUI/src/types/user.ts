@@ -6,9 +6,9 @@
  * and a `UserRole` type (union of literal strings) for type annotations.
  */
 export const UserRole = {
-  Passenger: "passenger",
-  Staff: "staff",
-  Admin: "admin",
+  Passenger: "Passenger",
+  Staff: "Staff",
+  Admin: "Admin",
 } as const;
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
@@ -135,11 +135,11 @@ export interface AuthResponse {
 }
 
 export const USER_ROLE_LABELS: Record<UserRole, string> = {
-  passenger: "Hành khách",
-  staff: "Nhân viên",
-  admin: "Admin",
+  Passenger: "Hành khách",
+  Staff: "Nhân viên",
+  Admin: "Admin",
 };
 
 export function isUserRole(value: unknown): value is UserRole {
-  return value === "passenger" || value === "staff" || value === "admin";
+  return value === "Passenger" || value === "Staff" || value === "Admin";
 }

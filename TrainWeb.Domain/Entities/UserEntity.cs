@@ -56,12 +56,9 @@ namespace TrainWeb.Domain.Entities
 
         public static UserEntity FromDomain(User user)
         {
-            if (string.IsNullOrWhiteSpace(user.Id))
-                throw new ArgumentException("User.Id (Firebase UID) is required.");
-
             return new UserEntity
             {
-                Id = user.Id,
+                Id = string.IsNullOrWhiteSpace(user.Id) ? Guid.NewGuid().ToString() : user.Id,
                 Name = user.Name ?? string.Empty,
                 Email = user.Email ?? string.Empty,
                 Role = (user.Role ?? UserRole.Passenger).ToString().ToLowerInvariant(),

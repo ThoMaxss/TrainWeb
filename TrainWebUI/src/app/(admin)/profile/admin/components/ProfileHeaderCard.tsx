@@ -63,18 +63,18 @@ export function ProfileHeaderCard({
 
           {/* Admin Info */}
           <div className="flex-1 text-center sm:text-left">
-            <h2 className="mb-2 text-2xl text-primary-foreground font-bold">
+            <h2 className="mb-2 text-2xl font-bold">
               {profile.name || "--"}
             </h2>
-            <Badge className="mb-3 bg-background/20 text-primary-foreground border-white/30">
+            <Badge className="mb-3 bg-muted text-foreground border-border bg-secondary/50">
               {profile.role} - {profile.department}
             </Badge>
             <div className="space-y-2">
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-secondary/10">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="h-4 w-4" />
                 <span className="text-sm">{profile.email}</span>
               </div>
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-secondary/10">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Phone className="h-4 w-4" />
                 <span className="text-sm">{profile.phone || "--"}</span>
               </div>

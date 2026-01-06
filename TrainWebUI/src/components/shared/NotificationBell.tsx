@@ -37,7 +37,7 @@ export function NotificationBell() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto">
+      <DropdownMenuContent align="end" className="w-80 max-h-96overflow-y-auto bg-background border border-border shadow-lg rounded-md z-50">
         <div className="flex items-center justify-between px-3 py-2 border-b">
           <h3 className="font-semibold">Thông báo</h3>
           {notifications.length > 0 && (

@@ -64,12 +64,12 @@ export function CreateUserDialog({
             <Label htmlFor="create-role">Vai trò</Label>
             <Select
               value={formData.role !== undefined ? String(formData.role) : String(UserRole.Passenger)}
-              onValueChange={(value: string) => onFormChange({ ...formData, role: Number(value) as UserRole })}
+              onValueChange={(value: string) => onFormChange({ ...formData, role: value as UserRole })}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border border-border shadow-md">
                 <SelectItem value={String(UserRole.Passenger)}>Hành khách</SelectItem>
                 <SelectItem value={String(UserRole.Staff)}>Nhân viên</SelectItem>
                 <SelectItem value={String(UserRole.Admin)}>Quản trị viên</SelectItem>

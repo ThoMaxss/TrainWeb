@@ -47,22 +47,16 @@ export function ScheduleTable({
     if ((trip.seatsAvailable ?? 0) <= 0) {
       return (
         <Badge variant="destructive">
-          Hết chỗ
+          Hết ghế
         </Badge>
       );
     }
     const available = trip.seatsAvailable ?? 0;
-    if (available > 50) {
-      return (
-        <Badge variant="default">
-          Còn nhiều chỗ
-        </Badge>
-      );
-    }
+
     if (available > 0) {
       return (
         <Badge variant="secondary">
-          Còn ít chỗ
+          Còn ghế
         </Badge>
       );
     }
