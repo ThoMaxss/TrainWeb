@@ -12,24 +12,28 @@ export interface TripEntity {
 
 export interface TripDto {
   id?: string;
-  train?: TrainDto;
+  trainId?: string;
+  trainName?: string;
+  trainType?: string;
   departure?: string;
   arrival?: string;
-  originStation?: string;
-  destinationStation?: string;
+  originStationId?: string;
+  originStationName?: string;
+  destinationStationId?: string;
+  destinationStationName?: string;
   seatsAvailable?: number;
 }
 
 export interface TripSearchFilters {
-  originStation?: string;
-  destinationStation?: string;
+  originStationName?: string;
+  destinationStationName?: string;
   departureDate?: string;
   trainType?: string;
 }
 
 export interface TripSearchParams {
-  originStation: string;
-  destinationStation: string;
+  originStationName: string;
+  destinationStationName: string;
   departureDate: string;
   returnDate?: string;
 }

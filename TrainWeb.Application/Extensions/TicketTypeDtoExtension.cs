@@ -16,9 +16,6 @@ namespace TrainWeb.Application.DTOS
         {
             if (d == null) throw new ArgumentNullException(nameof(d));
 
-            if (string.IsNullOrWhiteSpace(d.Id))
-                throw new ArgumentException("TicketType Id is required", nameof(d.Id));
-
             if (string.IsNullOrWhiteSpace(d.Name))
                 throw new ArgumentException("TicketType Name is required", nameof(d.Name));
 
@@ -28,7 +25,7 @@ namespace TrainWeb.Application.DTOS
             var discount = d.DiscountPercent / 100.0; 
 
             return new TicketType(
-                id: d.Id.Trim(),
+                id: d.Id ?? "",
                 name: d.Name.Trim(),
                 discount: discount
             );

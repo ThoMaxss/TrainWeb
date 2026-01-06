@@ -60,10 +60,10 @@ export default function AdminTrainSchedulesPage() {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (trip) =>
-          trip.train?.name?.toLowerCase().includes(q) ||
-          trip.train?.type?.toLowerCase?.().includes(q) ||
-          trip.originStation?.toLowerCase().includes(q) ||
-          trip.destinationStation?.toLowerCase().includes(q)
+          trip.trainName?.toLowerCase().includes(q) ||
+          trip.trainType?.toLowerCase().includes(q) ||
+          trip.originStationName?.toLowerCase().includes(q) ||
+          trip.destinationStationName?.toLowerCase().includes(q)
       );
     }
 
@@ -71,8 +71,8 @@ export default function AdminTrainSchedulesPage() {
     if (filterStation !== "all") {
       filtered = filtered.filter(
         (trip) =>
-          trip.originStation === filterStation ||
-          trip.destinationStation === filterStation
+          trip.originStationName === filterStation ||
+          trip.destinationStationName === filterStation
       );
     }
 
@@ -151,7 +151,7 @@ export default function AdminTrainSchedulesPage() {
   const uniqueStations: string[] = Array.from(
     new Set(
       trips
-        .flatMap((trip) => [trip.originStation, trip.destinationStation])
+        .flatMap((trip) => [trip.originStationName, trip.destinationStationName])
         .filter((station): station is string => station !== undefined && station.trim() !== "")
     )
   ).sort();
@@ -161,7 +161,7 @@ export default function AdminTrainSchedulesPage() {
   const activeSchedules = trips.filter((t) => (t.seatsAvailable ?? 0) > 0).length;
   const uniqueRoutes = Array.from(
     new Set(
-      trips.map((t) => `${t.originStation}-${t.destinationStation}`)
+      trips.map((t) => `${t.originStationName}-${t.destinationStationName}`)
     )
   ).length;
 

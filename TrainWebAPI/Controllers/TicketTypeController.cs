@@ -44,7 +44,7 @@ namespace TrainWeb.API.Controllers
             if (dto.DiscountPercent < 0 || dto.DiscountPercent > 100)
                 return BadRequest("DiscountPercent must be between 0 and 100");
 
-            dto.Id = null; 
+            dto.Id = ""; 
 
             var created = await _ticketTypeService.AddAsync(dto.FromDto());
             return Ok(created?.ToDto());
