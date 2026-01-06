@@ -1,4 +1,6 @@
-﻿using Google.Cloud.Firestore;
+﻿using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Firestore;
+using Google.Cloud.Firestore.V1;
 
 namespace TrainWeb.Infrastructure.Persistence
 {
@@ -9,12 +11,16 @@ namespace TrainWeb.Infrastructure.Persistence
         public FirestoreDbContext(string projectId, string credentialPath)
         {
             if (string.IsNullOrWhiteSpace(credentialPath) || !File.Exists(credentialPath))
-            {
-                throw new FileNotFoundException($"Firestore credential file not found at '{credentialPath}'. Ensure the path is correct and file exists.", credentialPath);
-            }
+                throw new FileNotFoundException($"Credential not found: {credentialPath}", credentialPath);
 
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialPath);
-            Db = FirestoreDb.Create(projectId);
+            var credential = GoogleCredential.FromFile(credentialPath);
+
+            var client = new FirestoreClientBuilder
+            {
+                Credential = credential
+            }.Build();
+
+            Db = FirestoreDb.Create(projectId, client);
         }
     }
 }

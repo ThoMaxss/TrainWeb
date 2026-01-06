@@ -31,7 +31,7 @@ namespace TrainWeb.Application.Services
         public async Task<TicketType> AddAsync(TicketType ticketType)
         {
             var id = string.IsNullOrWhiteSpace(ticketType.Id)
-                ? $"TT_{System.Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}"
+                ? $"TT_{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}"
                 : ticketType.Id;
 
             var normalized = new TicketType(id, ticketType.Name, ticketType.Discount);
