@@ -20,7 +20,8 @@ import { SettingsCard } from "./components/SettingsCard";
 import { QuickLinksCard } from "./components/QuickLinksCard";
 import { LogoutCard } from "./components/LogoutCard";
 import { getUserById, updateUser } from "@/lib/api/user";
-import type { UserDto } from "@/types";
+import type { AdminCreateUserRequest, UserDto } from "@/types";
+import { auth } from "@/lib/firebase";
 
 type Gender = "Nam" | "Nữ" | "Khác";
 
@@ -66,13 +67,13 @@ export default function AdminProfilePage() {
         setLoading(true);
         setError(null);
         // TODO: replace 'admin-me' with actual admin user id from auth context
-        const u = await getUserById("admin-me");
+        const u = await getUserById(auth.currentUser?.uid || "admin-me");
         if (!mounted) return;
         setUser(u);
         const local: LocalAdminProfile = {
           name: u.name ?? "",
           email: u.email ?? "",
-          phone: "",
+          phone: u.phone ?? "",
           role: "Quản trị viên",
           department: "Quản lý hệ thống",
         };
@@ -107,7 +108,8 @@ export default function AdminProfilePage() {
           name: editForm.name,
           email: editForm.email,
         };
-        const updated = await updateUser(user.id, dto as UserDto);
+        
+        const updated = await updateUser(user.id, dto as AdminCreateUserRequest);
         setUser(updated);
       }
       setProfile({ ...editForm, avatar: avatarPreview });

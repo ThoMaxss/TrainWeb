@@ -1,4 +1,4 @@
-import { Mail, Calendar, Eye, Edit, Trash2, Shield } from "lucide-react";
+import { Mail, Calendar, Eye, Edit, Trash2, Shield, UserCheck, ActivityIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { UserDto, UserRole, USER_ROLE_LABELS } from "@/types";
+import { Activity } from "react";
 
 interface StaffTableProps {
   users: UserDto[];
@@ -27,12 +28,29 @@ export function StaffTable({ users, onView, onEdit, onDelete }: StaffTableProps)
       [UserRole.Staff]: "bg-primary/10 text-primary hover:bg-primary/10",
       [UserRole.Passenger]: "bg-muted text-muted-foreground hover:bg-muted",
     };
-    return (
-      <Badge className={`gap-1 ${colorClasses[role]}`}>
-        <Shield className="h-3 w-3" />
-        {USER_ROLE_LABELS[role]}
-      </Badge>
-    );
+
+    if(role === UserRole.Staff) {
+      return (
+        <Badge className={`gap-1 ${colorClasses[role]}`}>
+          <Shield className="h-3 w-3" />
+          {USER_ROLE_LABELS[role]}
+        </Badge>
+      );
+    } else if (role === UserRole.Admin) {
+      return (
+        <Badge className={`gap-1 ${colorClasses[role]}`}>
+          <UserCheck className="h-3 w-3" />
+          {USER_ROLE_LABELS[role]}
+        </Badge>
+      );
+    } else {
+      return (
+        <Badge className={`gap-1 ${colorClasses[role]}`}>
+          <ActivityIcon className="h-3 w-3" />
+          {USER_ROLE_LABELS[role]}
+        </Badge>
+      );
+    }
   };
 
   return (

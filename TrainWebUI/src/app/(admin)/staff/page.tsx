@@ -31,8 +31,12 @@ export default function AdminStaffPage() {
 
   // Form state
   const [formData, setFormData] = useState<UserDto>({
+    id: "",
     name: "",
     email: "",
+    cccd: "",
+    phone: "",
+    avatarURL: "",
     role: UserRole.Staff,
   });
 
@@ -67,13 +71,18 @@ export default function AdminStaffPage() {
   const staffCount = users.filter((u) => u.role === UserRole.Staff).length;
   const adminCount = users.filter((u) => u.role === UserRole.Admin).length;
   const passengerCount = users.filter((u) => u.role === UserRole.Passenger).length;
-
+console.log("Total users:", staffCount, adminCount, passengerCount);
+console.log("Filtered users:", users.filter((u) => u.role === UserRole.Staff));
   // Handle open add dialog
   const handleOpenAddDialog = () => {
     setEditingUser(null);
     setFormData({
+      id: "",
       name: "",
       email: "",
+      cccd: "",
+      phone: "",
+      avatarURL: "",
       role: UserRole.Staff,
     });
     setIsAddEditDialogOpen(true);
@@ -83,8 +92,12 @@ export default function AdminStaffPage() {
   const handleOpenEditDialog = (user: UserDto) => {
     setEditingUser(user);
     setFormData({
+      id: user.id || "",
       name: user.name || "",
       email: user.email || "",
+      cccd: user.cccd || "",
+      phone: user.phone || "",
+      avatarURL: user.avatarURL || "",
       role: user.role || UserRole.Staff,
     });
     setIsAddEditDialogOpen(true);
@@ -94,10 +107,22 @@ export default function AdminStaffPage() {
   const handleSaveUser = async () => {
     try {
       if (editingUser?.id) {
-        await updateUser(editingUser.id, formData);
+        const updateData = {
+          ...formData,
+          cccd: formData.cccd || undefined,
+          phone: formData.phone || undefined,
+          avatarURL: formData.avatarURL || undefined,
+        };
+        await updateUser(editingUser.id, updateData);
         show("User updated successfully!");
       } else {
-        await createUser(formData);
+        var createData = {
+          ...formData,
+          cccd: formData.cccd || undefined,
+          phone: formData.phone || undefined,
+          avatarURL: formData.avatarURL || undefined,
+        };
+        await createUser(createData);
         show("User created successfully!");
       }
       await loadUsers();
@@ -146,7 +171,7 @@ export default function AdminStaffPage() {
     <div className="min-h-screen bg-background">
       <AdminPageHeader
         title="Quản lý nhân viên"
-        description={`${totalUsers} tổng người dùng • ${staffCount} quản lý • ${adminCount} quản trị viên`}
+        description={`${totalUsers} người dùng • ${staffCount} nhân viên • ${adminCount} quản trị viên`}
         icon={Users}
         stats={[
           { icon: Users, label: "Tổng người dùng", value: totalUsers },

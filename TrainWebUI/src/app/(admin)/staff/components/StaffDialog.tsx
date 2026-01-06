@@ -79,13 +79,13 @@ export function StaffDialog({
             <Select
               value={String(formData.role)}
               onValueChange={(v) =>
-                setFormData({ ...formData, role: Number(v) as UserRole })
+                setFormData({ ...formData, role: v as UserRole })
               }
             >
               <SelectTrigger className="w-full h-10">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border border-border shadow-md">
                 <SelectItem value={String(UserRole.Admin)}>Quản trị viên</SelectItem>
                 <SelectItem value={String(UserRole.Staff)}>Quản lý</SelectItem>
                 <SelectItem value={String(UserRole.Passenger)}>Hành khách</SelectItem>

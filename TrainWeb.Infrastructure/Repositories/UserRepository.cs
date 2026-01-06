@@ -34,9 +34,6 @@ namespace TrainWeb.Infrastructure.Repositories
 
         public async Task AddAsync(User user)
         {
-            if (string.IsNullOrWhiteSpace(user.Id))
-                throw new ArgumentException("User.Id must be Firebase UID");
-
             var entity = UserEntity.FromDomain(user);
             entity.Id = user.Id;
 

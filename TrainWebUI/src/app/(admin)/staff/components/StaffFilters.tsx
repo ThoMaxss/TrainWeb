@@ -46,16 +46,16 @@ export function StaffFilters({
             <Select
               value={roleFilter === "all" ? "all" : String(roleFilter)}
               onValueChange={(v) =>
-                setRoleFilter(v === "all" ? "all" : (Number(v) as UserRole))
+                setRoleFilter(v === "all" ? "all" : v as UserRole)
               }
             >
               <SelectTrigger className="w-full mt-2 h-10">
                 <SelectValue placeholder="Tất cả vai trò" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border border-border shadow-md">
                 <SelectItem value="all">Tất cả vai trò</SelectItem>
                 <SelectItem value={String(UserRole.Admin)}>Quản trị viên</SelectItem>
-                <SelectItem value={String(UserRole.Staff)}>Quản lý</SelectItem>
+                <SelectItem value={String(UserRole.Staff)}>Nhân viên</SelectItem>
                 <SelectItem value={String(UserRole.Passenger)}>Hành khách</SelectItem>
               </SelectContent>
             </Select>
