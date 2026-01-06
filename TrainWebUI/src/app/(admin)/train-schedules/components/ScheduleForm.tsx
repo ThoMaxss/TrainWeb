@@ -43,9 +43,7 @@ const STATIONS = [
   {"id": "LC", "name": "Lào Cai"},
   {"id": "HP", "name": "Hải Phòng"},
   {"id": "QN", "name": "Quy Nhơn"},
-  {"id": "CT", "name": "Cần Thơ"},
-  {"id": "BD", "name": "Bình Định"},
-  {"id": "QT", "name": "Quảng Trị"},
+
   {"id": "BT", "name": "Bình Thuận"},
 ];
 

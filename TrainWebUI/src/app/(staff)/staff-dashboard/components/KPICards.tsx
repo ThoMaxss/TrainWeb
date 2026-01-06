@@ -126,6 +126,4 @@ export function KPICards({ data, onNavigate }: KPICardsProps) {
     </div>
   );
 }
-    </div>
-  );
-}
+ 

@@ -9,7 +9,7 @@ export enum TicketStatus {
 export interface TicketTypeDto {
   id?: string;
   name?: string | null;
-  discount?: number;
+  discountPercent?: number;
 }
 
 export interface TicketEntity {
@@ -38,4 +38,3 @@ export function parseTicketStatus(status: string | TicketStatus): TicketStatus {
     default: return TicketStatus.Active;
   }
 }
-

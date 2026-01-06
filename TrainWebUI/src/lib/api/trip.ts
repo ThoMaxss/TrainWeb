@@ -61,8 +61,8 @@ export async function searchTrips(params: {
   const allTrips = await getAllTrips();
   
   return allTrips.filter(trip => {
-    if (params.originStation && trip.originStation !== params.originStation) return false;
-    if (params.destinationStation && trip.destinationStation !== params.destinationStation) return false;
+    if (params.originStation && trip.originStationName !== params.originStation) return false;
+    if (params.destinationStation && trip.destinationStationName !== params.destinationStation) return false;
     if (params.departure && trip.departure) {
       const tripDate = new Date(trip.departure).toDateString();
       const searchDate = new Date(params.departure).toDateString();
